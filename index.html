@@ -1,0 +1,49 @@
+<html>
+	<head>
+		<script src="/socket.io/socket.io.js"></script>
+		<script>
+			window.addEventListener('load', function() {
+				var socket = io.connect();
+
+				// receive messages
+				socket.on('message', function (data) {
+					var messageDiv = document.createElement('div');
+					messageDiv.innerHTML = '<span style="padding-right: 15px; color: red;">' + data.user + 
+						'</span>' + data.message;
+					document.getElementById('chatlog').appendChild(messageDiv);
+					window.scrollTo(0, document.body.scrollHeight);
+				});
+
+				// send message functionality
+				var messageInput = document.getElementById('message');
+				var usernameInput = document.getElementById('username');
+				var sendButton = document.getElementById('send_button');
+				var sendMessage = function() {
+					var message = messageInput.value;
+					if (!message) {
+						alert('wtf! put a message!');
+						return;
+					}
+
+					var user = usernameInput.value || 'player';
+					socket.emit('message', { user: user, message: message });
+
+					messageInput.value = '';
+					messageInput.focus();
+				};
+
+				// send messages
+				sendButton.addEventListener('click', sendMessage);
+				messageInput.addEventListener('keypress', function(evt) {
+					if (evt.keyCode == 13) { sendMessage(); }
+				});
+			});
+		</script>
+	</head>
+	<body>
+		<div id="chatlog"></div>
+		<input id="username" value="player" />
+		<input id="message" />
+		<input id="send_button" type="button" value="Send" \>
+	</body>
+</html>
