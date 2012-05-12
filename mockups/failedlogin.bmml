@@ -1,0 +1,89 @@
+<mockup version="1.0" skin="sketch" measuredW="681" measuredH="480" mockupW="657" mockupH="450">
+  <controls>
+    <control controlID="0" controlTypeID="com.balsamiq.mockups::BrowserWindow" x="24" y="30" w="657" h="450" measuredW="450" measuredH="400" zOrder="0" locked="true" isInGroup="-1">
+      <controlProperties>
+        <text>Little%20Viking%20Games%0Ahttp%3A//test.littlevikinggames.com</text>
+      </controlProperties>
+    </control>
+    <control controlID="1" controlTypeID="com.balsamiq.mockups::Canvas" x="162" y="228" w="381" h="193" measuredW="100" measuredH="70" zOrder="1" locked="false" isInGroup="-1">
+      <controlProperties>
+        <color>14540253</color>
+      </controlProperties>
+    </control>
+    <control controlID="2" controlTypeID="com.balsamiq.mockups::TextInput" x="187" y="336" w="153" h="-1" measuredW="74" measuredH="27" zOrder="2" locked="false" isInGroup="-1">
+      <controlProperties>
+        <italic>true</italic>
+        <text>Username</text>
+      </controlProperties>
+    </control>
+    <control controlID="3" controlTypeID="com.balsamiq.mockups::TextInput" x="364" y="336" w="153" h="-1" measuredW="69" measuredH="27" zOrder="3" locked="false" isInGroup="-1">
+      <controlProperties>
+        <italic>true</italic>
+        <text>Password</text>
+      </controlProperties>
+    </control>
+    <control controlID="4" controlTypeID="com.balsamiq.mockups::Button" x="463" y="371" w="-1" h="-1" measuredW="54" measuredH="27" zOrder="4" locked="false" isInGroup="-1">
+      <controlProperties>
+        <markup>true</markup>
+        <menuIcon>false</menuIcon>
+        <text>Login</text>
+      </controlProperties>
+    </control>
+    <control controlID="5" controlTypeID="com.balsamiq.mockups::CheckBox" x="187" y="373" w="-1" h="-1" measuredW="114" measuredH="22" zOrder="5" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Remember%20Me</text>
+      </controlProperties>
+    </control>
+    <control controlID="7" controlTypeID="com.balsamiq.mockups::Link" x="346" y="374" w="-1" h="-1" measuredW="109" measuredH="21" zOrder="6" locked="false" isInGroup="-1">
+      <controlProperties>
+        <href>forgotpassword%26bm%3Bforgotpassword.bmml%26bm%3Bforgotpassword.bmml%26bm%3Bforgotpassword.bmml</href>
+        <map>%3Carea%20shape%3D%22rect%22%20coords%3D%22322%2C344%2C431%2C365%22%20href%3D%22forgotpassword.bmml%22%20alt%3D%22forgotpassword%22%20id%3D%227%22/%3E</map>
+        <markup>true</markup>
+        <text>Forgot%20Password%3F</text>
+      </controlProperties>
+    </control>
+    <control controlID="10" controlTypeID="com.balsamiq.mockups::Image" x="240" y="133" w="225" h="71" measuredW="77" measuredH="79" zOrder="7" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>LOGO</text>
+      </controlProperties>
+    </control>
+    <control controlID="13" controlTypeID="com.balsamiq.mockups::Canvas" x="463" y="370" w="54" h="28" measuredW="100" measuredH="70" zOrder="8" locked="false" isInGroup="-1">
+      <controlProperties>
+        <backgroundAlpha>0.25</backgroundAlpha>
+        <borderColor>13576743</borderColor>
+        <borderStyle>none</borderStyle>
+        <color>6989903</color>
+        <href>gamescreen%26bm%3Bgamescreen.bmml%26bm%3Bgamescreen.bmml%26bm%3Bgamescreen.bmml</href>
+        <map>%3Carea%20shape%3D%22rect%22%20coords%3D%22439%2C340%2C493%2C368%22%20href%3D%22gamescreen.bmml%22%20alt%3D%22gamescreen%22%20id%3D%2213%22/%3E</map>
+        <markup>true</markup>
+      </controlProperties>
+    </control>
+    <control controlID="14" controlTypeID="com.balsamiq.mockups::Canvas" x="187" y="244" w="330" h="25" measuredW="100" measuredH="70" zOrder="9" locked="false" isInGroup="-1">
+      <controlProperties>
+        <borderStyle>roundedSolid</borderStyle>
+        <color>15374745</color>
+      </controlProperties>
+    </control>
+    <control controlID="15" controlTypeID="com.balsamiq.mockups::Label" x="162" y="247" w="381" h="18" measuredW="282" measuredH="18" zOrder="10" locked="false" isInGroup="-1">
+      <controlProperties>
+        <align>center</align>
+        <size>11</size>
+        <text>Oh%20dear%2C%20we%20don%27t%20seem%20to%20have%20those%20credentials%20on%20file.</text>
+      </controlProperties>
+    </control>
+    <control controlID="17" controlTypeID="com.balsamiq.mockups::Label" x="180" y="302" w="344" h="21" measuredW="300" measuredH="21" zOrder="11" locked="false" isInGroup="-1">
+      <controlProperties>
+        <align>center</align>
+        <size>13</size>
+        <text>Still%20can%27t%20login%3F%20Click%20the%20forgot%20password%20link%20below.</text>
+      </controlProperties>
+    </control>
+    <control controlID="18" controlTypeID="com.balsamiq.mockups::Paragraph" x="185" y="281" w="334" h="22" measuredW="200" measuredH="80" zOrder="12" locked="false" isInGroup="-1">
+      <controlProperties>
+        <align>center</align>
+        <size>16</size>
+        <text>Double-check%20your%20username%20and%20password.</text>
+      </controlProperties>
+    </control>
+  </controls>
+</mockup>

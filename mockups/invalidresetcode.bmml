@@ -1,0 +1,93 @@
+<mockup version="1.0" skin="sketch" measuredW="689" measuredH="481" mockupW="657" mockupH="450">
+  <controls>
+    <control controlID="0" controlTypeID="com.balsamiq.mockups::BrowserWindow" x="32" y="31" w="657" h="450" measuredW="450" measuredH="400" zOrder="0" locked="true" isInGroup="-1">
+      <controlProperties>
+        <text>Little%20Viking%20Games%0Ahttp%3A//test.littlevikinggames.com</text>
+      </controlProperties>
+    </control>
+    <control controlID="1" controlTypeID="com.balsamiq.mockups::Canvas" x="88" y="230" w="544" h="201" measuredW="100" measuredH="70" zOrder="1" locked="false" isInGroup="-1">
+      <controlProperties>
+        <color>14540253</color>
+      </controlProperties>
+    </control>
+    <control controlID="2" controlTypeID="com.balsamiq.mockups::Label" x="191" y="280" w="-1" h="-1" measuredW="322" measuredH="24" zOrder="2" locked="false" isInGroup="-1">
+      <controlProperties>
+        <align>center</align>
+        <size>16</size>
+        <text>Please%20double%20check%20your%20code%20and%20try%20again.</text>
+      </controlProperties>
+    </control>
+    <control controlID="3" controlTypeID="com.balsamiq.mockups::Label" x="123" y="306" w="475" h="69" measuredW="1327" measuredH="21" zOrder="3" locked="false" isInGroup="-1">
+      <controlProperties>
+        <align>center</align>
+        <text>If%20you%27ve%20correctly%20typed%20the%20code%20from%20your%20email%20but%20are%20still%20unable%20to%20continue%2C%20it%27s%20likely%20that%20the%20code%20has%20expired.%20Each%20code%20is%20only%20good%20for%20an%20hour%20after%20we%20send%20you%20the%20email.%20You%20can%20request%20a%20new%20code%20using%20the%20button%20below.</text>
+      </controlProperties>
+    </control>
+    <control controlID="4" controlTypeID="com.balsamiq.mockups::Button" x="268" y="376" w="79" h="28" measuredW="51" measuredH="27" zOrder="4" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Next</text>
+      </controlProperties>
+    </control>
+    <control controlID="5" controlTypeID="com.balsamiq.mockups::TextInput" x="156" y="377" w="104" h="-1" measuredW="83" measuredH="27" zOrder="5" locked="false" isInGroup="-1">
+      <controlProperties>
+        <bold>false</bold>
+        <borderColor>0</borderColor>
+        <italic>true</italic>
+        <size>13</size>
+        <text>Reset%20Code</text>
+      </controlProperties>
+    </control>
+    <control controlID="6" controlTypeID="com.balsamiq.mockups::Image" x="240" y="133" w="225" h="71" measuredW="77" measuredH="79" zOrder="6" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>LOGO</text>
+      </controlProperties>
+    </control>
+    <control controlID="7" controlTypeID="com.balsamiq.mockups::Canvas" x="268" y="376" w="79" h="28" measuredW="100" measuredH="70" zOrder="7" locked="false" isInGroup="-1">
+      <controlProperties>
+        <backgroundAlpha>0.25</backgroundAlpha>
+        <borderColor>13576743</borderColor>
+        <borderStyle>none</borderStyle>
+        <color>6989903</color>
+        <href>forgotpassworderror%26bm%3Bforgotpassworderror.bmml%26bm%3Bforgotpassworderror.bmml%26bm%3Bforgotpassworderror.bmml</href>
+        <map>%3Carea%20shape%3D%22rect%22%20coords%3D%22236%2C345%2C315%2C373%22%20href%3D%22forgotpassworderror.bmml%22%20alt%3D%22forgotpassworderror%22%20id%3D%227%22/%3E</map>
+        <markup>true</markup>
+      </controlProperties>
+    </control>
+    <control controlID="11" controlTypeID="com.balsamiq.mockups::Canvas" x="202" y="244" w="296" h="25" measuredW="100" measuredH="70" zOrder="8" locked="false" isInGroup="-1">
+      <controlProperties>
+        <borderStyle>roundedSolid</borderStyle>
+        <color>15374745</color>
+      </controlProperties>
+    </control>
+    <control controlID="12" controlTypeID="com.balsamiq.mockups::Label" x="160" y="247" w="381" h="18" measuredW="192" measuredH="18" zOrder="9" locked="false" isInGroup="-1">
+      <controlProperties>
+        <align>center</align>
+        <size>11</size>
+        <text>Oh%20dear%2C%20that%20code%20doesn%27t%20seem%20right.</text>
+      </controlProperties>
+    </control>
+    <control controlID="14" controlTypeID="com.balsamiq.mockups::Label" x="370" y="377" w="30" h="26" measuredW="29" measuredH="24" zOrder="10" locked="false" isInGroup="-1">
+      <controlProperties>
+        <bold>true</bold>
+        <size>16</size>
+        <text>OR</text>
+      </controlProperties>
+    </control>
+    <control controlID="15" controlTypeID="com.balsamiq.mockups::Button" x="422" y="377" w="-1" h="-1" measuredW="136" measuredH="27" zOrder="11" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Request%20New%20Code</text>
+      </controlProperties>
+    </control>
+    <control controlID="16" controlTypeID="com.balsamiq.mockups::Canvas" x="422" y="376" w="136" h="28" measuredW="100" measuredH="70" zOrder="12" locked="false" isInGroup="-1">
+      <controlProperties>
+        <backgroundAlpha>0.25</backgroundAlpha>
+        <borderColor>13576743</borderColor>
+        <borderStyle>none</borderStyle>
+        <color>15843890</color>
+        <href>reminderemailsent%26bm%3Breminderemailsent.bmml%26bm%3Breminderemailsent.bmml%26bm%3Breminderemailsent.bmml</href>
+        <map>%3Carea%20shape%3D%22rect%22%20coords%3D%22390%2C345%2C526%2C373%22%20href%3D%22reminderemailsent.bmml%22%20alt%3D%22reminderemailsent%22%20id%3D%2216%22/%3E</map>
+        <markup>true</markup>
+      </controlProperties>
+    </control>
+  </controls>
+</mockup>

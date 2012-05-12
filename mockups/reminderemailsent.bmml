@@ -1,0 +1,63 @@
+<mockup version="1.0" skin="sketch" measuredW="776" measuredH="481" mockupW="744" mockupH="450">
+  <controls>
+    <control controlID="0" controlTypeID="com.balsamiq.mockups::BrowserWindow" x="32" y="31" w="657" h="450" measuredW="450" measuredH="400" zOrder="0" locked="true" isInGroup="-1">
+      <controlProperties>
+        <text>Little%20Viking%20Games%0Ahttp%3A//test.littlevikinggames.com</text>
+      </controlProperties>
+    </control>
+    <control controlID="1" controlTypeID="com.balsamiq.mockups::Canvas" x="166" y="230" w="370" h="158" measuredW="100" measuredH="70" zOrder="1" locked="false" isInGroup="-1">
+      <controlProperties>
+        <color>14540253</color>
+      </controlProperties>
+    </control>
+    <control controlID="2" controlTypeID="com.balsamiq.mockups::Label" x="234" y="250" w="-1" h="-1" measuredW="234" measuredH="24" zOrder="2" locked="false" isInGroup="-1">
+      <controlProperties>
+        <align>center</align>
+        <size>16</size>
+        <text>Great%21%20We%27ve%20sent%20you%20an%20email.</text>
+      </controlProperties>
+    </control>
+    <control controlID="3" controlTypeID="com.balsamiq.mockups::Label" x="181" y="274" w="342" h="57" measuredW="860" measuredH="21" zOrder="3" locked="false" isInGroup="-1">
+      <controlProperties>
+        <align>center</align>
+        <text>You%20should%20receive%20an%20email%20message%20containing%20a%20seven%20digit%20password%20reset%20code.%20To%20reset%20your%20password%2C%20type%20the%20code%20in%20this%20box%20and%20press%20Next.</text>
+      </controlProperties>
+    </control>
+    <control controlID="4" controlTypeID="com.balsamiq.mockups::Button" x="366" y="338" w="79" h="28" measuredW="51" measuredH="27" zOrder="4" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Next</text>
+      </controlProperties>
+    </control>
+    <control controlID="5" controlTypeID="com.balsamiq.mockups::TextInput" x="254" y="339" w="104" h="-1" measuredW="83" measuredH="27" zOrder="5" locked="false" isInGroup="-1">
+      <controlProperties>
+        <bold>false</bold>
+        <borderColor>0</borderColor>
+        <italic>true</italic>
+        <size>13</size>
+        <text>Reset%20Code</text>
+      </controlProperties>
+    </control>
+    <control controlID="6" controlTypeID="com.balsamiq.mockups::Image" x="240" y="133" w="225" h="71" measuredW="77" measuredH="79" zOrder="6" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>LOGO</text>
+      </controlProperties>
+    </control>
+    <control controlID="7" controlTypeID="com.balsamiq.mockups::Canvas" x="366" y="338" w="38" h="28" measuredW="100" measuredH="70" zOrder="7" locked="false" isInGroup="-1">
+      <controlProperties>
+        <backgroundAlpha>0.25</backgroundAlpha>
+        <borderColor>13576743</borderColor>
+        <borderStyle>none</borderStyle>
+        <color>13369344</color>
+        <href>invalidresetcode%26bm%3Binvalidresetcode.bmml%26bm%3Binvalidresetcode.bmml%26bm%3Binvalidresetcode.bmml</href>
+        <map>%3Carea%20shape%3D%22rect%22%20coords%3D%22334%2C307%2C372%2C335%22%20href%3D%22invalidresetcode.bmml%22%20alt%3D%22invalidresetcode%22%20id%3D%227%22/%3E</map>
+        <markup>true</markup>
+      </controlProperties>
+    </control>
+    <control controlID="8" controlTypeID="com.balsamiq.mockups::StickyNote" x="598" y="133" w="178" h="156" measuredW="109" measuredH="123" zOrder="8" locked="false" isInGroup="-1">
+      <controlProperties>
+        <align>center</align>
+        <text>Password%20reset%20code%20should%20only%20be%205-7%20letters/numbers%2C%20case%20insensitive.%20%20Easy%20to%20type%2C%20easy%20to%20make%20big%20and%20noticeable%20in%20an%20email.</text>
+      </controlProperties>
+    </control>
+  </controls>
+</mockup>
