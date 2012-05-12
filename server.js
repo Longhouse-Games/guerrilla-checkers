@@ -8,15 +8,24 @@ app.get('/', function (req, res) {
 });
 
 io.sockets.on('connection', function (socket) {
-	socket.emit('message', { user: 'server', message: 'MOTD: some bullshit' });
-	socket.broadcast.emit('message', { user: 'server', message: 'new user connected' });
+	socket.emit('message', {
+		user: 'server',
+		message: 'MOTD: some bullshit' 
+	});
+	socket.broadcast.emit('message', {
+		user: 'server',
+		message: 'new user connected' 
+	});
 	socket.on('message', function(data) {
 		console.log(data);
 		socket.broadcast.emit('message', data);
 		socket.emit('message', data);
 	});
 	socket.on('disconnect', function() {
-		socket.broadcast.emit('message', { user: 'server', message: 'someone quit! well fuck them' });
+		socket.broadcast.emit('message', {
+			user: 'server',
+			message: 'someone quit! well fuck them' 
+		});
 	});
 });
 

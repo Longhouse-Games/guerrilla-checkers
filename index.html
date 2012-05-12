@@ -27,7 +27,6 @@
 
 					var user = usernameInput.value || 'player';
 					socket.emit('message', { user: user, message: message });
-
 					messageInput.value = '';
 					messageInput.focus();
 				};
