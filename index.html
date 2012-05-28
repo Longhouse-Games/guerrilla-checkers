@@ -75,6 +75,8 @@
 					if (evt.keyCode == 13) { sendMessage(); }
 				});
 				socket.emit('user_connect', {user: socket.id});
+				// quick test of move impl
+				socket.emit('move', {piece: {x: 0, y: 2}, position: {x:1, y:3}});
 			});
 			
 		</script>

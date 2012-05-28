@@ -35,7 +35,7 @@ Checkers.prototype.move = function(piece, position) {
 	else if (Math.abs(Math.abs(piece.x) - Math.abs(position.x)) != 1) return false;
 	else if (Math.abs(Math.abs(piece.y) - Math.abs(position.y)) != 1) return false;
 	piece = this.pieces[piece.x][piece.y];
-	delete this.pieces[piece.x];
+	delete this.pieces[piece.x][piece.y];
 	piece.x = position.x;
 	piece.y = position.y;
 	if (typeof this.pieces[piece.x] === 'undefined')  {
@@ -47,8 +47,7 @@ Checkers.prototype.move = function(piece, position) {
 };
 
 Checkers.prototype.exists = function(piece) {
-	var actualPiece = (this.pieces[piece.x] || [])[piece.y];
-	return !(typeof actualPiece === 'undefined');
+	return this.pieces[piece.x] && this.pieces[piece.x][piece.y];
 };
 
 mongoose.connect('mongodb://localhost/lvg');
@@ -129,7 +128,7 @@ io.sockets.on('connection', function (socket) {
 	// checkers protocol
 	socket.on('move', function(data) {
 		var result = checkers.move(data.piece, data.position);
-		update(result, checkers.pieces);
+		refreshBoard(socket, result);
 	});
 
 	fetchRecentMessages(function(err,messages) {
