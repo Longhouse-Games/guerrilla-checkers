@@ -1,17 +1,55 @@
 <html>
 	<head>
+		<link rel="stylesheet" href="board.css" />
+		<script src="http://code.jquery.com/jquery-latest.js"></script>
 		<script src="/socket.io/socket.io.js"></script>
 		<script>
+			var printMessage = function(data) {
+				var messageDiv = document.createElement('div');
+				messageDiv.innerHTML = '<span style="padding-right: 15px; color: red;">' + data.user + 
+					'</span>' + data.message;
+				document.getElementById('chatlog').appendChild(messageDiv);
+				window.scrollTo(0, document.body.scrollHeight);
+			};
+
 			window.addEventListener('load', function() {
 				var socket = io.connect();
 
 				// receive messages
 				socket.on('message', function (data) {
-					var messageDiv = document.createElement('div');
-					messageDiv.innerHTML = '<span style="padding-right: 15px; color: red;">' + data.user + 
-						'</span>' + data.message;
-					document.getElementById('chatlog').appendChild(messageDiv);
-					window.scrollTo(0, document.body.scrollHeight);
+					printMessage(data);
+				});
+				socket.on('user_connect', function(data) {
+					var userSpan = document.createElement('span');
+					userSpan.id = 'user_' + data.user;
+					userSpan.innerHTML = data.user;
+					document.getElementById('users').appendChild(userSpan);
+				});
+				socket.on('user_disconnect', function(data) {
+					var userSpan = document.getElementById(data.user);
+					if (socket.id != data.user && userSpan && userSpan.parentNode) {
+						userSpan.parentNode.remove(userSpan);
+					}
+				});
+
+				socket.on('update', function(data) {
+					if (!data.result) {
+						logMessage({user: 'checkers', message: data.result});
+					};
+					$('#checkers').empty();
+					for(y = 7; y >= 0; --y) {
+						for(x = 0; x < 8; ++x) {
+							$('#checkers')
+								.first()
+								.append($('<div />')
+									.addClass('square')
+									.addClass(x % 2 === y % 2
+										? 'square_white'
+										: 'square_black')
+									.text(data.board[x] && data.board[x][y] ? 'X' : ''));
+										
+						}
+					}
 				});
 
 				// send message functionality
@@ -36,10 +74,16 @@
 				messageInput.addEventListener('keypress', function(evt) {
 					if (evt.keyCode == 13) { sendMessage(); }
 				});
+				socket.emit('user_connect', {user: socket.id});
 			});
+			
 		</script>
 	</head>
 	<body>
+		<div id="checkers" class="board">
+			<div>hurf durf</div>
+		</div>
+		<div id="users"></div>
 		<div id="chatlog"></div>
 		<input id="username" value="player" />
 		<input id="message" />

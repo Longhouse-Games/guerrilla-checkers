@@ -1,0 +1,31 @@
+div  {
+	padding: 0px;
+	margin: 0px;
+}
+
+.board {
+	width: 640px;
+	height: 640px;
+	border: 1px solid #0F0;
+	position: relative;
+}
+.square {
+	width: 80px;
+	height: 80px;
+	position:relative;
+	float: left;
+	color: white;
+}
+
+.square_black {
+	background-color: #000;
+}
+
+.square_white {
+	background-color: #A00;
+}
+
+.square_highlighted {
+	border: 1px solid #0FF;
+}
+
