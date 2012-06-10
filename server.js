@@ -10,45 +10,48 @@ var ChatSchema = new Schema({
 });
 var ChatModel = mongoose.model('Chat', ChatSchema);
 
-var Checkers = function(width, height, _pieces) {
-	this.width = width;
-	this.height = height;
-	this.pieces =  {};
-	for(i=0; i < _pieces.length; ++i)
+var Checkers = function(width, height, pieces) {
+	var m_width = width;
+	var m_height = height;
+	var m_pieces =  {};
+	var self = this;
+
+	for(i=0; i < pieces.length; ++i)
 	{
-		var piece = _pieces[i];
-		console.log(JSON.stringify(piece, undefined, 2));
-		if (typeof this.pieces[piece.x] === 'undefined')  {
+		var piece = pieces[i];
+		if (typeof m_pieces[piece.x] === 'undefined')  {
 			console.log('initing: ' + piece.x);
-			this.pieces[piece.x] = {};
+			m_pieces[piece.x] = {};
 		}
-		this.pieces[piece.x][piece.y] = piece;
+		m_pieces[piece.x][piece.y] = piece;
 	}
+	this.exists = function(piece) {
+		return m_pieces[piece.x] && m_pieces[piece.x][piece.y];
+	};
+
+	this.move = function(piece, position) {
+		console.log('moving from: ' + JSON.stringify(piece) + ' to ' + JSON.stringify(position));
+		var valid = true;
+		if (!(piece && position)) return false;
+		else if (!self.exists(piece))  return false;
+		else if (self.exists(position)) return false;
+		else if (Math.abs(Math.abs(piece.x) - Math.abs(position.x)) != 1) return false;
+		else if (Math.abs(Math.abs(piece.y) - Math.abs(position.y)) != 1) return false;
+		piece = m_pieces[piece.x][piece.y];
+		delete m_pieces[piece.x][piece.y];
+		piece.x = position.x;
+		piece.y = position.y;
+		if (typeof m_pieces[piece.x] === 'undefined')  {
+			console.log('initing: ' + piece.x);
+			m_pieces[piece.x] = {};
+		}
+		m_pieces[piece.x][piece.y] = piece;
+		return true;
+	};
+
+	
 };
 
-Checkers.prototype.move = function(piece, position) {
-	console.log('moving from: ' + JSON.stringify(piece) + ' to ' + JSON.stringify(position));
-	var valid = true;
-	if (!(piece && position)) return false;
-	else if (!this.exists(piece))  return false;
-	else if (this.exists(position)) return false; 
-	else if (Math.abs(Math.abs(piece.x) - Math.abs(position.x)) != 1) return false;
-	else if (Math.abs(Math.abs(piece.y) - Math.abs(position.y)) != 1) return false;
-	piece = this.pieces[piece.x][piece.y];
-	delete this.pieces[piece.x][piece.y];
-	piece.x = position.x;
-	piece.y = position.y;
-	if (typeof this.pieces[piece.x] === 'undefined')  {
-		console.log('initing: ' + piece.x);
-		this.pieces[piece.x] = {};
-	}
-	this.pieces[piece.x][piece.y] = piece;
-	return true;
-};
-
-Checkers.prototype.exists = function(piece) {
-	return this.pieces[piece.x] && this.pieces[piece.x][piece.y];
-};
 
 mongoose.connect('mongodb://localhost/lvg');
 
@@ -64,7 +67,7 @@ var logMessage = function(data) {
 	var chatModel = mongoose.model('Chat');
 	new ChatModel({time: new Date(), user: data.user, message: data.message}).save();
 };
-app.listen(80);
+app.listen(3000);
 
 app.get('/board.css', function(req, res) {
 	res.sendfile(__dirname + '/board.css');
