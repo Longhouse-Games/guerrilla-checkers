@@ -49,6 +49,8 @@ var Checkers = function(width, height, pieces) {
 		return true;
 	};
 
+	this.getPieces = function() { return m_pieces; };
+
 	
 };
 
@@ -91,7 +93,7 @@ var checkers = new Checkers(8, 8, [
 	{x: 7, y: 1, player: 'white'}]);
 
 var refreshBoard = function(socket, result) {
-	socket.emit('update', {result: true, board: checkers.pieces});
+	socket.emit('update', {result: true, board: checkers.getPieces()});
 };
 io.sockets.on('connection', function (socket) {
 	
