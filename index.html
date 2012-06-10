@@ -12,7 +12,7 @@
 				window.scrollTo(0, document.body.scrollHeight);
 			};
 
-			window.addEventListener('load', function() {
+			$(window).bind('load', function() {
 				var socket = io.connect();
 
 				// receive messages
@@ -70,8 +70,8 @@
 				};
 
 				// send messages
-				sendButton.addEventListener('click', sendMessage);
-				messageInput.addEventListener('keypress', function(evt) {
+				$(sendButton).bind('click', sendMessage);
+				$(messageInput).bind('keypress', function(evt) {
 					if (evt.keyCode == 13) { sendMessage(); }
 				});
 				socket.emit('user_connect', {user: socket.id});
