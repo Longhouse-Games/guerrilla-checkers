@@ -13,7 +13,25 @@
 			};
 
 			$(window).bind('load', function() {
+				// init board
+				for(y = 7; y >= 0; --y)
+				for(x = 0; x < 8; ++x)
+				{
+					$('#checkers')
+						.first()
+						.append($('<div />')
+							.addClass('square')
+							.addClass(x % 2 == y % 2
+								? 'square_white'
+								: 'square_black')
+							.text('{' + x + ',' + y + '}'));
+
+				}
+
+
 				var socket = io.connect();
+
+
 
 				// receive messages
 				socket.on('message', function (data) {
@@ -36,20 +54,22 @@
 					if (!data.result) {
 						logMessage({user: 'checkers', message: data.result});
 					};
-					$('#checkers').empty();
-					for(y = 7; y >= 0; --y) {
-						for(x = 0; x < 8; ++x) {
-							$('#checkers')
-								.first()
-								.append($('<div />')
-									.addClass('square')
-									.addClass(x % 2 === y % 2
-										? 'square_white'
-										: 'square_black')
-									.text(data.board[x] && data.board[x][y] ? 'X' : ''));
-										
-						}
-					}
+					
+					var x = 0;
+					var y = 7;
+					$('#checkers')
+						.children('div.square')
+						.each(function(index, square) {
+							console.log('{' + x + ',' + y + '}');
+							//console.log(JSON.stringify(square, 'undefined', 2));
+							square.innerHTML = data.board[x] && data.board[x][y] ? 'X' : '';
+							++x;
+							if (x >= 8) {
+								x = 0;
+								--y;
+							}
+						});
+								
 				});
 
 				// send message functionality
@@ -83,7 +103,6 @@
 	</head>
 	<body>
 		<div id="checkers" class="board">
-			<div>hurf durf</div>
 		</div>
 		<div id="users"></div>
 		<div id="chatlog"></div>
