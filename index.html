@@ -47,27 +47,16 @@
 				{
 					$('#checkers')
 						.first()
-						.append($('<div />')
-							.addClass('square')
-							.addClass(getSquareClass(x, y))
-							.text('{' + x + ',' + y + '}'));
+						.append(function() {
+							var square = $('<div />')
+								.addClass('square')
+								.addClass(getSquareClass(x, y))
+								.text('{' + x + ',' + y + '}');
+							$(square).bind('click', generateSelectHandler(x, y, square));
+							return square;
+						}());
 
 				}
-				$('#checkers')
-					.children('.square')
-					.each(function() {
-						var x = 0;
-						var y = 7;
-						return function (index, square) {
-							var $square = $(square);
-							$square.bind('click', generateSelectHandler(x, y, square));
-							++x;
-							if (x >= 8) {
-								x = 0;
-								--y;
-							}
-						}}());
-
 
 				// receive messages
 				socket.on('message', function (data) {
