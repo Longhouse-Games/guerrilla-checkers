@@ -132,6 +132,7 @@ io.sockets.on('connection', function (socket) {
 
 	// checkers protocol
 	socket.on('move', function(data) {
+		console.log('move requested');
 		var result = checkers.move(data.piece, data.position);
 		refreshBoard(socket, result);
 	});
@@ -146,4 +147,5 @@ io.sockets.on('connection', function (socket) {
 	});
 });
 
+console.log("SERVER STARTED");
 

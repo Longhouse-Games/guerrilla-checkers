@@ -4,15 +4,43 @@
 		<script src="http://code.jquery.com/jquery.min.js"></script>
 		<script src="/socket.io/socket.io.js"></script>
 		<script>
+			var socket = io.connect();
 			var printMessage = function(data) {
 				var messageDiv = document.createElement('div');
 				messageDiv.innerHTML = '<span style="padding-right: 15px; color: red;">' + data.user + 
 					'</span>' + data.message;
 				document.getElementById('chatlog').appendChild(messageDiv);
-				window.scrollTo(0, document.body.scrollHeight);
+				$('#chatlog').scrollTop($('#chatlog')[0].scrollHeight);
 			};
 
+			var getSquareClass = function(x, y) {
+				return x % 2 == y % 2 ? 'square_white' : 'square_black';
+			};
+
+			var selected = null;
+
+			var move = function(socket, start_x, start_y, target_x, target_y) {
+				socket.emit('move', {piece: {x: start_x, y: start_y}, position: {x:target_x, y:target_y}});
+			};
+			
+
 			$(window).bind('load', function() {
+				var generateSelectHandler = function(x, y, square) {
+					var squareClass = getSquareClass(x, y);
+					return function() {
+						printMessage({user: '*debug*', message: 'you clicked square {' + x + ',' + y + '}'});
+						if (!selected) {
+							selected = {x: x, y: y, square: square, squareClass: squareClass};
+							$(square).removeClass(squareClass);
+							$(square).addClass('selected');
+							return;
+						}
+						move(socket, selected.x, selected.y, x, y);
+						$(selected.square).removeClass('selected');
+						$(selected.square).addClass(selected.squareClass);
+						selected = null;
+					};
+				};
 				// init board
 				for(y = 7; y >= 0; --y)
 				for(x = 0; x < 8; ++x)
@@ -21,16 +49,24 @@
 						.first()
 						.append($('<div />')
 							.addClass('square')
-							.addClass(x % 2 == y % 2
-								? 'square_white'
-								: 'square_black')
+							.addClass(getSquareClass(x, y))
 							.text('{' + x + ',' + y + '}'));
 
 				}
-
-
-				var socket = io.connect();
-
+				$('#checkers')
+					.children('.square')
+					.each(function() {
+						var x = 0;
+						var y = 7;
+						return function (index, square) {
+							var $square = $(square);
+							$square.bind('click', generateSelectHandler(x, y, square));
+							++x;
+							if (x >= 8) {
+								x = 0;
+								--y;
+							}
+						}}());
 
 
 				// receive messages
@@ -60,9 +96,8 @@
 					$('#checkers')
 						.children('div.square')
 						.each(function(index, square) {
-							console.log('{' + x + ',' + y + '}');
-							//console.log(JSON.stringify(square, 'undefined', 2));
-							square.innerHTML = data.board[x] && data.board[x][y] ? 'X' : '';
+
+							square.innerHTML = data.board[x] && data.board[x][y] ? data.board[x][y].player : '';
 							++x;
 							if (x >= 8) {
 								x = 0;
