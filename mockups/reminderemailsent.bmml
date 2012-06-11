@@ -59,5 +59,16 @@
         <text>Password%20reset%20code%20should%20only%20be%205-7%20letters/numbers%2C%20case%20insensitive.%20%20Easy%20to%20type%2C%20easy%20to%20make%20big%20and%20noticeable%20in%20an%20email.</text>
       </controlProperties>
     </control>
+    <control controlID="9" controlTypeID="com.balsamiq.mockups::Canvas" x="404" y="338" w="38" h="28" measuredW="100" measuredH="70" zOrder="9" locked="false" isInGroup="-1">
+      <controlProperties>
+        <backgroundAlpha>0.25</backgroundAlpha>
+        <borderColor>13576743</borderColor>
+        <borderStyle>none</borderStyle>
+        <color>6989903</color>
+        <href>invalidresetcode%26bm%3Binvalidresetcode.bmml%26bm%3Binvalidresetcode.bmml%26bm%3Binvalidresetcode.bmml</href>
+        <map>%3Carea%20shape%3D%22rect%22%20coords%3D%22372%2C307%2C410%2C335%22%20href%3D%22invalidresetcode.bmml%22%20alt%3D%22invalidresetcode%22%20id%3D%229%22/%3E</map>
+        <markup>true</markup>
+      </controlProperties>
+    </control>
   </controls>
 </mockup>
