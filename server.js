@@ -20,10 +20,12 @@ var fetchRecentMessages = function(callback) {
 	  .limit(5)
 	  .run(callback);
 };
+
 var logMessage = function(data) {
 	var chatModel = mongoose.model('Chat');
 	new ChatModel({time: new Date(), user: data.user, message: data.message}).save();
 };
+
 app.listen(80);
 
 app.get('/', function (req, res) {
@@ -32,6 +34,7 @@ app.get('/', function (req, res) {
 
 io.sockets.on('connection', function (socket) {
 	
+	// connection messages
 	socket.emit('message', {
 		user: 'server',
 		message: 'MOTD: some bullshit' 
@@ -40,28 +43,37 @@ io.sockets.on('connection', function (socket) {
 		user: 'server',
 		message: 'new user connected' 
 	});
+
+	// handle user message
 	socket.on('message', function(data) {
 		console.log(data);
 		socket.broadcast.emit('message', data);
 		socket.emit('message', data);
 		logMessage(data);
 	});
+
+	// disconnect message
 	socket.on('disconnect', function() {
 		socket.broadcast.emit('message', {
 			user: 'server',
 			message: 'someone quit! well fuck them' 
 		});
 	});
+
+	// get recent messages on connect
 	fetchRecentMessages(function(err,messages) {
+
 		console.log('pushing history');
 		console.log(err);
 		console.log(messages);
-		for(i=messages.length-1; i >=0; --i)
-		{
+
+		for(var i = messages.length-1; i >= 0; --i) {
 			var message = messages[i];
 			console.log(message);
 			socket.emit('message', message);
 		}
+
 	});
+
 });
 
