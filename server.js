@@ -2,6 +2,8 @@ var app = require('express').createServer()
   , mongoose = require('mongoose')
   , io = require('socket.io').listen(app);
 
+var portNumber = 3000;
+
 var Schema = mongoose.Schema;
 var ChatSchema = new Schema({
 	time: {type: Date},
@@ -10,50 +12,7 @@ var ChatSchema = new Schema({
 });
 var ChatModel = mongoose.model('Chat', ChatSchema);
 
-var Checkers = function(width, height, pieces) {
-	var m_width = width;
-	var m_height = height;
-	var m_pieces =  {};
-	var self = this;
-
-	for(i=0; i < pieces.length; ++i)
-	{
-		var piece = pieces[i];
-		if (typeof m_pieces[piece.x] === 'undefined')  {
-			console.log('initing: ' + piece.x);
-			m_pieces[piece.x] = {};
-		}
-		m_pieces[piece.x][piece.y] = piece;
-	}
-	this.exists = function(piece) {
-		return m_pieces[piece.x] && m_pieces[piece.x][piece.y];
-	};
-
-	this.move = function(piece, position) {
-		console.log('moving from: ' + JSON.stringify(piece) + ' to ' + JSON.stringify(position));
-		var valid = true;
-		if (!(piece && position)) return false;
-		else if (!self.exists(piece))  return false;
-		else if (self.exists(position)) return false;
-		else if (Math.abs(Math.abs(piece.x) - Math.abs(position.x)) != 1) return false;
-		else if (Math.abs(Math.abs(piece.y) - Math.abs(position.y)) != 1) return false;
-		piece = m_pieces[piece.x][piece.y];
-		delete m_pieces[piece.x][piece.y];
-		piece.x = position.x;
-		piece.y = position.y;
-		if (typeof m_pieces[piece.x] === 'undefined')  {
-			console.log('initing: ' + piece.x);
-			m_pieces[piece.x] = {};
-		}
-		m_pieces[piece.x][piece.y] = piece;
-		return true;
-	};
-
-	this.getPieces = function() { return m_pieces; };
-
-	
-};
-
+var Checkers = require('./checkers').Checkers;
 
 mongoose.connect('mongodb://localhost/lvg');
 
@@ -69,7 +28,7 @@ var logMessage = function(data) {
 	var chatModel = mongoose.model('Chat');
 	new ChatModel({time: new Date(), user: data.user, message: data.message}).save();
 };
-app.listen(3000);
+app.listen(portNumber);
 
 app.get('/board.css', function(req, res) {
 	res.sendfile(__dirname + '/board.css');
@@ -147,5 +106,5 @@ io.sockets.on('connection', function (socket) {
 	});
 });
 
-console.log("SERVER STARTED");
+console.log("Server Started at localhost:"+portNumber);
 
