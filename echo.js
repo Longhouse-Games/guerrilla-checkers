@@ -1,6 +1,6 @@
 var express = require('express')
 
-var port = 3000;
+var port = 4000;
 if (process.argv && process.argv[2])
 {
 	port = process.argv[2];
