@@ -69,15 +69,25 @@
 					window.scrollTo(0, document.body.scrollHeight);
 				});
 				socket.on('user_connect', function(data) {
-					var userSpan = document.createElement('span');
+					var userSpan = document.createElement('div');
 					userSpan.id = 'user_' + data.user;
-					userSpan.innerHTML = data.user;
+					userSpan.innerHTML = 'Opponent: ' + data.user;
 					document.getElementById('users').appendChild(userSpan);
 				});
 				socket.on('user_disconnect', function(data) {
 					var userSpan = document.getElementById(data.user);
 					if (socket.id != data.user && userSpan && userSpan.parentNode) {
 						userSpan.parentNode.remove(userSpan);
+					}
+				});
+
+				socket.on('num_connected_users', function(numConnectedUsers) {
+					if (numConnectedUsers >= 2) {
+						$('.board').first().show();
+						$('#waiting').hide();
+					} else {
+						$('#waiting').show();
+						$('.board').first().hide();
 					}
 				});
 
@@ -124,16 +134,13 @@
 				$(messageInput).bind('keypress', function(evt) {
 					if (evt.keyCode == 13) { sendMessage(); }
 				});
-				socket.emit('user_connect', {user: socket.id});
-				// quick test of move impl
-				socket.emit('move', {piece: {x: 0, y: 2}, position: {x:1, y:3}});
 			});
 			
 		</script>
 	</head>
 	<body>
-		<div id="checkers" class="board">
-		</div>
+		<div id="checkers" class="board"></div>
+		<div id="waiting">Waiting For Opponent</div>
 		<div id="users"></div>
 		<div id="chatlog"></div>
 		<input id="username" value="player" />

@@ -7,6 +7,16 @@ div  {
 	margin: 0px;
 }
 
+#waiting {
+	float: left;
+	width: 600px;
+	height: 600px;
+	padding: 20px;
+	font-size: 24px;
+	font-weight: bold;
+	text-align: center;
+}
+
 #chatlog {
 	height: 580px;
 	background: #EEE;

@@ -56,23 +56,30 @@ var checkers = new Checkers(8, 8, [
 	{x: 6, y: 2, player: piece},
 	{x: 7, y: 1, player: piece}]);
 
+// refresh board
 var refreshBoard = function(socket, result) {
-	socket.emit('update', {result: true, board: checkers.getPieces()});
-	socket.broadcast.emit('update', {result: true, board: checkers.getPieces()});
+	socket.emit('update', {
+		result: true,
+		board: checkers.getPieces()
+	});
+	socket.broadcast.emit('update', {
+		result: true,
+		board: checkers.getPieces()
+	});
 };
+
+var connectedUsers = 0;
+
 io.sockets.on('connection', function (socket) {
 
-	console.log("CLIENT CONNECTED");
-	
-	// chat protocol
+	++connectedUsers;
+	socket.emit('num_connected_users', connectedUsers);
+	socket.broadcast.emit('num_connected_users', connectedUsers);
+
+	// welcome message
 	socket.emit('message', {
 		user: 'server',
-		message: 'MOTD: some bullshit' 
-	});
-
-	socket.broadcast.emit('message', {
-		user: 'server',
-		message: 'new user connected' 
+		message: 'Welcome to Guerilla Checkers!' 
 	});
 
 	// handle user message
@@ -85,19 +92,18 @@ io.sockets.on('connection', function (socket) {
 
 	// disconnect message
 	socket.on('disconnect', function() {
+
+		--connectedUsers;
+		socket.emit('num_connected_users', connectedUsers);
+		socket.broadcast.emit('num_connected_users', connectedUsers);
+
 		socket.broadcast.emit('message', {
 			user: 'server',
 			message: 'someone quit! well fuck them' 
 		});
-		socket.broadcast.emit('user_disconnect', {user: socket.id});
-	});
-
-	// get recent messages on connect
-	socket.on('user_connect', function(data) {
-		for(prop in data) { console.log(prop); }
-		console.log('user connected: ' + data.user);
-		socket.broadcast.emit('user_connect', {user:socket.id});
-		refreshBoard(socket, true);
+		socket.broadcast.emit('user_disconnect', { 
+			user: socket.handshake.address.address 
+		});
 	});
 
 	// checkers protocol
@@ -107,6 +113,15 @@ io.sockets.on('connection', function (socket) {
 		refreshBoard(socket, result);
 	});
 
+	// notify other users
+	socket.broadcast.emit('user_connect', {
+		user: socket.handshake.address.address
+	});
+
+	// refresh board
+	refreshBoard(socket, true);
+
+	// send recent messages
 	fetchRecentMessages(function(err,messages) {
 
 		console.log('pushing history');
