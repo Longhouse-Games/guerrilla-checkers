@@ -6,10 +6,7 @@
       </controlProperties>
     </control>
     <control controlID="19" controlTypeID="__group__" x="114" y="118" w="299" h="316" measuredW="299" measuredH="316" zOrder="4" locked="false" isInGroup="-1">
-      <controlProperties>
-        <href>gamescreen%26bm%3Bgamescreen.bmml%26bm%3Bgamescreen.bmml%26bm%3Bgamescreen.bmml</href>
-        <map>%3Carea%20shape%3D%22rect%22%20coords%3D%2290%2C88%2C389%2C404%22%20href%3D%22gamescreen.bmml%22%20alt%3D%22gamescreen%22%20id%3D%2219%22/%3E</map>
-      </controlProperties>
+      <controlProperties/>
       <groupChildrenDescriptors>
         <control controlID="0" controlTypeID="com.balsamiq.mockups::Canvas" x="0" y="0" w="299" h="316" measuredW="100" measuredH="70" zOrder="0" locked="false" isInGroup="19">
           <controlProperties>
@@ -48,7 +45,7 @@
     <control controlID="41" controlTypeID="__group__" x="42" y="193" w="58" h="48" measuredW="58" measuredH="48" zOrder="6" locked="false" isInGroup="-1">
       <groupChildrenDescriptors>
         <control controlID="0" controlTypeID="com.balsamiq.mockups::Webcam" x="0" y="0" w="58" h="48" measuredW="177" measuredH="146" zOrder="0" locked="false" isInGroup="41"/>
-        <control controlID="1" controlTypeID="com.balsamiq.mockups::CallOut" x="11" y="6" w="29" h="27" measuredW="39" measuredH="43" zOrder="1" locked="false" isInGroup="41">
+        <control controlID="1" controlTypeID="com.balsamiq.mockups::CallOut" x="11" y="6" w="29" h="27" measuredW="39" measuredH="40" zOrder="1" locked="false" isInGroup="41">
           <controlProperties>
             <color>40463</color>
             <text>2</text>
@@ -104,6 +101,15 @@
     <control controlID="50" controlTypeID="com.balsamiq.mockups::Label" x="436" y="174" w="149" h="21" measuredW="92" measuredH="21" zOrder="15" locked="false" isInGroup="-1">
       <controlProperties>
         <text>totally%20beat%20you</text>
+      </controlProperties>
+    </control>
+    <control controlID="51" controlTypeID="com.balsamiq.mockups::Canvas" x="114" y="116" w="299" h="318" measuredW="100" measuredH="70" zOrder="16" locked="false" isInGroup="-1">
+      <controlProperties>
+        <backgroundAlpha>0.25</backgroundAlpha>
+        <borderStyle>none</borderStyle>
+        <color>14706278</color>
+        <href>gamescreen%26bm%3Bgamescreen.bmml%26bm%3Bgamescreen.bmml%26bm%3Bgamescreen.bmml</href>
+        <map>%3Carea%20shape%3D%22rect%22%20coords%3D%2290%2C86%2C389%2C404%22%20href%3D%22gamescreen.bmml%22%20alt%3D%22gamescreen%22%20id%3D%2251%22/%3E</map>
       </controlProperties>
     </control>
   </controls>

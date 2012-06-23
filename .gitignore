@@ -1,4 +1,7 @@
+.data/
+
 lib-cov
+
 *.seed
 *.log
 *.csv
@@ -7,6 +10,7 @@ lib-cov
 *.pid
 *.gz
 *.swp
+
 
 pids
 logs

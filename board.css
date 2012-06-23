@@ -1,0 +1,55 @@
+* {
+	font-family: Arial;
+}
+
+div  {
+	padding: 0px;
+	margin: 0px;
+}
+
+#chatlog {
+	height: 580px;
+	background: #EEE;
+	padding: 5px;
+	margin-bottom: 10px;
+	overflow-y: scroll;
+	overflow-x: none;
+}
+
+.board {
+	width: 640px;
+	height: 640px;
+	position: relative;
+	padding-right: 10px;
+	float: left;
+}
+
+.selected {
+	background-color: #0AA !important;
+}
+
+.square {
+	width: 80px;
+	height: 80px;
+	position: relative;
+	float: left;
+	color: white;
+}
+
+
+.square:hover {
+	background-color: yellow;
+}
+
+.square_black {
+	background-color: #000;
+}
+
+.square_white {
+	background-color: #A00;
+}
+
+.square_highlighted {
+	border: 1px solid #0FF;
+}
+
