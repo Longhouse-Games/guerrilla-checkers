@@ -2,6 +2,9 @@ var app = require('express').createServer()
   , mongoose = require('mongoose')
   , io = require('socket.io').listen(app);
 
+var Checkers = require('./checkers').Checkers
+  , liferay = require('./liferay');
+
 var portNumber = 3000;
 
 var Schema = mongoose.Schema;
@@ -11,8 +14,6 @@ var ChatSchema = new Schema({
 	message: {type: String, trim: true}
 });
 var ChatModel = mongoose.model('Chat', ChatSchema);
-
-var Checkers = require('./checkers').Checkers;
 
 mongoose.connect('mongodb://localhost/lvg');
 
@@ -25,7 +26,7 @@ var fetchRecentMessages = function(callback) {
 	  .exec(callback);
 };
 
-var logMessage = function(data) {
+var saveMessageToMongo = function(data) {
 	new ChatModel({time: new Date(), user: data.user, message: data.message}).save();
 };
 
@@ -91,10 +92,14 @@ io.sockets.on('connection', function (socket) {
 
 	// handle user message
 	socket.on('message', function(data) {
+
 		console.log("User sent message", data);
+
 		socket.broadcast.emit('message', data);
 		socket.emit('message', data);
-		logMessage(data);
+
+		liferay.sendMessage({ type: 'message', data: data });
+		saveMessageToMongo(data);
 	});
 
 	// disconnect message

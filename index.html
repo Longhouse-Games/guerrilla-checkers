@@ -119,10 +119,8 @@
 				var sendMessage = function() {
 					var message = messageInput.value;
 					if (!message) {
-						alert('wtf! put a message!');
 						return;
 					}
-
 					var user = usernameInput.value || 'player';
 					socket.emit('message', { user: user, message: message });
 					messageInput.value = '';
