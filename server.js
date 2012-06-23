@@ -22,7 +22,7 @@ var fetchRecentMessages = function(callback) {
 	  .find()
 	  .sort('time', -1) // descending
 	  .limit(5)
-	  .run(callback);
+	  .exec(callback);
 };
 
 var logMessage = function(data) {
