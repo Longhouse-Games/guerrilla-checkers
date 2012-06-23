@@ -15,18 +15,18 @@ div  {
 .board {
 	width: 640px;
 	height: 640px;
-	border: 1px solid #0F0;
+	/*border: 1px solid #0F0;*/
 	position: relative;
 }
 
 .selected {
-	background-color: #0AA;
+	background-color: #0AA !important;
 }
 
 .square {
 	width: 80px;
 	height: 80px;
-	position:relative;
+	position: relative;
 	float: left;
 	color: white;
 }

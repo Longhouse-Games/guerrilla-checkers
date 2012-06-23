@@ -60,6 +60,8 @@ var refreshBoard = function(socket, result) {
 	socket.emit('update', {result: true, board: checkers.getPieces()});
 };
 io.sockets.on('connection', function (socket) {
+
+	console.log("CLIENT CONNECTED");
 	
 	// chat protocol
 	socket.emit('message', {
@@ -74,7 +76,7 @@ io.sockets.on('connection', function (socket) {
 
 	// handle user message
 	socket.on('message', function(data) {
-		console.log(data);
+		console.log("User sent message", data);
 		socket.broadcast.emit('message', data);
 		socket.emit('message', data);
 		logMessage(data);
