@@ -26,12 +26,14 @@ var fetchRecentMessages = function(callback) {
 };
 
 var logMessage = function(data) {
-	var chatModel = mongoose.model('Chat');
 	new ChatModel({time: new Date(), user: data.user, message: data.message}).save();
 };
 
 app.listen(portNumber);
 
+app.get('/white_draughts_man.png', function(req, res) {
+	res.sendfile(__dirname + '/white_draughts_man.png');
+});
 app.get('/board.css', function(req, res) {
 	res.sendfile(__dirname + '/board.css');
 });
@@ -39,19 +41,20 @@ app.get('/', function (req, res) {
 	res.sendfile(__dirname + '/index.html');
 });
 
+var piece = '<img src="white_draughts_man.png" width=80 height=80 alt="white" />';
 var checkers = new Checkers(8, 8, [
-	{x: 0, y: 0, player: 'white'},
-	{x: 0, y: 2, player: 'white'},
-	{x: 1, y: 1, player: 'white'},
-	{x: 2, y: 0, player: 'white'},
-	{x: 2, y: 2, player: 'white'},
-	{x: 3, y: 1, player: 'white'},
-	{x: 4, y: 0, player: 'white'},
-	{x: 4, y: 2, player: 'white'},
-	{x: 5, y: 1, player: 'white'},
-	{x: 6, y: 0, player: 'white'},
-	{x: 6, y: 2, player: 'white'},
-	{x: 7, y: 1, player: 'white'}]);
+	{x: 0, y: 0, player: piece},
+	{x: 0, y: 2, player: piece},
+	{x: 1, y: 1, player: piece},
+	{x: 2, y: 0, player: piece},
+	{x: 2, y: 2, player: piece},
+	{x: 3, y: 1, player: piece},
+	{x: 4, y: 0, player: piece},
+	{x: 4, y: 2, player: piece},
+	{x: 5, y: 1, player: piece},
+	{x: 6, y: 0, player: piece},
+	{x: 6, y: 2, player: piece},
+	{x: 7, y: 1, player: piece}]);
 
 var refreshBoard = function(socket, result) {
 	socket.emit('update', {result: true, board: checkers.getPieces()});
@@ -89,7 +92,7 @@ io.sockets.on('connection', function (socket) {
 	// get recent messages on connect
 	socket.on('user_connect', function(data) {
 		for(prop in data) { console.log(prop); }
-		console.log('user conected: ' + data.user);
+		console.log('user connected: ' + data.user);
 		socket.broadcast.emit('user_connect', {user:socket.id});
 		refreshBoard(socket, true);
 	});
