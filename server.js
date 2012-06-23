@@ -58,6 +58,7 @@ var checkers = new Checkers(8, 8, [
 
 var refreshBoard = function(socket, result) {
 	socket.emit('update', {result: true, board: checkers.getPieces()});
+	socket.broadcast.emit('update', {result: true, board: checkers.getPieces()});
 };
 io.sockets.on('connection', function (socket) {
 
