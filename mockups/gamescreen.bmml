@@ -66,5 +66,23 @@
         <text/>
       </controlProperties>
     </control>
+    <control controlID="76" controlTypeID="com.balsamiq.mockups::RoundButton" x="239" y="301" w="55" h="55" measuredW="32" measuredH="32" zOrder="32" locked="false" isInGroup="-1">
+      <controlProperties>
+        <color>40463</color>
+        <text/>
+      </controlProperties>
+    </control>
+    <control controlID="77" controlTypeID="com.balsamiq.mockups::RoundButton" x="172" y="235" w="55" h="55" measuredW="32" measuredH="32" zOrder="33" locked="false" isInGroup="-1">
+      <controlProperties>
+        <color>40463</color>
+        <text/>
+      </controlProperties>
+    </control>
+    <control controlID="78" controlTypeID="com.balsamiq.mockups::RoundButton" x="105" y="171" w="55" h="55" measuredW="32" measuredH="32" zOrder="34" locked="false" isInGroup="-1">
+      <controlProperties>
+        <color>40463</color>
+        <text/>
+      </controlProperties>
+    </control>
   </controls>
 </mockup>
