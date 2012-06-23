@@ -37,8 +37,15 @@ app.get('/white_draughts_man.png', function(req, res) {
 app.get('/board.css', function(req, res) {
 	res.sendfile(__dirname + '/board.css');
 });
+app.post('/', function (req, res) {
+	res.sendfile(__dirname + '/index.html');
+});
 app.get('/', function (req, res) {
 	res.sendfile(__dirname + '/index.html');
+});
+
+app.get('/debug', function (req, res) {
+	res.sendfile(__dirname + '/debug.html');
 });
 
 var piece = '<img src="white_draughts_man.png" width=80 height=80 alt="white" />';
