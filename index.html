@@ -1,17 +1,104 @@
 <html>
 	<head>
+		<link rel="stylesheet" href="board.css" />
+		<script src="http://code.jquery.com/jquery.min.js"></script>
 		<script src="/socket.io/socket.io.js"></script>
 		<script>
-			window.addEventListener('load', function() {
-				var socket = io.connect();
+			var socket = io.connect();
+			var printMessage = function(data) {
+				var messageDiv = document.createElement('div');
+				messageDiv.innerHTML = '<span style="padding-right: 15px; color: red;">' + data.user + 
+					'</span>' + data.message;
+				document.getElementById('chatlog').appendChild(messageDiv);
+				$('#chatlog').scrollTop($('#chatlog')[0].scrollHeight);
+			};
+
+			var getSquareClass = function(x, y) {
+				return x % 2 == y % 2 ? 'square_white' : 'square_black';
+			};
+
+			var selected = null;
+
+			var move = function(socket, start_x, start_y, target_x, target_y) {
+				socket.emit('move', {piece: {x: start_x, y: start_y}, position: {x:target_x, y:target_y}});
+			};
+			
+
+			$(window).bind('load', function() {
+				var generateSelectHandler = function(x, y, square) {
+					var squareClass = getSquareClass(x, y);
+					return function() {
+						printMessage({user: '*debug*', message: 'you clicked square {' + x + ',' + y + '}'});
+						if (!selected) {
+							selected = {x: x, y: y, square: square, squareClass: squareClass};
+							$(square).removeClass(squareClass);
+							$(square).addClass('selected');
+							return;
+						}
+						move(socket, selected.x, selected.y, x, y);
+						$(selected.square).removeClass('selected');
+						$(selected.square).addClass(selected.squareClass);
+						selected = null;
+					};
+				};
+				// init board
+				for(y = 7; y >= 0; --y)
+				for(x = 0; x < 8; ++x)
+				{
+					$('#checkers')
+						.first()
+						.append(function() {
+							var square = $('<div />')
+								.addClass('square')
+								.addClass(getSquareClass(x, y))
+								.text('{' + x + ',' + y + '}');
+							$(square).bind('click', generateSelectHandler(x, y, square));
+							return square;
+						}());
+
+				}
 
 				// receive messages
 				socket.on('message', function (data) {
 					var messageDiv = document.createElement('div');
-					messageDiv.innerHTML = '<span style="padding-right: 15px;' +
-						'color: red;">' + data.user + '</span>' + data.message;
+					messageDiv.innerHTML = '<span style="padding-right: 15px; color: red;">' + data.user + 
+						'</span>' + data.message;
 					document.getElementById('chatlog').appendChild(messageDiv);
 					window.scrollTo(0, document.body.scrollHeight);
+					printMessage(data);
+				});
+				socket.on('user_connect', function(data) {
+					var userSpan = document.createElement('span');
+					userSpan.id = 'user_' + data.user;
+					userSpan.innerHTML = data.user;
+					document.getElementById('users').appendChild(userSpan);
+				});
+				socket.on('user_disconnect', function(data) {
+					var userSpan = document.getElementById(data.user);
+					if (socket.id != data.user && userSpan && userSpan.parentNode) {
+						userSpan.parentNode.remove(userSpan);
+					}
+				});
+
+				socket.on('update', function(data) {
+					if (!data.result) {
+						logMessage({user: 'checkers', message: data.result});
+					};
+					
+					var x = 0;
+					var y = 7;
+					$('#checkers')
+						.children('div.square')
+						.each(function(index, square) {
+
+							square.innerHTML = data.board[x] && data.board[x][y] ? data.board[x][y].player : '';
+							++x;
+							if (x >= 8) {
+								x = 0;
+								--y;
+							}
+						});
+								
 				});
 
 				// send message functionality
@@ -32,14 +119,21 @@
 				};
 
 				// send messages
-				sendButton.addEventListener('click', sendMessage);
-				messageInput.addEventListener('keypress', function(evt) {
+				$(sendButton).bind('click', sendMessage);
+				$(messageInput).bind('keypress', function(evt) {
 					if (evt.keyCode == 13) { sendMessage(); }
 				});
+				socket.emit('user_connect', {user: socket.id});
+				// quick test of move impl
+				socket.emit('move', {piece: {x: 0, y: 2}, position: {x:1, y:3}});
 			});
+			
 		</script>
 	</head>
 	<body>
+		<div id="checkers" class="board">
+		</div>
+		<div id="users"></div>
 		<div id="chatlog"></div>
 		<input id="username" value="player" />
 		<input id="message" />
