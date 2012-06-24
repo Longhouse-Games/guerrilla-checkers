@@ -22,13 +22,13 @@ exports.sendMessage = function(postData, callback) {
 	};
 
 	// set up the request
-	var post_req = http.request(postOptions, function(res) {
+	var postRequest = http.request(postOptions, function(res) {
 		res.setEncoding('utf8');
 		res.on('data', callback);
 	});
 
 	// post the data
-	post_req.write(postDataString);
-	post_req.end();
+	postRequest.write(postDataString);
+	postRequest.end();
 
 };

@@ -1,12 +1,18 @@
+// includes
 var app = require('express').createServer()
   , mongoose = require('mongoose')
-  , io = require('socket.io').listen(app);
+  , io = require('socket.io').listen(app)
+  , assert = require('assert')
+  , cas = require('cas');
 
 var Checkers = require('./checkers').Checkers
   , liferay = require('./liferay');
 
+// global variables
 var portNumber = 3000;
+var connectedUsers = 0;
 
+// global types
 var Schema = mongoose.Schema;
 var ChatSchema = new Schema({
 	time: {type: Date},
@@ -15,8 +21,7 @@ var ChatSchema = new Schema({
 });
 var ChatModel = mongoose.model('Chat', ChatSchema);
 
-mongoose.connect('mongodb://localhost/lvg');
-
+// helper functions 
 var fetchRecentMessages = function(callback) {
 	var chatModel = mongoose.model('Chat');
 	chatModel
@@ -30,8 +35,81 @@ var saveMessageToMongo = function(data) {
 	new ChatModel({time: new Date(), user: data.user, message: data.message}).save();
 };
 
-app.listen(portNumber);
+var refreshBoard = function(socket, result) {
+	socket.emit('update', {
+		result: true,
+		board: checkers.getPieces()
+	});
+	socket.broadcast.emit('update', {
+		result: true,
+		board: checkers.getPieces()
+	});
+};
 
+function LOLOL() {
+
+	var CAS = require('cas')
+		, express = require('express');
+
+	var cas = new CAS({
+		base_url: 'https://test.littlevikinggames.com',
+		service: 'http://test.littlevikinggames.com:4000'
+	});
+
+	var app = express.createServer();
+
+	app.get('/', function(req, res) {
+		console.log(req);
+		var ticket = req.query.ticket;
+		console.log('validating service ticket: ' + ticket);
+		cas.validate(ticket, function(err, status, username) {
+			console.log('auth for user ', username || '?', ': ', status);
+		});
+		res.send('...');
+	});
+
+	app.listen(4000);
+
+}
+
+function handleLogin(request, response) {
+	
+	console.log("Handling Login!");
+
+	var serviceTicket = request.query.ticket;
+	var hasServiceTicket = typeof serviceTicket !== 'undefined';
+
+	var hostname = encodeURIComponent('http://' + request.headers.host);
+	var loginUrl = 'https://test.littlevikinggames.com/login?service=' + hostname;
+
+	var casInstance = new cas({
+		base_url: 'https://test.littlevikinggames.com',
+		service: hostname
+	});
+
+	// initial visit
+	if (!hasServiceTicket) {
+		console.log("Redirecting to CAS Login");
+		response.redirect(loginUrl);
+		return;
+	} 
+
+	console.log("Got service ticket!");
+
+	// validate service ticket
+	casInstance.validate(serviceTicket, function(error, status, username) {
+		if (error) {
+			response.redirect(loginUrl);
+			return;
+		}
+
+		console.log(username + " logged in!");
+
+		response.sendfile(__dirname + '/index.html');
+	});
+}
+
+// routing
 app.get('/white_draughts_man.png', function(req, res) {
 	res.sendfile(__dirname + '/white_draughts_man.png');
 });
@@ -39,16 +117,20 @@ app.get('/board.css', function(req, res) {
 	res.sendfile(__dirname + '/board.css');
 });
 app.post('/', function (req, res) {
-	res.sendfile(__dirname + '/index.html');
+	handleLogin(req, res);
 });
 app.get('/', function (req, res) {
-	res.sendfile(__dirname + '/index.html');
+	handleLogin(req, res);
 });
-
 app.get('/debug', function (req, res) {
 	res.sendfile(__dirname + '/debug.html');
 });
 
+// initialize server
+mongoose.connect('mongodb://localhost/lvg');
+app.listen(portNumber);
+
+// HACK: board
 var piece = '<img src="white_draughts_man.png" width=80 height=80 alt="white" />';
 var checkers = new Checkers(8, 8, [
 	{x: 0, y: 0, player: piece},
@@ -64,22 +146,10 @@ var checkers = new Checkers(8, 8, [
 	{x: 6, y: 2, player: piece},
 	{x: 7, y: 1, player: piece}]);
 
-// refresh board
-var refreshBoard = function(socket, result) {
-	socket.emit('update', {
-		result: true,
-		board: checkers.getPieces()
-	});
-	socket.broadcast.emit('update', {
-		result: true,
-		board: checkers.getPieces()
-	});
-};
+// successful connection
+function userConnected(socket) {
 
-var connectedUsers = 0;
-
-io.sockets.on('connection', function (socket) {
-
+	// add connected user
 	++connectedUsers;
 	socket.emit('num_connected_users', connectedUsers);
 	socket.broadcast.emit('num_connected_users', connectedUsers);
@@ -92,8 +162,6 @@ io.sockets.on('connection', function (socket) {
 
 	// handle user message
 	socket.on('message', function(data) {
-
-		console.log("User sent message", data);
 
 		socket.broadcast.emit('message', data);
 		socket.emit('message', data);
@@ -136,10 +204,6 @@ io.sockets.on('connection', function (socket) {
 	// send recent messages
 	fetchRecentMessages(function(err,messages) {
 
-		console.log('pushing history');
-		console.log(err);
-		console.log(messages);
-
 		for(var i = messages.length-1; i >= 0; --i) {
 			var message = messages[i];
 			console.log(message);
@@ -147,6 +211,12 @@ io.sockets.on('connection', function (socket) {
 		}
 
 	});
+
+}
+
+io.sockets.on('connection', function (socket) {
+
+	userConnected(socket);
 
 });
 
