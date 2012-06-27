@@ -179,7 +179,7 @@ function userConnected(socket) {
 
 		socket.broadcast.emit('message', {
 			user: 'server',
-			message: 'someone quit!
+			message: 'someone quit!'
 		});
 		socket.broadcast.emit('user_disconnect', { 
 			user: socket.handshake.address.address 
