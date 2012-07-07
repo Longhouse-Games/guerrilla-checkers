@@ -125,13 +125,17 @@ app.get('/', function (req, res) {
 app.get('/debug', function (req, res) {
 	res.sendfile(__dirname + '/debug.html');
 });
+app.get('/images/*', function(req, res) {
+	res.sendfile(__dirname + req.originalUrl);
+});
+
 
 // initialize server
 mongoose.connect('mongodb://localhost/lvg');
 app.listen(portNumber);
 
 // HACK: board
-var piece = '<img src="white_draughts_man.png" width=80 height=80 alt="white" />';
+var piece = '<img src="white_draughts_man.png" width=68 height=68 alt="white" />';
 var checkers = new Checkers(8, 8, [
 	{x: 0, y: 0, player: piece},
 	{x: 0, y: 2, player: piece},
