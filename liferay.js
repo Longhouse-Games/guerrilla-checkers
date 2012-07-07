@@ -26,6 +26,9 @@ exports.sendMessage = function(postData, callback) {
 		res.setEncoding('utf8');
 		res.on('data', callback);
 	});
+	postRequest.on('error', function(e) {
+		console.log('failed to contact liferay server.');
+	});
 
 	// post the data
 	postRequest.write(postDataString);
