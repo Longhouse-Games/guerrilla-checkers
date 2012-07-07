@@ -156,6 +156,7 @@ function userConnected(socket) {
 	// add connected user
 	++connectedUsers;
 	socket.emit('num_connected_users', connectedUsers);
+	socket.emit('board_type', (connectedUsers % 2 === 0) ? 'guerilla' : 'soldier');
 	socket.broadcast.emit('num_connected_users', connectedUsers);
 
 	// welcome message

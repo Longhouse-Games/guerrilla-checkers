@@ -31,13 +31,20 @@ body {
 	overflow-x: none;
 }
 
+.guerilla_board {
+	background: top left no-repeat url('../images/guerilla/board.jpg');
+}
+
+.soldier_board {
+	background: top left no-repeat url('../images/soldier/board.jpg');
+}
+
 .board {
 	width: 560px;
 	height: 560px;
 	padding: 40px;
 	position: relative;
 	margin-right: 10px;
-	background: top left no-repeat url('../images/guerilla/board.jpg');
 	background-size: 640px 640px;
 	border-radius: 10px;
 	-moz-border-radius: 10px;

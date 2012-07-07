@@ -109,6 +109,10 @@
 					}
 				});
 
+				socket.on('board_type', function(boardType) {
+					$('.board').addClass(boardType + '_board');
+				});
+
 				socket.on('num_connected_users', function(numConnectedUsers) {
 					if (numConnectedUsers >= 2) {
 						$('.board').first().show();
