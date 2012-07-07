@@ -47,6 +47,15 @@
 						window.getSelection() && window.getSelection().removeAllRanges();
 					};
 				};
+
+				var SQUARE_SIZE = 70;
+				var HALF_SQUARE_SIZE = 35;
+
+				function getBoardPosition(clientX, clientY) {
+					var board = $('#checkers');
+					debugger;
+				}
+
 				// init board
 				for(y = 7; y >= 0; --y)
 				for(x = 0; x < 8; ++x)
@@ -60,6 +69,15 @@
 								.text('{' + x + ',' + y + '}');
 
 							$(square).bind('click', generateSelectHandler(x, y, square));
+							(function(destX, destY) {
+								$(square).droppable({
+									hoverClass: 'square_hover',
+									drop: function( event, ui ) {
+										var srcPosition = ui.draggable.context.boardPosition;
+										move(socket, srcPosition.x, srcPosition.y, destX, destY);
+									}
+								});
+							})(x, y);
 							return square;
 						}());
 
@@ -70,15 +88,7 @@
 				board.css('overflow', 'auto');
 
 				board.children('div.square').each(function(index, square) {
-					$(square).draggable({
-						containment: "parent",
-						scroll: false,
-						revert: true,
-						drag: function(e, ui) {
-							ui.position.left = Math.floor((ui.position.left + 35) / 70) * 70;
-							ui.position.top = Math.floor((ui.position.top + 35) / 70) * 70;
-						}
-					});
+					square = $(square);
 				});
 
 				// receive messages
@@ -121,11 +131,35 @@
 						.each(function(index, square) {
 
 							square.innerHTML = data.board[x] && data.board[x][y] ? data.board[x][y].player : '';
+							$(square).css('z-index', ''+(8*(7-y) + x));
+
+							$(square).children('img').each(function(index, piece) {
+								piece.boardPosition = { x: x, y: y };
+								piece = $(piece);
+								(function(square) {
+									piece.draggable({
+										containment: '#checkers',
+										cursorAt: { top: HALF_SQUARE_SIZE, left: HALF_SQUARE_SIZE },
+										scroll: false,
+										revert: false,
+										opacity: 0.6,
+										helper: "clone",
+										start: function() {
+											square.addClass('selected');
+										},
+										stop: function() {
+											square.removeClass('selected');
+										}
+									});
+								})($(square));
+							});
+
 							++x;
 							if (x >= 8) {
 								x = 0;
 								--y;
 							}
+
 						});
 								
 				});
