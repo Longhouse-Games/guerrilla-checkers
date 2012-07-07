@@ -73,6 +73,7 @@
 					$(square).draggable({
 						containment: "parent",
 						scroll: false,
+						revert: true,
 						drag: function(e, ui) {
 							ui.position.left = Math.floor((ui.position.left + 35) / 70) * 70;
 							ui.position.top = Math.floor((ui.position.top + 35) / 70) * 70;
