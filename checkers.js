@@ -14,7 +14,6 @@ var Checkers = function(width, height, pieces) {
 	{
 		var piece = pieces[i];
 		if (typeof m_pieces[piece.x] === 'undefined')  {
-			console.log('initing: ' + piece.x);
 			m_pieces[piece.x] = {};
 		}
 		m_pieces[piece.x][piece.y] = piece;
@@ -30,7 +29,6 @@ var Checkers = function(width, height, pieces) {
 
 		var strPiece = JSON.stringify(piece);
 		var strPosition = JSON.stringify(position);
-		console.log('moving from: ' + strPiece + ' to ' + strPosition);
 
 		// check for basic validity
 		if (!(piece && position)) 
@@ -54,7 +52,6 @@ var Checkers = function(width, height, pieces) {
 
 		// lazily initialize column
 		if (typeof m_pieces[piece.x] === 'undefined')  {
-			console.log('initing: ' + piece.x);
 			m_pieces[piece.x] = {};
 		}
 
