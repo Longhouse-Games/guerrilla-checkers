@@ -2,6 +2,8 @@
 	<head>
 		<link rel="stylesheet" href="board.css" />
 		<script src="http://code.jquery.com/jquery.min.js"></script>
+		<script src="http://code.jquery.com/ui/jquery-ui-git.js"></script>
+
 		<script src="/socket.io/socket.io.js"></script>
 		<script>
 			var socket = io.connect();
@@ -62,6 +64,21 @@
 						}());
 
 				}
+
+				var board = $('#checkers');
+				board.css('position', 'relative');
+				board.css('overflow', 'auto');
+
+				board.children('div.square').each(function(index, square) {
+					$(square).draggable({
+						containment: "parent",
+						scroll: false,
+						drag: function(e, ui) {
+							ui.position.left = Math.floor((ui.position.left + 35) / 70) * 70;
+							ui.position.top = Math.floor((ui.position.top + 35) / 70) * 70;
+						}
+					});
+				});
 
 				// receive messages
 				socket.on('message', function (data) {
