@@ -79,8 +79,8 @@ function handleLogin(request, response) {
 	var serviceTicket = request.query.ticket;
 	var hasServiceTicket = typeof serviceTicket !== 'undefined';
 
-	var hostname = encodeURIComponent('http://' + request.headers.host);
-	var loginUrl = 'https://test.littlevikinggames.com/login?service=' + hostname;
+	var hostname = 'http://' + request.headers.host;
+	var loginUrl = 'https://test.littlevikinggames.com/login?service=' + encodeURIComponent(hostname);
 
 	var casInstance = new cas({
 		base_url: 'https://test.littlevikinggames.com',
