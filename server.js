@@ -72,13 +72,11 @@ function handleLogin(request, response) {
 
 	// validate service ticket
 	casInstance.validate(serviceTicket, function(error, status, username) {
-		if (error) {
+		if (error || !status) {
 			response.redirect(loginUrl);
 			return;
 		}
-
 		console.log(username + " logged in!");
-
 		response.sendfile(__dirname + '/index.html');
 	});
 }
