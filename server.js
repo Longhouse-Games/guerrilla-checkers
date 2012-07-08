@@ -5,8 +5,8 @@ var app = require('express').createServer()
   , assert = require('assert')
   , cas = require('cas');
 
-var Checkers = require('./checkers').Checkers
-  , liferay = require('./liferay');
+var Checkers = require('./lib/checkers').Checkers
+  , liferay = require('./server/liferay');
 
 // global variables
 var portNumber = 3000;
@@ -126,6 +126,15 @@ app.get('/debug', function (req, res) {
 	res.sendfile(__dirname + '/debug.html');
 });
 app.get('/images/*', function(req, res) {
+	res.sendfile(__dirname + req.originalUrl);
+});
+app.get('/style/*', function(req, res) {
+	res.sendfile(__dirname + req.originalUrl);
+});
+app.get('/lib/*', function(req, res) {
+	res.sendfile(__dirname + req.originalUrl);
+});
+app.get('/client/*', function(req, res) {
 	res.sendfile(__dirname + req.originalUrl);
 });
 
