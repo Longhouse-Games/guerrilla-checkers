@@ -46,32 +46,6 @@ var refreshBoard = function(socket, result) {
 	});
 };
 
-function LOLOL() {
-
-	var CAS = require('cas')
-		, express = require('express');
-
-	var cas = new CAS({
-		base_url: 'https://test.littlevikinggames.com',
-		service: 'http://test.littlevikinggames.com:4000'
-	});
-
-	var app = express.createServer();
-
-	app.get('/', function(req, res) {
-		console.log(req);
-		var ticket = req.query.ticket;
-		console.log('validating service ticket: ' + ticket);
-		cas.validate(ticket, function(err, status, username) {
-			console.log('auth for user ', username || '?', ': ', status);
-		});
-		res.send('...');
-	});
-
-	app.listen(4000);
-
-}
-
 function handleLogin(request, response) {
 	
 	console.log("Handling Login!");
