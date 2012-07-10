@@ -65,8 +65,8 @@ function handleLogin(request, response) {
 	var serviceTicket = request.query.ticket;
 	var hasServiceTicket = typeof serviceTicket !== 'undefined';
 
-	var hostname = encodeURIComponent('http://' + request.headers.host);
-	var loginUrl = 'https://test.littlevikinggames.com/login?service=' + hostname;
+	var hostname = 'http://' + request.headers.host;
+	var loginUrl = 'https://test.littlevikinggames.com/login?service=' + encodeURIComponent(hostname);
 
 	var casInstance = new cas({
 		base_url: 'https://test.littlevikinggames.com',
@@ -84,13 +84,11 @@ function handleLogin(request, response) {
 
 	// validate service ticket
 	casInstance.validate(serviceTicket, function(error, status, username) {
-		if (error) {
+		if (error || !status) {
 			response.redirect(loginUrl);
 			return;
 		}
-
 		console.log(username + " logged in!");
-
 		response.sendfile(__dirname + '/index.html');
 	});
 }
