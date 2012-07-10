@@ -1,11 +1,26 @@
 <html>
 	<head>
 		<link rel="stylesheet" href="/style/board.css" />
+		<!--[if IE]>
+		<link rel="stylesheet" href="/style/ie.css" />
+		<![endif]-->
 		<script src="http://code.jquery.com/jquery.min.js"></script>
 		<script src="http://code.jquery.com/ui/jquery-ui-git.js"></script>
+		<!--[if lt IE 9]>
+		<script src="http://ie7-js.googlecode.com/svn/version/2.1(beta4)/IE9.js"></script>
+		<![endif]-->
 
 		<script src="/socket.io/socket.io.js"></script>
 		<script>
+
+			if (Array.prototype.forEach === undefined) {
+				Array.prototype.forEach = function(callback) {
+					for (var idx = 0; idx < this.length; ++idx) {
+						callback(this[idx]);
+					}
+				}
+			}
+
 			var socket = io.connect();
 			var g_boardType = 'guerilla';
 			var printMessage = function(data) {
@@ -161,7 +176,7 @@
 							return;
 						}
 						square = $(square);
-						square.html('<img src="images/' + g_boardType + '/soldier_piece.png" width=68 height=68 alt="white" />');
+						square.html('<img src="images/' + g_boardType + '/soldier_piece.png" class="piece" width=68 height=68 alt="white" />');
 						square.children('img').each(function(index, pieceImage) {
 							pieceImage.boardPosition = position;
 							$(pieceImage).draggable({

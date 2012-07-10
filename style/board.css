@@ -51,6 +51,10 @@ body {
 	float: left;
 }
 
+.piece {
+	z-index: 1000;
+}
+
 .selected img, .selected_img {
 	-webkit-animation: myanim 1s infinite ease-in-out; /* Saf5, Chrome */
 	-moz-animation: myanim 1s infinite ease-in-out; /* FF5+ */

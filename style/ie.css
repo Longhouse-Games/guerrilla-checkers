@@ -1,0 +1,5 @@
+.board {
+	width: 640px !important;
+	height: 640px !important;
+	padding: 40px;
+}
