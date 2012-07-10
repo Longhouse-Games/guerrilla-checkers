@@ -7,6 +7,7 @@
 		<script src="/socket.io/socket.io.js"></script>
 		<script>
 			var socket = io.connect();
+			var g_boardType = 'guerilla';
 			var printMessage = function(data) {
 				var messageDiv = document.createElement('div');
 				messageDiv.innerHTML = '<span style="padding-right: 15px; color: red;">' + data.user + 
@@ -92,7 +93,7 @@
 
 				var board = $('#checkers');
 				board.css('position', 'relative');
-				board.css('overflow', 'auto');
+				board.css('overflow', 'hidden');
 
 				board.children('div.square').each(function(index, square) {
 					square = $(square);
@@ -117,7 +118,8 @@
 				});
 
 				socket.on('board_type', function(boardType) {
-					$('.board').addClass(boardType + '_board');
+					g_boardType = boardType;
+					$('.board').addClass(g_boardType + '_board');
 				});
 
 				socket.on('num_connected_users', function(numConnectedUsers) {
@@ -159,7 +161,7 @@
 							return;
 						}
 						square = $(square);
-						square.html('<img src="white_draughts_man.png" width=68 height=68 alt="white" />');
+						square.html('<img src="images/' + g_boardType + '/soldier_piece.png" width=68 height=68 alt="white" />');
 						square.children('img').each(function(index, pieceImage) {
 							pieceImage.boardPosition = position;
 							$(pieceImage).draggable({

@@ -129,7 +129,6 @@ app.get('/client/*', function(req, res) {
 mongoose.connect('mongodb://localhost/lvg');
 app.listen(portNumber);
 
-var piece = '<img src="white_draughts_man.png" width=68 height=68 alt="white" />';
 var checkers = new Checkers.GameState;
 
 // successful connection
@@ -138,7 +137,8 @@ function userConnected(socket) {
 	// add connected user
 	++connectedUsers;
 	socket.emit('num_connected_users', connectedUsers);
-	socket.emit('board_type', (connectedUsers % 2 === 0) ? 'guerilla' : 'soldier');
+	socket.boardType = (connectedUsers % 2 === 0) ? 'guerilla' : 'soldier';
+	socket.emit('board_type', socket.boardType);
 	socket.broadcast.emit('num_connected_users', connectedUsers);
 
 	// welcome message
@@ -176,7 +176,7 @@ function userConnected(socket) {
 	// checkers protocol
 	socket.on('move', function(data) {
 		console.log('move requested');
-		var result = checkers.move(data.piece, data.position);
+		var result = checkers.moveSoldierPiece(data.piece, data.position);
 		refreshBoard(socket, result);
 	});
 
