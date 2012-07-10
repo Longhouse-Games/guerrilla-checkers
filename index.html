@@ -51,9 +51,13 @@
 				var SQUARE_SIZE = 70;
 				var HALF_SQUARE_SIZE = 35;
 
-				function getBoardPosition(clientX, clientY) {
-					var board = $('#checkers');
-					debugger;
+				// allow direct querying of board squares by x/y
+				var g_boardSquares = {};
+				function getSquare(x, y) {
+					return g_boardSquares[x + ',' + y];
+				}
+				function setSquare(x, y, square) {
+					g_boardSquares[x + ',' + y] = square;
 				}
 
 				// init board
@@ -66,7 +70,10 @@
 							var square = $('<div />')
 								.addClass('square')
 								.addClass(getSquareClass(x, y))
-								.text('{' + x + ',' + y + '}');
+								.text('{' + x + ',' + y + '}')
+								.css('z-index', ''+(8*(7-y) + x));
+
+							setSquare(x, y, square);
 
 							$(square).bind('click', generateSelectHandler(x, y, square));
 							(function(destX, destY) {
@@ -123,49 +130,55 @@
 					}
 				});
 
-				socket.on('update', function(data) {
-					if (!data.result) {
-						logMessage({user: 'checkers', message: data.result});
-					};
-					
-					var x = 0;
-					var y = 7;
-					$('#checkers')
-						.children('div.square')
-						.each(function(index, square) {
+				socket.on('update', function(updateResponse) {
+					if (!updateResponse || !updateResponse.board) {
+						return;
+					}
 
-							square.innerHTML = data.board[x] && data.board[x][y] ? data.board[x][y].player : '';
-							$(square).css('z-index', ''+(8*(7-y) + x));
+					var gameState = updateResponse.board;
 
-							$(square).children('img').each(function(index, piece) {
-								piece.boardPosition = { x: x, y: y };
-								piece = $(piece);
-								(function(square) {
-									piece.draggable({
-										containment: '#checkers',
-										cursorAt: { top: HALF_SQUARE_SIZE, left: HALF_SQUARE_SIZE },
-										scroll: false,
-										revert: false,
-										opacity: 0.6,
-										helper: "clone",
-										start: function() {
-											square.addClass('selected');
-										},
-										stop: function() {
-											square.removeClass('selected');
-										}
-									});
-								})($(square));
+					// clear board state
+					for (var y = 7; y >= 0; --y) {
+						for (var x = 0; x < 8; ++x) {
+							var square = getSquare(x, y);
+							$(square).text('');
+						}
+					}
+
+					// TODO: load guerilla pieces
+
+					// load soldier pieces
+					var soldierPieces = gameState.arrSoldierPieces || [];
+					soldierPieces.forEach(function(soldierPiece) {
+						if (!soldierPiece || !soldierPiece.position) {
+							return;
+						}
+						var position = soldierPiece.position;
+						var square = getSquare(position.x, position.y);
+						if (!square) {
+							return;
+						}
+						square = $(square);
+						square.html('<img src="white_draughts_man.png" width=68 height=68 alt="white" />');
+						square.children('img').each(function(index, pieceImage) {
+							pieceImage.boardPosition = position;
+							$(pieceImage).draggable({
+								containment: '#checkers',
+								cursorAt: { top: HALF_SQUARE_SIZE, left: HALF_SQUARE_SIZE },
+								scroll: false,
+								revert: false,
+								opacity: 0.6,
+								helper: "clone",
+								start: function() {
+									square.addClass('selected');
+								},
+								stop: function() {
+									square.removeClass('selected');
+								}
 							});
-
-							++x;
-							if (x >= 8) {
-								x = 0;
-								--y;
-							}
-
 						});
-								
+					});
+
 				});
 
 				// send message functionality
