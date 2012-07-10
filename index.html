@@ -120,10 +120,10 @@
 					window.scrollTo(0, document.body.scrollHeight);
 				});
 				socket.on('user_connect', function(data) {
-					var userSpan = document.createElement('div');
-					userSpan.id = 'user_' + data.user;
-					userSpan.innerHTML = 'Opponent: ' + data.user;
-					document.getElementById('users').appendChild(userSpan);
+//					var userSpan = document.createElement('div');
+//					userSpan.id = 'user_' + data.user;
+//					userSpan.innerHTML = 'Opponent: ' + data.user;
+//					document.getElementById('users').appendChild(userSpan);
 				});
 				socket.on('user_disconnect', function(data) {
 					var userSpan = document.getElementById(data.user);
