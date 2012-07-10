@@ -1,12 +1,19 @@
-// includes
+
 var app = require('express').createServer()
   , mongoose = require('mongoose')
   , io = require('socket.io').listen(app)
   , assert = require('assert')
   , cas = require('cas');
 
-var Checkers = require('./lib/checkers').Checkers
-  , liferay = require('./server/liferay');
+// requirejs
+var requirejs = require('requirejs');
+requirejs.config({
+	nodeRequire: require
+});
+
+var liferay = require('./server/liferay');
+
+requirejs(['./lib/checkers'], function(Checkers) {
 
 // global variables
 var portNumber = 3000;
@@ -46,35 +53,14 @@ var refreshBoard = function(socket, result) {
 	});
 };
 
-function LOLOL() {
-
-	var CAS = require('cas')
-		, express = require('express');
-
-	var cas = new CAS({
-		base_url: 'https://test.littlevikinggames.com',
-		service: 'http://test.littlevikinggames.com:4000'
-	});
-
-	var app = express.createServer();
-
-	app.get('/', function(req, res) {
-		console.log(req);
-		var ticket = req.query.ticket;
-		console.log('validating service ticket: ' + ticket);
-		cas.validate(ticket, function(err, status, username) {
-			console.log('auth for user ', username || '?', ': ', status);
-		});
-		res.send('...');
-	});
-
-	app.listen(4000);
-
-}
-
 function handleLogin(request, response) {
 	
 	console.log("Handling Login!");
+
+	// DEBUG DEBUG DEBUG
+	response.sendfile(__dirname + '/index.html');
+	return;
+	// DEBUG DEBUG DEBUG
 
 	var serviceTicket = request.query.ticket;
 	var hasServiceTicket = typeof serviceTicket !== 'undefined';
@@ -143,21 +129,8 @@ app.get('/client/*', function(req, res) {
 mongoose.connect('mongodb://localhost/lvg');
 app.listen(portNumber);
 
-// HACK: board
 var piece = '<img src="white_draughts_man.png" width=68 height=68 alt="white" />';
-var checkers = new Checkers(8, 8, [
-	{x: 0, y: 0, player: piece},
-	{x: 0, y: 2, player: piece},
-	{x: 1, y: 1, player: piece},
-	{x: 2, y: 0, player: piece},
-	{x: 2, y: 2, player: piece},
-	{x: 3, y: 1, player: piece},
-	{x: 4, y: 0, player: piece},
-	{x: 4, y: 2, player: piece},
-	{x: 5, y: 1, player: piece},
-	{x: 6, y: 0, player: piece},
-	{x: 6, y: 2, player: piece},
-	{x: 7, y: 1, player: piece}]);
+var checkers = new Checkers.GameState;
 
 // successful connection
 function userConnected(socket) {
@@ -235,4 +208,6 @@ io.sockets.on('connection', function (socket) {
 });
 
 console.log("Server Started at localhost:"+portNumber);
+
+}); // requirejs Checkers
 
