@@ -42,7 +42,7 @@ describe('A guerilla-checkers game', function() {
 			expect(board.getRemainingGuerrillaPieces()).toBe(65);
 		});
 
-		it('after the Guerrilla makes an invalid move, it is the Soldier\'s turn.', function() {
+		it('after the Guerrilla makes an invalid move, it is still the Guerrilla\'s turn.', function() {
 			var invalidPosition = new Checkers.Position(0,0);
 			expect(board.placeGuerrillaPiece(invalidPosition)).toBe(false);
 			expect(board.getCurrentPhase()).toBe("GUERRILLA");
