@@ -1,0 +1,3 @@
+[submodule "vendor/javascript-state-machine"]
+	path = vendor/javascript-state-machine
+	url = https://github.com/Longhouse-Games/javascript-state-machine.git
