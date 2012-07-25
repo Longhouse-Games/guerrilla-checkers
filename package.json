@@ -1,0 +1,27 @@
+{
+  "name": "guerrilla-checkers",
+  "author": "Longhouse Games",
+  "version": "0.1.0",
+  "description": "Guerrilla Checkers, a hybrid of Go and Checkers, designed by Brian Train.",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/Longhouse-Games/guerrilla-checkers.git"
+  },
+  "license": "BSD",
+  "engines": {
+    "node": "~0.8.3"
+  },
+  "dependencies": {
+    "coffee-script" : ">=1.0.1",
+    "socket.io": "0.9.8",
+    "express": "3.0.0rc1"
+  },
+  "devDependencies": {
+    "jasmine-node" : ">=1.0.26"
+  }
+}
