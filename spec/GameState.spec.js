@@ -51,7 +51,7 @@ describe('A guerilla-checkers game', function() {
 		});
 
 		it('after the Guerrilla makes a valid move, it is the Soldier\'s turn.', function() {
-			var validPosition = new Checkers.Position(1,1);
+			var validPosition = new Checkers.Position(1,0); // must be placed adjacent
 			expect(board.placeGuerrillaPiece(validPosition)).toBe(true);
 			expect(board.getCurrentPhase()).toBe("SOLDIER");
 		});

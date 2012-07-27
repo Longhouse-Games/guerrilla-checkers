@@ -42,6 +42,13 @@ describe('A Guerrilla piece', function() {
 			board = new GameState([]);
 			board.placeGuerrillaPiece(new Position(3,5));
 		});
+
+		it('following Guerrillas must be placed adjacent to an existing Guerrilla', function() {
+			var illegal = new Position(1,1);
+			expect(board.placeGuerrillaPiece(illegal)).toBe(false);
+			var legal= new Position(3,6);
+			expect(board.placeGuerrillaPiece(legal)).toBe(true);
+		});
 	});
 });
 });
