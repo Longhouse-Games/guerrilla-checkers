@@ -43,11 +43,24 @@ describe('A Guerrilla piece', function() {
 			board.placeGuerrillaPiece(new Position(3,5));
 		});
 
-		it('following Guerrillas must be placed adjacent to an existing Guerrilla', function() {
+		it('first guerilla placed must be adjacent to an existing guerilla', function() {
 			var illegal = new Position(1,1);
 			expect(board.placeGuerrillaPiece(illegal)).toBe(false);
 			var legal= new Position(3,6);
 			expect(board.placeGuerrillaPiece(legal)).toBe(true);
+		});
+
+		describe('when placing the second guerilla', function() {
+			beforeEach(function() {
+				board.placeGuerrillaPiece(new Position(3,6));
+			});
+
+			it('it must be placed adjacent to the last placed guerilla', function() {
+				var illegal = new Position(2,5);
+				expect(board.placeGuerrillaPiece(illegal)).toBe(false);
+				var legal = new Position(2,6);
+				expect(board.placeGuerrillaPiece(legal)).toBe(true);
+			});
 		});
 	});
 });
