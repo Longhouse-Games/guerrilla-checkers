@@ -14,15 +14,15 @@
   },
   "license": "BSD",
   "engines": {
-    "node": "~0.8.3"
+    "node": "~0.6.17"
   },
   "dependencies": {
-    "cas": "",
+    "cas": "0.0.3",
     "coffee-script" : ">=1.0.1",
-    "express": "3.0.0rc1",
-    "mongoose": "",
-    "requirejs": "",
-    "socket.io": "0.9.8"
+    "express": "2.5.10",
+    "mongoose": "2.7.0",
+    "requirejs": "2.0.4",
+    "socket.io": "0.9.6"
   },
   "devDependencies": {
     "jasmine-node" : ">=1.0.26"
