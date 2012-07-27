@@ -17,9 +17,12 @@
     "node": "~0.8.3"
   },
   "dependencies": {
+    "cas": "",
     "coffee-script" : ">=1.0.1",
-    "socket.io": "0.9.8",
-    "express": "3.0.0rc1"
+    "express": "3.0.0rc1",
+    "mongoose": "",
+    "requirejs": "",
+    "socket.io": "0.9.8"
   },
   "devDependencies": {
     "jasmine-node" : ">=1.0.26"
