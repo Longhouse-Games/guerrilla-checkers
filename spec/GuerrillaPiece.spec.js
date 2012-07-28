@@ -63,5 +63,19 @@ describe('A Guerrilla piece', function() {
 			});
 		});
 	});
+
+	describe('placed to capture a soldier piece', function() {
+		beforeEach(function() {
+			board = new GameState([new Position(2,3)], false);
+			board.placeGuerrillaPiece(new Position(2,3));
+			board.placeGuerrillaPiece(new Position(2,2));
+			board.placeGuerrillaPiece(new Position(1,2));
+		});
+		it('causes the soldier to be removed from the board.', function() {
+			expect(board.soldierPieceAt(new Position(2,3))).not.toBeNull();
+			board.placeGuerrillaPiece(new Position(1,3));
+			expect(board.soldierPieceAt(new Position(2,3))).toBeNull();
+		});
+	});
 });
 });
