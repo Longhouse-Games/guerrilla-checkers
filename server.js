@@ -122,6 +122,18 @@ app.get('/client/*', function(req, res) {
 	res.sendfile(__dirname + req.originalUrl);
 });
 
+// TODO Refactor: base it more smartly on player ID and previous sessions
+// (so they can resume a game they've been disconnected from)
+function chooseRole(magic_number) {
+  switch(magic_number) {
+    case 1:
+      return 'guerrilla';
+    case 2:
+      return 'coin';
+    default:
+      return 'spectator';
+  }
+};
 
 // initialize server
 mongoose.connect('mongodb://localhost/lvg');
@@ -135,6 +147,8 @@ function userConnected(socket) {
 	// add connected user
 	++connectedUsers;
 	socket.emit('num_connected_users', connectedUsers);
+  role = chooseRole(connectedUsers);
+  socket.emit('role', role);
 	socket.boardType = (connectedUsers % 2 === 0) ? 'guerilla' : 'soldier';
 	socket.emit('board_type', socket.boardType);
 	socket.broadcast.emit('num_connected_users', connectedUsers);

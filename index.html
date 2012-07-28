@@ -23,9 +23,10 @@
 
 			var socket = io.connect();
 			var g_boardType = 'guerilla';
+			var g_role = 'spectator';
 			var printMessage = function(user, message) {
 				var messageDiv = document.createElement('div');
-				messageDiv.innerHTML = '<span style="padding-right: 15px; color: red;">' + user +
+				messageDiv.innerHTML = '<span style="padding-right: 15px; color: red;">' + user + 
 					'</span>' + message;
 				document.getElementById('chatlog').appendChild(messageDiv);
 				$('#chatlog').scrollTop($('#chatlog')[0].scrollHeight);
@@ -135,6 +136,17 @@
 				socket.on('board_type', function(boardType) {
 					g_boardType = boardType;
 					$('.board').addClass(g_boardType + '_board');
+				});
+
+				socket.on('role', function(role) {
+					g_role = role;
+					if (role === 'guerrilla') {
+						printMessage("server", "You are the Guerrilla player!");
+					} else if (role === 'coin') {
+						printMessage("server", "You are the COIN player!");
+					} else {
+						printMessage("server", "You are a spectator");
+					}
 				});
 
 				socket.on('num_connected_users', function(numConnectedUsers) {
