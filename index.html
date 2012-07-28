@@ -33,6 +33,9 @@
 			function setSquare(x, y, square) {
 				g_boardSquares[x + ',' + y] = square;
 			}
+			function getIntersection(x, y) {
+				return $(getSquare(x,y)).children(".intersection");
+			}
 
 			var printMessage = function(user, message) {
 				var messageDiv = document.createElement('div');
@@ -67,7 +70,7 @@
 			}
 
 			function drawGuerrillaPiece(x, y) {
-				intersection = $(getSquare(x,y)).children(".intersection");
+				intersection = getIntersection(x, y);
 				img = $('<img src="images/' + g_boardType + '/guerrilla_piece.png" class="guerrilla piece"/>');
 				intersection.append(img);
 				return intersection;
