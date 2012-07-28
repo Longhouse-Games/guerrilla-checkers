@@ -52,6 +52,13 @@
 				socket.emit('move', {piece: {x: start_x, y: start_y}, position: {x:target_x, y:target_y}});
 			};
 
+			function drawCOINPiece(x, y) {
+				square = $(getSquare(x, y));
+				img = $('<img src="images/' + g_boardType + '/soldier_piece.png" class="soldier piece" width=68 height=68 alt="white" />');
+				square.append(img);
+				return square;
+			}
+
 			function drawGuerrillaPiece(x, y) {
 				intersection = $(getSquare(x,y)).children(".intersection");
 				img = $('<img src="images/' + g_boardType + '/guerrilla_piece.png" class="guerrilla piece"/>');
@@ -207,9 +214,7 @@
 						if (!square) {
 							return;
 						}
-						square = $(square);
-						img = $('<img src="images/' + g_boardType + '/soldier_piece.png" class="soldier piece" width=68 height=68 alt="white" />');
-						square.append(img);
+						square = drawCOINPiece(position.x, position.y);
 						square.children('img').each(function(index, pieceImage) {
 							pieceImage.boardPosition = position;
 							$(pieceImage).draggable({
