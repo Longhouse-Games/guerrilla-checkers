@@ -75,7 +75,13 @@
 				intersection.append(img);
 				return intersection;
 			}
-			
+
+			function drawGuerrillaShadow(x, y) {
+				intersection = getIntersection(x, y);
+				img = $('<img src="images/' + g_boardType + '/guerrilla_piece.png" class="guerrilla piece shadow"/>');
+				intersection.append(img);
+				return intersection;
+			}
 
 			$(window).bind('load', function() {
 				var generateSelectHandler = function(x, y, square) {
