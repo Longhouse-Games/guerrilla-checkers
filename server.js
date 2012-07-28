@@ -109,18 +109,14 @@ app.get('/', function (req, res) {
 app.get('/debug', function (req, res) {
 	res.sendfile(__dirname + '/debug.html');
 });
-app.get('/images/*', function(req, res) {
+serve_dir = function(req, res) {
 	res.sendfile(__dirname + req.originalUrl);
-});
-app.get('/style/*', function(req, res) {
-	res.sendfile(__dirname + req.originalUrl);
-});
-app.get('/lib/*', function(req, res) {
-	res.sendfile(__dirname + req.originalUrl);
-});
-app.get('/client/*', function(req, res) {
-	res.sendfile(__dirname + req.originalUrl);
-});
+}
+app.get('/images/*', serve_dir);
+app.get('/style/*', serve_dir);
+app.get('/lib/*', serve_dir);
+app.get('/client/*', serve_dir);
+app.get('/scripts/*', serve_dir);
 
 // TODO Refactor: base it more smartly on player ID and previous sessions
 // (so they can resume a game they've been disconnected from)
