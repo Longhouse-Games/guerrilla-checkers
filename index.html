@@ -193,6 +193,8 @@
 					}
 
 					// TODO: load guerilla pieces
+					
+
 
 					// load soldier pieces
 					var soldierPieces = gameState.arrSoldierPieces || [];
@@ -226,6 +228,13 @@
 							});
 						});
 					});
+
+					var arrGuerrillaPieces = gameState.arrGuerrillaPieces || [];
+					for(idx = 0; idx < arrGuerrillaPieces.length; ++idx) {
+						var piece = arrGuerrillaPieces[idx];
+						drawGuerrillaPiece(piece.position.x, piece.position.y);
+					}
+					
 
 				});
 
