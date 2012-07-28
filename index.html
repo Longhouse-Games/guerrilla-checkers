@@ -167,6 +167,7 @@
 					var gameState = updateResponse.board;
 
 					// clear board state
+          $(".piece").remove();
 					for (var y = 7; y >= 0; --y) {
 						for (var x = 0; x < 8; ++x) {
 							var square = getSquare(x, y);
