@@ -23,10 +23,10 @@
 
 			var socket = io.connect();
 			var g_boardType = 'guerilla';
-			var printMessage = function(data) {
+			var printMessage = function(user, message) {
 				var messageDiv = document.createElement('div');
-				messageDiv.innerHTML = '<span style="padding-right: 15px; color: red;">' + data.user + 
-					'</span>' + data.message;
+				messageDiv.innerHTML = '<span style="padding-right: 15px; color: red;">' + user +
+					'</span>' + message;
 				document.getElementById('chatlog').appendChild(messageDiv);
 				$('#chatlog').scrollTop($('#chatlog')[0].scrollHeight);
 			};
@@ -116,7 +116,7 @@
 
 				// receive messages
 				socket.on('message', function (data) {
-					printMessage(data);
+					printMessage(data.user, data.message);
 					window.scrollTo(0, document.body.scrollHeight);
 				});
 				socket.on('user_connect', function(data) {
