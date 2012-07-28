@@ -24,7 +24,6 @@ describe('A soldier piece', function() {
 			beforeEach(function() {
 				var position = new Position(5,4);
 				board.placeGuerrillaPiece(position);
-				assert.ok(board.guerrillaPieceAt(position));
 			});
 
 			it('can only move to capture the guerilla', function() {
@@ -34,16 +33,17 @@ describe('A soldier piece', function() {
 					new Position(piece.position.x - 1, piece.position.x - 1),
 					new Position(piece.position.x + 1, piece.position.x - 1)
 				];
-				for(idx=0; i < positions.length; ++i) {
-					expect(board.moveSoldierPiece(piece, positions[i])).toBe(false);
+				for(idx=0; idx < positions.length; ++idx) {
+					expect(board.moveSoldierPiece(piece.position, positions[idx])).toBe(false);
 				}
-				expect(board.moveSoldierPiece(piece, new Position(6,5))).toBe(true);
+				expect(board.moveSoldierPiece(piece.position, new Position(6,5))).toBe(true);
 			});
 
 			it('when capturing the guerrilla, removes it from the board', function() {
 				var piece = board.soldierPieceAt(new Position(5,4));
-				board.moveSoldierPiece(piece, new Position(6,5));
-				expect(board.guerilla(new Poosition(5,4))).toBeNull();
+				expect(piece).not.toBeNull();
+				expect(board.moveSoldierPiece(piece.position, new Position(6,5))).toBe(true);
+				expect(board.guerrillaPieceAt(new Position(5,4))).toBeNull();
 			});
 
 		});
