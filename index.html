@@ -188,7 +188,8 @@
 							return;
 						}
 						square = $(square);
-						square.html('<img src="images/' + g_boardType + '/soldier_piece.png" class="piece" width=68 height=68 alt="white" />');
+						img = $('<img src="images/' + g_boardType + '/soldier_piece.png" class="piece" width=68 height=68 alt="white" />');
+						square.append(img);
 						square.children('img').each(function(index, pieceImage) {
 							pieceImage.boardPosition = position;
 							$(pieceImage).draggable({
