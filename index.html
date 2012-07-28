@@ -24,6 +24,16 @@
 			var socket = io.connect();
 			var g_boardType = 'guerilla';
 			var g_role = 'spectator';
+
+			// allow direct querying of board squares by x/y
+			var g_boardSquares = {};
+			function getSquare(x, y) {
+				return g_boardSquares[x + ',' + y];
+			}
+			function setSquare(x, y, square) {
+				g_boardSquares[x + ',' + y] = square;
+			}
+
 			var printMessage = function(user, message) {
 				var messageDiv = document.createElement('div');
 				messageDiv.innerHTML = '<span style="padding-right: 15px; color: red;">' + user + 
@@ -41,6 +51,13 @@
 			var move = function(socket, start_x, start_y, target_x, target_y) {
 				socket.emit('move', {piece: {x: start_x, y: start_y}, position: {x:target_x, y:target_y}});
 			};
+
+			function drawGuerrillaPiece(x, y) {
+				intersection = $(getSquare(x,y)).children(".intersection");
+				img = $('<img src="images/' + g_boardType + '/guerrilla_piece.png" class="guerrilla piece"/>');
+				intersection.append(img);
+				return intersection;
+			}
 			
 
 			$(window).bind('load', function() {
@@ -68,15 +85,6 @@
 				var SQUARE_SIZE = 70;
 				var HALF_SQUARE_SIZE = 35;
 
-				// allow direct querying of board squares by x/y
-				var g_boardSquares = {};
-				function getSquare(x, y) {
-					return g_boardSquares[x + ',' + y];
-				}
-				function setSquare(x, y, square) {
-					g_boardSquares[x + ',' + y] = square;
-				}
-
 				// init board
 				for(y = 7; y >= 0; --y)
 				for(x = 0; x < 8; ++x)
@@ -90,6 +98,16 @@
 								.css('z-index', ''+(8*(7-y) + x));
 
 							square.append('<span>' + '{' + x + ',' + y + '}' + '</span>');
+
+							if (x < 7 && y > 0) {
+								var intersection = $('<div />')
+									.addClass('intersection')
+									.css('z-index', ''+(7*(6-y) + x + 100));
+
+								square.append(intersection);
+								console.log(square);
+							}
+
 							setSquare(x, y, square);
 
 							$(square).bind('click', generateSelectHandler(x, y, square));
@@ -104,7 +122,6 @@
 							})(x, y);
 							return square;
 						}());
-
 				}
 
 				var board = $('#checkers');
@@ -167,7 +184,7 @@
 					var gameState = updateResponse.board;
 
 					// clear board state
-          $(".piece").remove();
+					$(".piece").remove();
 					for (var y = 7; y >= 0; --y) {
 						for (var x = 0; x < 8; ++x) {
 							var square = getSquare(x, y);
@@ -189,7 +206,7 @@
 							return;
 						}
 						square = $(square);
-						img = $('<img src="images/' + g_boardType + '/soldier_piece.png" class="piece" width=68 height=68 alt="white" />');
+						img = $('<img src="images/' + g_boardType + '/soldier_piece.png" class="soldier piece" width=68 height=68 alt="white" />');
 						square.append(img);
 						square.children('img').each(function(index, pieceImage) {
 							pieceImage.boardPosition = position;

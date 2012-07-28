@@ -51,8 +51,21 @@ body {
 	float: left;
 }
 
-.piece {
+.soldier {
+	position: absolute;
+	left: 0px;
+	top: 0px;
 	z-index: 1000;
+}
+
+img.guerrilla {
+	width: 36px;
+	height: 36px;
+	margin-top: 12px;
+	margin-left: 12px;
+}
+
+.piece {
 }
 
 .selected img, .selected_img {
@@ -106,6 +119,17 @@ div.selected {
 	-moz-transition: background-color 0.3s ease-out;  /* FF4+ */
 	-o-transition: background-color 0.3s ease-out;  /* Opera 10.5+ */
 	transition: background-color 0.3s ease-out;
+}
+
+.intersection {
+	width: 60px;
+	height: 60px;
+	margin-top: 38px;
+	margin-left: 38px;
+	overflow: visible;
+	position: relative;
+	float: left;
+	color: white;
 }
 
 
