@@ -76,6 +76,65 @@ describe('A Guerrilla piece', function() {
 			board.placeGuerrillaPiece(new Position(1,3));
 			expect(board.soldierPieceAt(new Position(2,3))).toBeNull();
 		});
-	});
+
+		describe('only requires two placements to capture a COIN piece on the', function() {
+			it('left edge', function() {
+				coinPosition = new Position(0,3);
+				var board = new GameState([coinPosition]);
+				expect(board.soldierPieceAt(coinPosition)).not.toBeNull()
+				expect(board.placeGuerrillaPiece(new Position(0,3))).toBe(true);
+				expect(board.soldierPieceAt(coinPosition)).not.toBeNull()
+				expect(board.placeGuerrillaPiece(new Position(0,2))).toBe(true);
+				expect(board.soldierPieceAt(coinPosition)).toBeNull();
+
+			});
+
+			it('top edge', function() {
+				coinPosition = new Position(3, 7);
+				console.log('top edge: ', coinPosition);
+				var board = new GameState([coinPosition]);
+				expect(board.soldierPieceAt(coinPosition)).not.toBeNull()
+				expect(board.placeGuerrillaPiece(new Position(3,6))).toBe(true);
+				expect(board.soldierPieceAt(coinPosition)).not.toBeNull()
+				expect(board.placeGuerrillaPiece(new Position(2,6))).toBe(true);
+				expect(board.soldierPieceAt(coinPosition)).toBeNull();
+			});
+
+			it('right edge', function() {
+				coinPosition = new Position(7, 5);
+				console.log('top edge: ', coinPosition);
+				var board = new GameState([coinPosition]);
+				expect(board.soldierPieceAt(coinPosition)).not.toBeNull()
+				expect(board.placeGuerrillaPiece(new Position(6,5))).toBe(true);
+				expect(board.soldierPieceAt(coinPosition)).not.toBeNull()
+				expect(board.placeGuerrillaPiece(new Position(6,4))).toBe(true);
+				expect(board.soldierPieceAt(coinPosition)).toBeNull();
+			});
+			it('bottom edge', function() {
+				coinPosition = new Position(4, 0);
+				console.log('top edge: ', coinPosition);
+				var board = new GameState([coinPosition]);
+				expect(board.soldierPieceAt(coinPosition)).not.toBeNull()
+				expect(board.placeGuerrillaPiece(new Position(3,0))).toBe(true);
+				expect(board.soldierPieceAt(coinPosition)).not.toBeNull()
+				expect(board.placeGuerrillaPiece(new Position(4,0))).toBe(true);
+				expect(board.soldierPieceAt(coinPosition)).toBeNull();
+			});
+
+		});
+
+		it('only requires one placement to capture a COIN piece in a corner', function() {
+			coinPosition = new Position(0, 0);
+			console.log('top edge: ', coinPosition);
+			var board = new GameState([coinPosition]);
+			expect(board.soldierPieceAt(coinPosition)).not.toBeNull()
+			expect(board.placeGuerrillaPiece(new Position(0,0))).toBe(true);
+			expect(board.soldierPieceAt(coinPosition)).toBeNull();
+		});
+	})
+
+
+	
+	
 });
 });
