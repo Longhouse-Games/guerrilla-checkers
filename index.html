@@ -87,9 +87,9 @@
 							var square = $('<div />')
 								.addClass('square')
 								.addClass(getSquareClass(x, y))
-								.text('{' + x + ',' + y + '}')
 								.css('z-index', ''+(8*(7-y) + x));
 
+							square.append('<span>' + '{' + x + ',' + y + '}' + '</span>');
 							setSquare(x, y, square);
 
 							$(square).bind('click', generateSelectHandler(x, y, square));
@@ -170,7 +170,7 @@
 					for (var y = 7; y >= 0; --y) {
 						for (var x = 0; x < 8; ++x) {
 							var square = getSquare(x, y);
-							$(square).text('');
+							$(square).children('span').remove();
 						}
 					}
 
