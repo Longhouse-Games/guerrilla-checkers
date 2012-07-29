@@ -148,7 +148,6 @@ require(["lib/checkers", 'helpers'], function(checkers, h) {
 		}
 		var SQUARE_SIZE = 70;
 		var HALF_SQUARE_SIZE = 35;
-		var CURRENT_PLAYER_Z_INDEX = 100;
 
 		var initBoard = function() {
 			// init board
@@ -158,7 +157,7 @@ require(["lib/checkers", 'helpers'], function(checkers, h) {
 				$('#checkers')
 					.first()
 					.append(function() {
-						var zindex = isCOINPlayer() ? CURRENT_PLAYER_Z_INDEX : 0;
+						var zindex = isCOINPlayer() ? (x+1)*(y+1) : 0;
 						var square = $('<div />')
 							.addClass('square')
 							.addClass(h.getSquareClass(x, y))
@@ -167,7 +166,7 @@ require(["lib/checkers", 'helpers'], function(checkers, h) {
 						square.append('<span>' + '{' + x + ',' + y + '}' + '</span>');
 
 						if (x < 7 && y < 7) {
-							var zindex = isGuerrillaPlayer() ? CURRENT_PLAYER_Z_INDEX : 0;
+							var zindex = isGuerrillaPlayer() ? (x+1)*(y+1) : 0;
 							var intersection = $('<div />')
 								.addClass('intersection')
 								.css('z-index', ''+zindex);
