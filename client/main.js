@@ -40,8 +40,18 @@ require(["lib/checkers", 'helpers'], function(checkers, h) {
 
 	var selected = null;
 
-	var move = function(socket, start_x, start_y, target_x, target_y) {
-		socket.emit('move', {piece: {x: start_x, y: start_y}, position: {x:target_x, y:target_y}});
+	var moveCOIN = function(socket, start_x, start_y, target_x, target_y) {
+		socket.emit('moveCOIN', {
+			piece: {x: start_x, y: start_y},
+			position: {x:target_x, y:target_y}
+		});
+	};
+
+	var placeGuerrilla = function(socket, x, y) {
+		console.log("Placing guerrilla at " + x + ", " +y);
+		socket.emit('placeGuerrilla', {
+			position: {x: x, y: y}
+		});
 	};
 
 	function drawCOINPiece(x, y) {
@@ -83,7 +93,7 @@ require(["lib/checkers", 'helpers'], function(checkers, h) {
 					$(square).addClass('selected');
 					return;
 				}
-				move(socket, selected.x, selected.y, x, y);
+				moveCOIN(socket, 'coin', selected.x, selected.y, x, y);
 				$(selected.square).removeClass('selected');
 				$(selected.square).addClass(selected.squareClass);
 				selected = null;
@@ -94,6 +104,12 @@ require(["lib/checkers", 'helpers'], function(checkers, h) {
 			};
 		};
 
+		var generateIntersectionHandler = function(x, y, intersection) {
+			return function() {
+				console.log("You click intersection: " + x + ", " + y);
+				placeGuerrilla(socket, x, y);
+			};
+		}
 		var SQUARE_SIZE = 70;
 		var HALF_SQUARE_SIZE = 35;
 
@@ -117,6 +133,7 @@ require(["lib/checkers", 'helpers'], function(checkers, h) {
 							.css('z-index', ''+(7*(6-y) + x + 100));
 
 						square.append(intersection);
+						intersection.bind('click', generateIntersectionHandler(x, y, intersection));
 					}
 
 					setSquare(x, y, square);
@@ -127,7 +144,7 @@ require(["lib/checkers", 'helpers'], function(checkers, h) {
 							hoverClass: 'square_hover',
 							drop: function( event, ui ) {
 								var srcPosition = ui.draggable.context.boardPosition;
-								move(socket, srcPosition.x, srcPosition.y, destX, destY);
+								moveCOIN(socket, srcPosition.x, srcPosition.y, destX, destY);
 							}
 						});
 					})(x, y);
