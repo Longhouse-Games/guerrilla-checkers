@@ -19,6 +19,9 @@ require(["lib/checkers", 'helpers'], function(checkers, h) {
 	var g_role = 'spectator';
 	var g_init = false;
 	var g_gameState = null;
+	// TODO refactor. this should be queryable from the game class
+	var g_phases = ["GUERRILLA", "GUERRILLA", "SOLDIER"];
+	var g_currentPhase = 0;
 
 	function isCOINPlayer() {
 		return g_role === 'coin';
@@ -63,6 +66,14 @@ require(["lib/checkers", 'helpers'], function(checkers, h) {
 			position: {x: x, y: y}
 		});
 	};
+
+	function isGuerrillaTurn() {
+		return g_phases[g_currentPhase] === 'GUERRILLA';
+	}
+
+	function isCOINTurn() {
+		return g_phases[g_currentPhase] === 'SOLDIER';
+	}
 
 	function drawCOINPiece(x, y) {
 		square = $(getSquare(x, y));
@@ -243,6 +254,9 @@ require(["lib/checkers", 'helpers'], function(checkers, h) {
 			}
 
 			g_gameState = updateResponse.board;
+			g_currentPhase = updateResponse.phase;
+
+			console.log("It is the " + g_phases[g_currentPhase] + "'s turn");
 
 			// clear board state
 			$(".piece").remove();

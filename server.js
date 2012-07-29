@@ -45,6 +45,7 @@ var saveMessageToMongo = function(data) {
 var refreshBoard = function(socket, result) {
 	data = {
 		result: true,
+		phase: checkers.getCurrentPhaseIndex(),
 		board: checkers.getPieces()
 	};
 	socket.emit('update', data);
@@ -141,8 +142,8 @@ function userConnected(socket) {
 	// add connected user
 	++connectedUsers;
 	socket.emit('num_connected_users', connectedUsers);
-  role = chooseRole(connectedUsers);
-  socket.emit('role', role);
+	role = chooseRole(connectedUsers);
+	socket.emit('role', role);
 	socket.boardType = (connectedUsers % 2 === 0) ? 'guerilla' : 'soldier';
 	socket.emit('board_type', socket.boardType);
 	socket.broadcast.emit('num_connected_users', connectedUsers);
