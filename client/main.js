@@ -129,7 +129,7 @@ require(["lib/checkers", 'helpers'], function(checkers, h) {
 					$(square).addClass('selected');
 					return;
 				}
-				moveCOIN(socket, 'coin', selected.x, selected.y, x, y);
+				moveCOIN(socket, selected.x, selected.y, x, y);
 				$(selected.square).removeClass('selected');
 				$(selected.square).addClass(selected.squareClass);
 				selected = null;
