@@ -148,12 +148,6 @@ require(["lib/checkers", 'helpers'], function(checkers, h) {
 			printMessage(data.user, data.message);
 			window.scrollTo(0, document.body.scrollHeight);
 		});
-		socket.on('user_connect', function(data) {
-	//					var userSpan = document.createElement('div');
-	//					userSpan.id = 'user_' + data.user;
-	//					userSpan.innerHTML = 'Opponent: ' + data.user;
-	//					document.getElementById('users').appendChild(userSpan);
-		});
 		socket.on('user_disconnect', function(data) {
 			var userSpan = document.getElementById(data.user);
 			if (socket.id != data.user && userSpan && userSpan.parentNode) {
