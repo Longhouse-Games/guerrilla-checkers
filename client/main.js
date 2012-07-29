@@ -92,12 +92,27 @@ require(["lib/checkers", 'helpers'], function(checkers, h) {
 		return intersection;
 	}
 
+	function doesSquareContainCOINPiece(x, y) {
+		pieces = g_gameState.arrSoldierPieces || [];
+		var i;
+		for (i = 0; i < pieces.length; i++) {
+			piece = pieces[i];
+			if (piece.position && piece.position.x === x && piece.position.y === y) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	$(window).bind('load', function() {
 		var generateSelectHandler = function(x, y, square) {
 			var squareClass = h.getSquareClass(x, y);
 			return function() {
 				//printMessage({user: '*debug*', message: 'you clicked square {' + x + ',' + y + '}'});
 				if (!selected) {
+					if (!doesSquareContainCOINPiece(x, y)) {
+						return;
+					}
 					selected = {x: x, y: y, square: square, squareClass: squareClass};
 					$(square).removeClass(squareClass);
 					$(square).addClass('selected');
