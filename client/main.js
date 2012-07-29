@@ -18,6 +18,7 @@ require(["lib/checkers", 'helpers'], function(checkers, h) {
 	var g_boardType = 'guerilla';
 	var g_role = 'spectator';
 	var g_init = false;
+	var g_gameState = null;
 
 	function isCOINPlayer() {
 		return g_role === 'coin';
@@ -226,7 +227,7 @@ require(["lib/checkers", 'helpers'], function(checkers, h) {
 				g_init = true;
 			}
 
-			var gameState = updateResponse.board;
+			g_gameState = updateResponse.board;
 
 			// clear board state
 			$(".piece").remove();
@@ -238,7 +239,7 @@ require(["lib/checkers", 'helpers'], function(checkers, h) {
 			}
 
 			// load soldier pieces
-			var soldierPieces = gameState.arrSoldierPieces || [];
+			var soldierPieces = g_gameState.arrSoldierPieces || [];
 			soldierPieces.forEach(function(soldierPiece) {
 				if (!soldierPiece || !soldierPiece.position) {
 					return;
@@ -270,7 +271,7 @@ require(["lib/checkers", 'helpers'], function(checkers, h) {
 				}
 			});
 
-			var arrGuerrillaPieces = gameState.arrGuerrillaPieces || [];
+			var arrGuerrillaPieces = g_gameState.arrGuerrillaPieces || [];
 			for(idx = 0; idx < arrGuerrillaPieces.length; ++idx) {
 				var piece = arrGuerrillaPieces[idx];
 				drawGuerrillaPiece(piece.position.x, piece.position.y);
