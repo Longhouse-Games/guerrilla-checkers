@@ -43,14 +43,12 @@ var saveMessageToMongo = function(data) {
 };
 
 var refreshBoard = function(socket, result) {
-	socket.emit('update', {
+	data = {
 		result: true,
 		board: checkers.getPieces()
-	});
-	socket.broadcast.emit('update', {
-		result: true,
-		board: checkers.getPieces()
-	});
+	};
+	socket.emit('update', data);
+	socket.broadcast.emit('update', data);
 };
 
 function handleLogin(request, response) {
