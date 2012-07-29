@@ -182,13 +182,14 @@ function userConnected(socket) {
 
 	// checkers protocol
 	socket.on('moveCOIN', function(data) {
-		console.log('move requested');
+		console.log(data);
+		console.log('### COIN move requested. Piece at ('+data.piece.x+','+data.piece.y+") to ("+data.position.x+","+data.position.y+")");
 		var result = checkers.moveSoldierPiece(data.piece, data.position);
 		refreshBoard(socket, result);
 	});
 
 	socket.on('placeGuerrilla', function(data) {
-		console.log("placing guerrilla token requested");
+		console.log("### Guerrilla move requested.");
 		console.log(data);
 		var result = checkers.placeGuerrillaPiece(data.position);
 		refreshBoard(socket, result);

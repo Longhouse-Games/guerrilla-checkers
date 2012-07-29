@@ -256,7 +256,7 @@ require(["lib/checkers", 'helpers'], function(checkers, h) {
 			g_gameState = updateResponse.board;
 			g_currentPhase = updateResponse.phase;
 
-			console.log("It is the " + g_phases[g_currentPhase] + "'s turn");
+			printMessage('server', "It is the " + g_phases[g_currentPhase] + "'s turn");
 
 			// clear board state
 			$(".piece").remove();
