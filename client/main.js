@@ -17,6 +17,15 @@ require(["lib/checkers", 'helpers'], function(checkers, h) {
 	var socket = io.connect();
 	var g_boardType = 'guerilla';
 	var g_role = 'spectator';
+	var g_init = false;
+
+	function isCOINPlayer() {
+		return g_role === 'coin';
+	}
+
+	function isGuerrillaPlayer() {
+		return g_role === 'guerrilla';
+	}
 
 	// allow direct querying of board squares by x/y
 	var g_boardSquares = {};
@@ -113,52 +122,58 @@ require(["lib/checkers", 'helpers'], function(checkers, h) {
 		var SQUARE_SIZE = 70;
 		var HALF_SQUARE_SIZE = 35;
 
-		// init board
-		for(y = 7; y >= 0; --y)
-		for(x = 0; x < 8; ++x)
-		{
-			$('#checkers')
-				.first()
-				.append(function() {
-					var square = $('<div />')
-						.addClass('square')
-						.addClass(h.getSquareClass(x, y))
-						.css('z-index', ''+(8*(7-y) + x));
+		var initBoard = function() {
+			// init board
+			for(y = 7; y >= 0; --y)
+			for(x = 0; x < 8; ++x)
+			{
+				$('#checkers')
+					.first()
+					.append(function() {
+						var square = $('<div />')
+							.addClass('square')
+							.addClass(h.getSquareClass(x, y))
+							.css('z-index', ''+(8*(7-y) + x));
 
-					square.append('<span>' + '{' + x + ',' + y + '}' + '</span>');
+						square.append('<span>' + '{' + x + ',' + y + '}' + '</span>');
 
-					if (x < 7 && y < 7) {
-						var intersection = $('<div />')
-							.addClass('intersection')
-							.css('z-index', ''+(7*(6-y) + x + 100));
+						if (x < 7 && y < 7) {
+							var intersection = $('<div />')
+								.addClass('intersection')
+								.css('z-index', ''+(7*(6-y) + x + 100));
 
-						square.append(intersection);
-						intersection.bind('click', generateIntersectionHandler(x, y, intersection));
-					}
-
-					setSquare(x, y, square);
-
-					$(square).bind('click', generateSelectHandler(x, y, square));
-					(function(destX, destY) {
-						$(square).droppable({
-							hoverClass: 'square_hover',
-							drop: function( event, ui ) {
-								var srcPosition = ui.draggable.context.boardPosition;
-								moveCOIN(socket, srcPosition.x, srcPosition.y, destX, destY);
+							square.append(intersection);
+							if (isGuerrillaPlayer()) {
+								intersection.bind('click', generateIntersectionHandler(x, y, intersection));
 							}
-						});
-					})(x, y);
-					return square;
-				}());
+						}
+
+						setSquare(x, y, square);
+
+						if (isCOINPlayer()) {
+							$(square).bind('click', generateSelectHandler(x, y, square));
+							(function(destX, destY) {
+								$(square).droppable({
+									hoverClass: 'square_hover',
+									drop: function( event, ui ) {
+										var srcPosition = ui.draggable.context.boardPosition;
+										moveCOIN(socket, srcPosition.x, srcPosition.y, destX, destY);
+									}
+								});
+							})(x, y);
+						}
+						return square;
+					}());
+			}
+
+			var board = $('#checkers');
+			board.css('position', 'relative');
+			board.css('overflow', 'hidden');
+
+			board.children('div.square').each(function(index, square) {
+				square = $(square);
+			});
 		}
-
-		var board = $('#checkers');
-		board.css('position', 'relative');
-		board.css('overflow', 'hidden');
-
-		board.children('div.square').each(function(index, square) {
-			square = $(square);
-		});
 
 		// receive messages
 		socket.on('message', function (data) {
@@ -203,6 +218,11 @@ require(["lib/checkers", 'helpers'], function(checkers, h) {
 				return;
 			}
 
+			if (g_init !== true) {
+				initBoard();
+				g_init = true;
+			}
+
 			var gameState = updateResponse.board;
 
 			// clear board state
@@ -226,23 +246,25 @@ require(["lib/checkers", 'helpers'], function(checkers, h) {
 					return;
 				}
 				square = drawCOINPiece(position.x, position.y);
-				square.children('img').each(function(index, pieceImage) {
-					pieceImage.boardPosition = position;
-					$(pieceImage).draggable({
-						containment: '#checkers',
-						cursorAt: { top: HALF_SQUARE_SIZE, left: HALF_SQUARE_SIZE },
-						scroll: false,
-						revert: false,
-						opacity: 0.6,
-						helper: "clone",
-						start: function() {
-							square.addClass('selected');
-						},
-						stop: function() {
-							square.removeClass('selected');
-						}
+				if (isCOINPlayer()) {
+					square.children('img').each(function(index, pieceImage) {
+						pieceImage.boardPosition = position;
+						$(pieceImage).draggable({
+							containment: '#checkers',
+							cursorAt: { top: HALF_SQUARE_SIZE, left: HALF_SQUARE_SIZE },
+							scroll: false,
+							revert: false,
+							opacity: 0.6,
+							helper: "clone",
+							start: function() {
+								square.addClass('selected');
+							},
+							stop: function() {
+								square.removeClass('selected');
+							}
+						});
 					});
-				});
+				}
 			});
 
 			var arrGuerrillaPieces = gameState.arrGuerrillaPieces || [];
