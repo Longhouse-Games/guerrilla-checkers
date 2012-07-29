@@ -1,5 +1,6 @@
 
-var app = require('express').createServer()
+var express = require('express')
+  , app = express.createServer()
   , mongoose = require('mongoose')
   , io = require('socket.io').listen(app)
   , assert = require('assert')
@@ -92,6 +93,10 @@ function handleLogin(request, response) {
 	});
 }
 
+app.configure(function() {
+	app.use(express.cookieParser());
+	app.use(express.session({secret: 'secret', key: 'express.sid'}));
+});
 // routing
 app.get('/white_draughts_man.png', function(req, res) {
 	res.sendfile(__dirname + '/white_draughts_man.png');
