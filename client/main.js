@@ -1,4 +1,11 @@
-require(["/lib/checkers.js"], function(checkers) {
+requirejs.config({
+	baseUrl: 'client',
+	paths: {
+		lib: '../lib'
+	}
+});
+
+require(["lib/checkers", 'helpers'], function(checkers, h) {
 	if (Array.prototype.forEach === undefined) {
 		Array.prototype.forEach = function(callback) {
 			for (var idx = 0; idx < this.length; ++idx) {
@@ -29,10 +36,6 @@ require(["/lib/checkers.js"], function(checkers) {
 			'</span>' + message;
 		document.getElementById('chatlog').appendChild(messageDiv);
 		$('#chatlog').scrollTop($('#chatlog')[0].scrollHeight);
-	};
-
-	var getSquareClass = function(x, y) {
-		return x % 2 == y % 2 ? 'square_white' : 'square_black';
 	};
 
 	var selected = null;
@@ -71,7 +74,7 @@ require(["/lib/checkers.js"], function(checkers) {
 
 	$(window).bind('load', function() {
 		var generateSelectHandler = function(x, y, square) {
-			var squareClass = getSquareClass(x, y);
+			var squareClass = h.getSquareClass(x, y);
 			return function() {
 				//printMessage({user: '*debug*', message: 'you clicked square {' + x + ',' + y + '}'});
 				if (!selected) {
@@ -103,7 +106,7 @@ require(["/lib/checkers.js"], function(checkers) {
 				.append(function() {
 					var square = $('<div />')
 						.addClass('square')
-						.addClass(getSquareClass(x, y))
+						.addClass(h.getSquareClass(x, y))
 						.css('z-index', ''+(8*(7-y) + x));
 
 					square.append('<span>' + '{' + x + ',' + y + '}' + '</span>');
