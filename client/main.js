@@ -108,7 +108,7 @@ require(["/lib/checkers.js"], function(checkers) {
 
 					square.append('<span>' + '{' + x + ',' + y + '}' + '</span>');
 
-					if (x < 7 && y > 0) {
+					if (x < 7 && y < 7) {
 						var intersection = $('<div />')
 							.addClass('intersection')
 							.css('z-index', ''+(7*(6-y) + x + 100));
