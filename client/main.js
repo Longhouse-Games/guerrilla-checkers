@@ -114,7 +114,6 @@ require(["/lib/checkers.js"], function(checkers) {
 							.css('z-index', ''+(7*(6-y) + x + 100));
 
 						square.append(intersection);
-						console.log(square);
 					}
 
 					setSquare(x, y, square);
