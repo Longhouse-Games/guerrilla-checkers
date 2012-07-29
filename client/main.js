@@ -214,10 +214,6 @@ require(["lib/checkers", 'helpers'], function(checkers, h) {
 				}
 			}
 
-			// TODO: load guerilla pieces
-
-
-
 			// load soldier pieces
 			var soldierPieces = gameState.arrSoldierPieces || [];
 			soldierPieces.forEach(function(soldierPiece) {
