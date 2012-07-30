@@ -117,10 +117,17 @@ require(["lib/checkers", 'helpers'], function(checkers, h) {
 	function showPossibleGuerrillaMoves() {
 		console.log("Showing possible moves");
 		var i;
-		positions = g_gameState.getPotentialGuerrillaMoves(null);
+		positions = g_gameState.getPotentialGuerrillaMoves();
 		console.log(positions);
 		for (i = 0; i < positions.length; i++) {
 			drawGuerrillaShadow(positions[i].x, positions[i].y);
+		}
+	}
+
+	function showPossibleCOINMoves(coin_piece) {
+		positions = g_gameState.getPotentialSoldierMoves(coin_piece);
+		for (i = 0; i < positions.length; i++) {
+			drawCOINShadow(positions[i].x, positions[i].y);
 		}
 	}
 
@@ -136,6 +143,7 @@ require(["lib/checkers", 'helpers'], function(checkers, h) {
 					selected = {x: x, y: y, square: square, squareClass: squareClass};
 					$(square).removeClass(squareClass);
 					$(square).addClass('selected');
+					showPossibleCOINMoves({position: selected});
 					return;
 				}
 				moveCOIN(socket, selected.x, selected.y, x, y);
