@@ -126,14 +126,14 @@ app.get('/scripts/*', serve_dir);
 // TODO Refactor: base it more smartly on player ID and previous sessions
 // (so they can resume a game they've been disconnected from)
 function chooseRole(magic_number) {
-  switch(magic_number) {
-    case 1:
-      return 'guerrilla';
-    case 2:
-      return 'coin';
-    default:
-      return 'spectator';
-  }
+	switch(magic_number) {
+		case 1:
+			return 'guerrilla';
+		case 2:
+			return 'coin';
+		default:
+			return 'spectator';
+	}
 };
 
 // initialize server
