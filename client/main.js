@@ -21,7 +21,6 @@ require(["lib/checkers", 'helpers'], function(checkers, h) {
 	var g_gameState = null;
 	// TODO refactor. this should be queryable from the game class
 	var g_phases = ["GUERRILLA", "GUERRILLA", "SOLDIER"];
-	var g_currentPhase = 0;
 
 	function isCOINPlayer() {
 		return g_role === 'coin';
@@ -68,11 +67,11 @@ require(["lib/checkers", 'helpers'], function(checkers, h) {
 	};
 
 	function isGuerrillaTurn() {
-		return g_phases[g_currentPhase] === 'GUERRILLA';
+		return g_phases[g_gameState.getCurrentPhaseIndex()] === 'GUERRILLA';
 	}
 
 	function isCOINTurn() {
-		return g_phases[g_currentPhase] === 'SOLDIER';
+		return g_phases[g_gameState.getCurrentPhaseIndex()] === 'SOLDIER';
 	}
 
 	function drawCOINPiece(x, y) {
@@ -104,7 +103,7 @@ require(["lib/checkers", 'helpers'], function(checkers, h) {
 	}
 
 	function doesSquareContainCOINPiece(x, y) {
-		pieces = g_gameState.arrSoldierPieces || [];
+		pieces = g_gameState.getSoldierPieces() || [];
 		var i;
 		for (i = 0; i < pieces.length; i++) {
 			piece = pieces[i];
@@ -252,10 +251,16 @@ require(["lib/checkers", 'helpers'], function(checkers, h) {
 				g_init = true;
 			}
 
-			g_gameState = updateResponse.board;
-			g_currentPhase = updateResponse.phase;
+			data = {
+				currentPhase: updateResponse.phase,
+				remainingGuerrillaPieces: updateResponse.remainingGuerrillaPieces,
+				arrSoldierPieces: updateResponse.board.arrSoldierPieces,
+				arrGuerrillaPieces: updateResponse.board.arrGuerrillaPieces
+			};
+			g_gameState = new checkers.GameState;
+			g_gameState.reinit(data);
 
-			printMessage('server', "It is the " + g_phases[g_currentPhase] + "'s turn");
+			printMessage('server', "It is the " + g_phases[g_gameState.getCurrentPhaseIndex()] + "'s turn");
 
 			// clear board state
 			$(".piece").remove();
@@ -267,7 +272,7 @@ require(["lib/checkers", 'helpers'], function(checkers, h) {
 			}
 
 			// load soldier pieces
-			var soldierPieces = g_gameState.arrSoldierPieces || [];
+			var soldierPieces = g_gameState.getSoldierPieces() || [];
 			soldierPieces.forEach(function(soldierPiece) {
 				if (!soldierPiece || !soldierPiece.position) {
 					return;
@@ -299,7 +304,7 @@ require(["lib/checkers", 'helpers'], function(checkers, h) {
 				}
 			});
 
-			var arrGuerrillaPieces = g_gameState.arrGuerrillaPieces || [];
+			var arrGuerrillaPieces = g_gameState.getGuerrillaPieces() || [];
 			for(idx = 0; idx < arrGuerrillaPieces.length; ++idx) {
 				var piece = arrGuerrillaPieces[idx];
 				drawGuerrillaPiece(piece.position.x, piece.position.y);
