@@ -114,6 +114,16 @@ require(["lib/checkers", 'helpers'], function(checkers, h) {
 		return false;
 	}
 
+	function showPossibleGuerrillaMoves() {
+		console.log("Showing possible moves");
+		var i;
+		positions = g_gameState.getPotentialGuerrillaMoves(null);
+		console.log(positions);
+		for (i = 0; i < positions.length; i++) {
+			drawGuerrillaShadow(positions[i].x, positions[i].y);
+		}
+	}
+
 	$(window).bind('load', function() {
 		var generateSelectHandler = function(x, y, square) {
 			var squareClass = h.getSquareClass(x, y);
@@ -255,10 +265,12 @@ require(["lib/checkers", 'helpers'], function(checkers, h) {
 				currentPhase: updateResponse.phase,
 				remainingGuerrillaPieces: updateResponse.remainingGuerrillaPieces,
 				arrSoldierPieces: updateResponse.board.arrSoldierPieces,
-				arrGuerrillaPieces: updateResponse.board.arrGuerrillaPieces
+				arrGuerrillaPieces: updateResponse.board.arrGuerrillaPieces,
+				placedGuerrilla: updateResponse.placedGuerrilla
 			};
 			g_gameState = new checkers.GameState;
 			g_gameState.reinit(data);
+			console.log(g_gameState);
 
 			printMessage('server', "It is the " + g_phases[g_gameState.getCurrentPhaseIndex()] + "'s turn");
 
@@ -310,6 +322,9 @@ require(["lib/checkers", 'helpers'], function(checkers, h) {
 				drawGuerrillaPiece(piece.position.x, piece.position.y);
 			}
 
+			if (isGuerrillaTurn() && isGuerrillaPlayer()) {
+				showPossibleGuerrillaMoves();
+			}
 
 		});
 

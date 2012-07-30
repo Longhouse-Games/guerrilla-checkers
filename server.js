@@ -48,7 +48,8 @@ var refreshBoard = function(socket, result) {
 		result: true,
 		remainingGuerrillaPieces: checkers.getRemainingGuerrillaPieces(),
 		phase: checkers.getCurrentPhaseIndex(),
-		board: checkers.getPieces()
+		board: checkers.getPieces(),
+		placedGuerrilla: checkers.placedGuerrilla,
 	};
 	socket.emit('update', data);
 	socket.broadcast.emit('update', data);
