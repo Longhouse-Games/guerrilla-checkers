@@ -4,8 +4,8 @@ var express = require('express')
   , mongoose = require('mongoose')
   , io = require('socket.io').listen(app)
   , assert = require('assert')
-  , cas = require('cas');
-
+  , cas = require('cas')
+  , cookie = require('cookie');
 // requirejs
 var requirejs = require('requirejs');
 requirejs.config({
@@ -223,8 +223,25 @@ function userConnected(socket) {
 
 }
 
-io.sockets.on('connection', function (socket) {
+io.set('authorization', function (data, accept) {
+    // check if there's a cookie header
+    if (data.headers.cookie) {
+        // if there is, parse the cookie
+        data.cookie = cookie.parse(data.headers.cookie);
+        // note that you will need to use the same key to grad the
+        // session id, as you specified in the Express setup.
+        data.sessionID = data.cookie['express.sid'];
+    } else {
+       // if there isn't, turn down the connection with a message
+       // and leave the function.
+       return accept('No cookie transmitted.', false);
+    }
+    // accept the incoming connection
+    accept(null, true);
+});
 
+io.sockets.on('connection', function (socket) {
+	console.log('connection from: ', socket.handshake.sessionID);
 	userConnected(socket);
 
 });
