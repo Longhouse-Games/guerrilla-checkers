@@ -46,11 +46,7 @@ var saveMessageToMongo = function(data) {
 var refreshBoard = function(socket, result) {
 	data = {
 		result: true,
-		remainingGuerrillaPieces: checkers.getRemainingGuerrillaPieces(),
-		phase: checkers.getCurrentPhaseIndex(),
-		board: checkers.getPieces(),
-		placedGuerrilla: checkers.placedGuerrilla,
-		movedSoldier: checkers.movedSoldier
+		gameState: checkers.asDTO()
 	};
 	socket.emit('update', data);
 	socket.broadcast.emit('update', data);

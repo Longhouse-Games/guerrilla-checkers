@@ -260,7 +260,7 @@ require(["lib/checkers", 'helpers'], function(checkers, h) {
 		});
 
 		socket.on('update', function(updateResponse) {
-			if (!updateResponse || !updateResponse.board) {
+			if (!updateResponse || !updateResponse.gameState) {
 				return;
 			}
 
@@ -269,16 +269,10 @@ require(["lib/checkers", 'helpers'], function(checkers, h) {
 				g_init = true;
 			}
 
-			data = {
-				currentPhase: updateResponse.phase,
-				remainingGuerrillaPieces: updateResponse.remainingGuerrillaPieces,
-				arrSoldierPieces: updateResponse.board.arrSoldierPieces,
-				arrGuerrillaPieces: updateResponse.board.arrGuerrillaPieces,
-				placedGuerrilla: updateResponse.placedGuerrilla,
-				movedSoldier: updateResponse.movedSoldier
-			};
+			dto = updateResponse.gameState;
+
 			g_gameState = new checkers.GameState;
-			g_gameState.reinit(data);
+			g_gameState.fromDTO(dto);
 			console.log(g_gameState);
 
 			printMessage('server', "It is the " + g_phases[g_gameState.getCurrentPhaseIndex()] + "'s turn");
