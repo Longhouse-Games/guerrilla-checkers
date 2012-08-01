@@ -274,7 +274,8 @@ require(["lib/checkers", 'helpers'], function(checkers, h) {
 				remainingGuerrillaPieces: updateResponse.remainingGuerrillaPieces,
 				arrSoldierPieces: updateResponse.board.arrSoldierPieces,
 				arrGuerrillaPieces: updateResponse.board.arrGuerrillaPieces,
-				placedGuerrilla: updateResponse.placedGuerrilla
+				placedGuerrilla: updateResponse.placedGuerrilla,
+				movedSoldier: updateResponse.movedSoldier
 			};
 			g_gameState = new checkers.GameState;
 			g_gameState.reinit(data);

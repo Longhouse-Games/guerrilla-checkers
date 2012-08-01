@@ -50,6 +50,7 @@ var refreshBoard = function(socket, result) {
 		phase: checkers.getCurrentPhaseIndex(),
 		board: checkers.getPieces(),
 		placedGuerrilla: checkers.placedGuerrilla,
+		movedSoldier: checkers.movedSoldier
 	};
 	socket.emit('update', data);
 	socket.broadcast.emit('update', data);
