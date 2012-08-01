@@ -72,7 +72,7 @@ img.shadow {
 	opacity: 0.5;
 }
 
-.selected img, .selected_img {
+.selected > img, .selected_img {
 	-webkit-animation: myanim 1s infinite ease-in-out; /* Saf5, Chrome */
 	-moz-animation: myanim 1s infinite ease-in-out; /* FF5+ */
 	-o-animation: myanim 1s infinite ease-in-out; /* Opera 12+ */
