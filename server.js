@@ -6,20 +6,28 @@ var express = require('express')
   , assert = require('assert')
   , cas = require('cas')
   , cookie = require('cookie');
+
 // requirejs
 var requirejs = require('requirejs');
 requirejs.config({
-	nodeRequire: require
+	nodeRequire: require,
+	paths: {
+		underscore: "./vendor/underscore"
+	},
+	shim: {
+		underscore: {
+			exports: '_'
+		}
+	}
 });
 
 var liferay = require('./server/liferay');
-
-requirejs(['./lib/checkers', './server/server.js'], function(Checkers, Server) {
+	
+requirejs(['underscore', './lib/checkers', './server/server.js'], function(_, Checkers, Server) {
 
 // global variables
 var portNumber = 3000;
 var connectedUsers = 0;
-var arrGames = [];
 
 
 // global types
@@ -153,18 +161,21 @@ io.set('authorization', function (data, accept) {
 });
 
 var arrPlayers = [];
+var arrGames = [];
+
 io.sockets.on('connection', function (socket) {
 	console.log('connection from: ', socket.handshake.sessionID);
 	var gameId = Math.floor(connectedUsers / 2);
 	console.log('joining game id: ', gameId);
-	var game = {};
+	var server = {};
 	if (gameId <= arrGames.length - 1) {
 		console.log('gameid ', gameId, ' already exists.');
-		game = arrGames[gameId];
+		server = arrGames[gameId];
 	} else {
 		console.log('created game ', gameId);
-		game = new Checkers.GameState();
-		arrGames.push(game);
+		var game = new Checkers.GameState();
+		server = new Server.Server(new Checkers.GameState());
+		arrGames.push(server);
 	}
 	console.log('joining game: ', game);
 
@@ -173,11 +184,14 @@ io.sockets.on('connection', function (socket) {
 	socket.emit('num_connected_users', connectedUsers);
 	var role = chooseRole(connectedUsers);
 	socket.emit('role', role);
-	socket.boardType = (connectedUsers % 2 === 0) ? 'guerilla' : 'soldier';
-	socket.emit('board_type', socket.boardType);
+	var role = (connectedUsers % 2 === 0) ? 'guerilla' : 'soldier';
+	socket.emit('board_type', role);
 	socket.broadcast.emit('num_connected_users', connectedUsers);
-	var player = new Server.Player(socket, game);
-	arrPlayers.push(player);
+	var player = server.addPlayer(socket, role);
+	if (!_.isUndefined(player) && !_.isNull(player))
+	{
+		arrPlayers.push(player);
+	}
 	console.log('active games: ', arrGames.length);
 	console.log('connected users: ', connectedUsers);
 
