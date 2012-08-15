@@ -130,6 +130,7 @@ var Player = function(_socket, server, role) {
 	});
 
 	// refresh board
+	me.socket.emit('role', role);
 	me.server.refreshBoard(true, [me]);
 
 	// send recent messages
