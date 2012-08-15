@@ -174,24 +174,20 @@ io.sockets.on('connection', function (socket) {
 	} else {
 		console.log('created game ', gameId);
 		var game = new Checkers.GameState();
-		server = new Server.Server(new Checkers.GameState());
+		server = new Server.Server(new Checkers.GameState(), gameId);
 		arrGames.push(server);
 	}
-	console.log('joining game: ', game);
 
-	connectedUsers++;
 
-	socket.emit('num_connected_users', connectedUsers);
-	var role = chooseRole(connectedUsers);
-	socket.emit('role', role);
-	var role = (connectedUsers % 2 === 0) ? 'guerilla' : 'soldier';
-	socket.emit('board_type', role);
-	socket.broadcast.emit('num_connected_users', connectedUsers);
-	var player = server.addPlayer(socket, role);
+	//var role = chooseRole(connectedUsers);
+	//socket.emit('board_type', role);
+	var player = server.addPlayer(socket);
 	if (!_.isUndefined(player) && !_.isNull(player))
 	{
 		arrPlayers.push(player);
 	}
+
+	console.log('joined server: ', server);
 	console.log('active games: ', arrGames.length);
 	console.log('connected users: ', connectedUsers);
 

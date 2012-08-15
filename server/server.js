@@ -13,10 +13,12 @@ define(['underscore', '../lib/checkers'], function( _, Checkers ) {
 // 	socket.broadcast.emit('update', data);
 // };
 
-var Server = function(game) {
+var Server = function(game, id) {
 	var me = this;
+	me.id = id;
 	me.game = game;
 	me.players = [];
+	me.arrRoles = ['guerrilla', 'coin'];
 };
 
 
@@ -36,13 +38,30 @@ Server.prototype.refreshBoard = function(result, players) {
 	});
 };
 
-Server.prototype.addPlayer = function(socket, role) {
-	var player = new Player(socket, this);
+Server.prototype.addPlayer = function(socket) {
+	var role = _.first(this.arrRoles);
+	var player = new Player(socket, this, role);
 	this.players.push(player);
+	var arrRoles = this.arrRoles;
+	var me = this;
+
 	socket.on('disconnect', function(data) {
+		console.log('disconnected player: ', player);
 		this.players = _.without(this.players, player);
+		me.arrRoles.push(player.getRole());
 	});
+
+	this.arrRoles = _.without(this.arrRoles, role);
+	socket.emit('role', role);
+	this.broadcast('num_connected_users', this.players.length);
+	socket.emit('board_type', ['guerilla', 'soldier'][this.id % 2]);
 	return player;
+};
+
+Server.prototype.broadcast = function(message, data) {
+	_.each(this.players, function(player) {
+		player.getSocket().emit(message, data);
+	});
 };
 
 
@@ -52,9 +71,10 @@ Server.prototype.getGame= function() {
 
 
 
-var Player = function(_socket, server) {
+var Player = function(_socket, server, role) {
 	var me = this;
 	me.server = server;
+	me.role = role;
 	me.socket = _socket;
 	me.id = me.socket.handshake.sessionID;
 
@@ -84,7 +104,7 @@ var Player = function(_socket, server) {
 		me.socket.emit('message', data);
 
 		//liferay.sendMessage({ type: 'message', data: data });
-		saveMessageToMongo(data);
+		//saveMessageToMongo(data);
 	});
 
 	// disconnect message
@@ -131,6 +151,10 @@ Player.prototype.getId = function() {
 
 Player.prototype.getSocket = function() {
 	return this.socket;
+};
+
+Player.prototype.getRole = function() {
+	return this.role;
 };
 
 return {
