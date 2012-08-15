@@ -52,7 +52,6 @@ Server.prototype.addPlayer = function(socket) {
 	});
 
 	this.arrRoles = _.without(this.arrRoles, role);
-	socket.emit('role', role);
 	this.broadcast('num_connected_users', this.players.length);
 	socket.emit('board_type', ['guerilla', 'soldier'][this.id % 2]);
 	return player;
