@@ -47,9 +47,9 @@ Server.prototype.addPlayer = function(socket) {
 
 	socket.on('disconnect', function(data) {
 		console.log('disconnected player: ', player);
-		this.arrPlayers = _.without(this.arrPlayers, player);
+		me.arrPlayers = _.without(me.arrPlayers, player);
 		me.arrRoles.push(player.getRole());
-		me.broadcast('num_connected_users', this.arrPlayers.length);
+		me.broadcast('num_connected_users', me.arrPlayers.length);
 	});
 
 	this.arrRoles = _.without(this.arrRoles, role);
