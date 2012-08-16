@@ -17,12 +17,12 @@ var Server = function(game, id) {
 	var me = this;
 	me.id = id;
 	me.game = game;
-	me.players = [];
+	me.arrPlayers = [];
 	me.arrRoles = ['guerrilla', 'coin'];
 };
 
 
-Server.prototype.refreshBoard = function(result, players) {
+Server.prototype.refreshBoard = function(result, arrPlayers) {
 	var data = {
 		result: result,
 		remainingGuerrillaPieces: this.game.getRemainingGuerrillaPieces(),
@@ -30,8 +30,8 @@ Server.prototype.refreshBoard = function(result, players) {
 		board: this.game.getPieces(),
 		placedGuerrilla: this.game.placedGuerrilla
 	};
-	console.log('update players: ', this.players.length);
-	_.each(players || this.players, function(player) {
+	console.log('update players: ', this.arrPlayers.length);
+	_.each(arrPlayers || this.arrPlayers, function(player) {
 		var socket = player.getSocket();
 		if (_.isUndefined(socket) || _.isNull(socket)) { return; }
 		socket.emit('update', data);
@@ -41,31 +41,44 @@ Server.prototype.refreshBoard = function(result, players) {
 Server.prototype.addPlayer = function(socket) {
 	var role = _.first(this.arrRoles);
 	var player = new Player(socket, this, role);
-	this.players.push(player);
+	this.arrPlayers.push(player);
 	var arrRoles = this.arrRoles;
 	var me = this;
 
 	socket.on('disconnect', function(data) {
 		console.log('disconnected player: ', player);
-		this.players = _.without(this.players, player);
+		this.arrPlayers = _.without(this.arrPlayers, player);
 		me.arrRoles.push(player.getRole());
+		me.broadcast('num_connected_users', this.arrPlayers.length);
 	});
 
 	this.arrRoles = _.without(this.arrRoles, role);
-	this.broadcast('num_connected_users', this.players.length);
+	this.broadcast('num_connected_users', this.arrPlayers.length);
 	socket.emit('board_type', ['guerilla', 'soldier'][this.id % 2]);
 	return player;
 };
 
+Server.prototype.getPlayerCount = function() {
+	return this.arrPlayers.length;
+};
+
 Server.prototype.broadcast = function(message, data) {
-	_.each(this.players, function(player) {
+	_.each(this.arrPlayers, function(player) {
 		player.getSocket().emit(message, data);
 	});
 };
 
 
-Server.prototype.getGame= function() {
+Server.prototype.getGame = function() {
 	return this.game;
+};
+
+Server.prototype.getId = function() {
+	return this.id;
+};
+
+Server.prototype.getOpenRoles = function() {
+	return this.arrRoles.slice(0); // fake immutability
 };
 
 

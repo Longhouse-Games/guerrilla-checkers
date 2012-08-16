@@ -162,48 +162,51 @@ io.set('authorization', function (data, accept) {
 
 var arrPlayers = [];
 var arrGames = [];
+var gameId = 0;
+
+var totalUsers = function() {
+	return _.reduce(arrGames, function(accum, server) {
+		return accum + server.getPlayerCount();
+	}, 0)
+};
+
+var findOpenServer = function() {
+	for(i=0; i < arrGames.length; ++i) {
+		var game = arrGames[i];
+		var openRoles = game.getOpenRoles();
+		console.log('open roles in ', game.getId(), ': ', openRoles);
+		if (openRoles.length > 0) {
+			return game;
+		}
+	}
+};
+
 
 io.sockets.on('connection', function (socket) {
 	console.log('connection from: ', socket.handshake.sessionID);
-	var gameId = Math.floor(connectedUsers / 2);
-	console.log('joining game id: ', gameId);
-	var server = {};
-	if (gameId <= arrGames.length - 1) {
-		console.log('gameid ', gameId, ' already exists.');
-		server = arrGames[gameId];
-	} else {
+	var server = findOpenServer();
+	console.log('open slots in: ', server);
+	if (_.isUndefined(server)) {
 		console.log('created game ', gameId);
 		var game = new Checkers.GameState();
 		server = new Server.Server(new Checkers.GameState(), gameId);
 		arrGames.push(server);
+		gameId++;
 	}
 
-
-	//var role = chooseRole(connectedUsers);
-	//socket.emit('board_type', role);
 	var player = server.addPlayer(socket);
 	if (!_.isUndefined(player) && !_.isNull(player))
 	{
 		arrPlayers.push(player);
 	}
 
+	socket.on('disconnect', function(socket) {
+		console.log('connected userse: ', totalUsers());
+	});
+
 	console.log('joined server: ', server);
 	console.log('active games: ', arrGames.length);
-	console.log('connected users: ', connectedUsers);
-
-	socket.on('disconnect', function() {
-		//--connectedUsers;
-		socket.emit('num_connected_users', connectedUsers);
-		socket.broadcast.emit('num_connected_users', connectedUsers);
-
-		socket.broadcast.emit('message', {
-			user: 'server',
-			message: 'someone quit!'
-		});
-		socket.broadcast.emit('user_disconnect', { 
-			user: socket.handshake.address.address 
-		});
-	});
+	console.log('connected users: ', totalUsers());
 });
 
 console.log("Server Started at localhost:"+portNumber);
