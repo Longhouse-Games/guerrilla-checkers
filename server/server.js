@@ -28,7 +28,8 @@ Server.prototype.refreshBoard = function(result, arrPlayers) {
 		remainingGuerrillaPieces: this.game.getRemainingGuerrillaPieces(),
 		phase: this.game.getCurrentPhaseIndex(),
 		board: this.game.getPieces(),
-		placedGuerrilla: this.game.placedGuerrilla
+		placedGuerrilla: this.game.placedGuerrilla,
+		gameState: this.game.asDTO()
 	};
 	console.log('update players: ', this.arrPlayers.length);
 	_.each(arrPlayers || this.arrPlayers, function(player) {
