@@ -134,21 +134,7 @@ app.get('/lib/*', serve_dir);
 app.get('/client/*', serve_dir);
 app.get('/scripts/*', serve_dir);
 
-// TODO Refactor: base it more smartly on player ID and previous sessions
-// (so they can resume a game they've been disconnected from)
-function chooseRole(magic_number) {
-	switch(magic_number % 2) {
-		case 0:
-			return 'guerrilla';
-		case 1:
-			return 'coin';
-		default:
-			return 'spectator';
-	}
-};
-
 // successful connection
-
 io.set('authorization', function (data, accept) {
 	// check if there's a cookie header
 	if (data.headers.cookie) {
