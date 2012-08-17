@@ -22,7 +22,7 @@ requirejs.config({
 
 var liferay = require('./server/liferay');
 	
-requirejs(['underscore', './lib/checkers', './server/server.js'], function(_, Checkers, Server) {
+requirejs(['underscore', 'moment', './lib/checkers', './server/server.js'], function(_, moment, Checkers, Server) {
 
 // global variables
 var portNumber = 3000;
@@ -57,6 +57,8 @@ var saveMessageToMongo = function(data) {
 function handleLogin(request, response) {
 	
 	console.log("Handling Login!");
+
+	applyHeaders(response);
 
 	// DEBUG DEBUG DEBUG
 	response.sendfile(__dirname + '/index.html');
@@ -93,6 +95,13 @@ function handleLogin(request, response) {
 		response.sendfile(__dirname + '/index.html');
 	});
 }
+
+applyHeaders = function(res) {
+	res.header('Expires', 'Wed, 11 Jan 1984 05:00:00 GMT');
+	res.header("Cache-Control", "no-cache, must-revalidate, max-age=0");
+	res.header('Last-Modified', moment().format());
+	res.header('Pragma', 'no-cache');
+};
 
 app.configure(function() {
 	app.use(express.cookieParser());
