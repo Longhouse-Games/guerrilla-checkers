@@ -20,8 +20,6 @@ requirejs.config({
 	}
 });
 
-var liferay = require('./server/liferay');
-	
 requirejs(['underscore', 'moment', './lib/checkers', './server/server.js'], function(_, moment, Checkers, Server) {
 
 // global variables
