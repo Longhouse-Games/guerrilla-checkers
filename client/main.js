@@ -15,7 +15,7 @@ require(["lib/checkers", 'helpers'], function(checkers, h) {
 	}
 
 	var socket = io.connect();
-	var g_boardType = 'guerilla';
+	var g_boardType = 'guerrilla';
 	var g_role = 'spectator';
 	var g_init = false;
 	var g_gameState = null;

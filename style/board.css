@@ -31,8 +31,8 @@ body {
 	overflow-x: none;
 }
 
-.guerilla_board {
-	background: top left no-repeat url('../images/guerilla/board.jpg');
+.guerrilla_board {
+	background: top left no-repeat url('../images/guerrilla/board.jpg');
 }
 
 .soldier_board {

@@ -55,7 +55,7 @@ Server.prototype.addPlayer = function(socket) {
 
 	this.arrRoles = _.without(this.arrRoles, role);
 	this.broadcast('num_connected_users', this.arrPlayers.length);
-	socket.emit('board_type', ['guerilla', 'soldier'][this.id % 2]);
+	socket.emit('board_type', ['guerrilla', 'soldier'][this.id % 2]);
 	return player;
 };
 
@@ -107,7 +107,7 @@ var Player = function(_socket, server, role) {
 	// welcome message
 	me.socket.emit('message', {
 		user: 'server',
-		message: 'Welcome to Guerilla Checkers!' 
+		message: 'Welcome to Guerrilla Checkers!' 
 	});
 
 	// handle user message
