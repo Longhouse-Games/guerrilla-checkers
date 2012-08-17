@@ -22,7 +22,9 @@
     "express": "2.5.10",
     "mongoose": "2.7.0",
     "requirejs": "2.0.4",
-    "socket.io": "0.9.6"
+    "socket.io": "0.9.6",
+    "underscore": "",
+    "cookie": ">=0.0.4"
   },
   "devDependencies": {
     "jasmine-node" : ">=1.0.26"

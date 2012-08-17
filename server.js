@@ -9,16 +9,25 @@ var express = require('express')
 // requirejs
 var requirejs = require('requirejs');
 requirejs.config({
-	nodeRequire: require
+	nodeRequire: require,
+	paths: {
+		underscore: "./vendor/underscore"
+	},
+	shim: {
+		underscore: {
+			exports: '_'
+		}
+	}
 });
 
 var liferay = require('./server/liferay');
-
-requirejs(['./lib/checkers'], function(Checkers) {
+	
+requirejs(['underscore', './lib/checkers', './server/server.js'], function(_, Checkers, Server) {
 
 // global variables
 var portNumber = 3000;
 var connectedUsers = 0;
+
 
 // global types
 var Schema = mongoose.Schema;
@@ -43,14 +52,7 @@ var saveMessageToMongo = function(data) {
 	new ChatModel({time: new Date(), user: data.user, message: data.message}).save();
 };
 
-var refreshBoard = function(socket, result) {
-	data = {
-		result: true,
-		gameState: checkers.asDTO()
-	};
-	socket.emit('update', data);
-	socket.broadcast.emit('update', data);
-};
+
 
 function handleLogin(request, response) {
 	
@@ -124,10 +126,10 @@ app.get('/scripts/*', serve_dir);
 // TODO Refactor: base it more smartly on player ID and previous sessions
 // (so they can resume a game they've been disconnected from)
 function chooseRole(magic_number) {
-	switch(magic_number) {
-		case 1:
+	switch(magic_number % 2) {
+		case 0:
 			return 'guerrilla';
-		case 2:
+		case 1:
 			return 'coin';
 		default:
 			return 'spectator';
@@ -138,109 +140,72 @@ function chooseRole(magic_number) {
 mongoose.connect('mongodb://localhost/lvg');
 app.listen(portNumber);
 
-var checkers = new Checkers.GameState;
-
 // successful connection
-function userConnected(socket) {
-
-	// add connected user
-	++connectedUsers;
-	socket.emit('num_connected_users', connectedUsers);
-	role = chooseRole(connectedUsers);
-	socket.emit('role', role);
-	socket.boardType = (connectedUsers % 2 === 0) ? 'guerilla' : 'soldier';
-	socket.emit('board_type', socket.boardType);
-	socket.broadcast.emit('num_connected_users', connectedUsers);
-
-	// welcome message
-	socket.emit('message', {
-		user: 'server',
-		message: 'Welcome to Guerilla Checkers!' 
-	});
-
-	// handle user message
-	socket.on('message', function(data) {
-
-		socket.broadcast.emit('message', data);
-		socket.emit('message', data);
-
-		liferay.sendMessage({ type: 'message', data: data });
-		saveMessageToMongo(data);
-	});
-
-	// disconnect message
-	socket.on('disconnect', function() {
-
-		--connectedUsers;
-		socket.emit('num_connected_users', connectedUsers);
-		socket.broadcast.emit('num_connected_users', connectedUsers);
-
-		socket.broadcast.emit('message', {
-			user: 'server',
-			message: 'someone quit!'
-		});
-		socket.broadcast.emit('user_disconnect', { 
-			user: socket.handshake.address.address 
-		});
-	});
-
-	// checkers protocol
-	socket.on('moveCOIN', function(data) {
-		console.log(data);
-		console.log('### COIN move requested. Piece at ('+data.piece.x+','+data.piece.y+") to ("+data.position.x+","+data.position.y+")");
-		var result = checkers.moveSoldierPiece(data.piece, data.position);
-		refreshBoard(socket, result);
-	});
-
-	socket.on('placeGuerrilla', function(data) {
-		console.log("### Guerrilla move requested.");
-		console.log(data);
-		var result = checkers.placeGuerrillaPiece(data.position);
-		refreshBoard(socket, result);
-	});
-
-	// notify other users
-	socket.broadcast.emit('user_connect', {
-		user: socket.handshake.address.address
-	});
-
-	// refresh board
-	refreshBoard(socket, true);
-
-	// send recent messages
-	fetchRecentMessages(function(err,messages) {
-
-		for(var i = messages.length-1; i >= 0; --i) {
-			var message = messages[i];
-			console.log(message);
-			socket.emit('message', message);
-		}
-
-	});
-
-}
 
 io.set('authorization', function (data, accept) {
-    // check if there's a cookie header
-    if (data.headers.cookie) {
-        // if there is, parse the cookie
-        data.cookie = cookie.parse(data.headers.cookie);
-        // note that you will need to use the same key to grad the
-        // session id, as you specified in the Express setup.
-        data.sessionID = data.cookie['express.sid'];
-    } else {
-       // if there isn't, turn down the connection with a message
-       // and leave the function.
-       return accept('No cookie transmitted.', false);
-    }
-    // accept the incoming connection
-    accept(null, true);
+	// check if there's a cookie header
+	if (data.headers.cookie) {
+		// if there is, parse the cookie
+		data.cookie = cookie.parse(data.headers.cookie);
+		// note that you will need to use the same key to grad the
+		// session id, as you specified in the Express setup.
+		data.sessionID = data.cookie['express.sid'];
+	} else {
+	 // if there isn't, turn down the connection with a message
+	 // and leave the function.
+	 return accept('No cookie transmitted.', false);
+	}
+	// accept the incoming connection
+	accept(null, true);
 });
+
+var arrPlayers = [];
+var arrGames = [];
+var gameId = 0;
+
+var totalUsers = function() {
+	return _.reduce(arrGames, function(accum, server) {
+		return accum + server.getPlayerCount();
+	}, 0)
+};
+
+var findOpenServer = function() {
+	for(i=0; i < arrGames.length; ++i) {
+		var game = arrGames[i];
+		var openRoles = game.getOpenRoles();
+		console.log('open roles in ', game.getId(), ': ', openRoles);
+		if (openRoles.length > 0) {
+			return game;
+		}
+	}
+};
+
 
 io.sockets.on('connection', function (socket) {
 	console.log('connection from: ', socket.handshake.sessionID);
-	userConnected(socket);
+	var server = findOpenServer();
+	console.log('open slots in: ', server);
+	if (_.isUndefined(server)) {
+		console.log('created game ', gameId);
+		var game = new Checkers.GameState();
+		server = new Server.Server(new Checkers.GameState(), gameId);
+		arrGames.push(server);
+		gameId++;
+	}
 
+	var player = server.addPlayer(socket);
+	if (!_.isUndefined(player) && !_.isNull(player))
+	{
+		arrPlayers.push(player);
+	}
+
+	socket.on('disconnect', function(socket) {
+		console.log('connected userse: ', totalUsers());
+	});
+
+	console.log('joined server: ', server);
+	console.log('active games: ', arrGames.length);
+	console.log('connected users: ', totalUsers());
 });
 
 console.log("Server Started at localhost:"+portNumber);
