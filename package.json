@@ -24,6 +24,7 @@
     "requirejs": "2.0.4",
     "socket.io": "0.9.6",
     "underscore": "",
+    "moment": "",
     "cookie": ">=0.0.4"
   },
   "devDependencies": {
