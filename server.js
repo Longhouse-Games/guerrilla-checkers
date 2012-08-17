@@ -25,9 +25,7 @@ var liferay = require('./server/liferay');
 requirejs(['underscore', 'moment', './lib/checkers', './server/server.js'], function(_, moment, Checkers, Server) {
 
 // global variables
-var portNumber = 3000;
 var connectedUsers = 0;
-
 
 // global types
 var Schema = mongoose.Schema;
@@ -151,10 +149,6 @@ function chooseRole(magic_number) {
 	}
 };
 
-// initialize server
-mongoose.connect('mongodb://localhost/lvg');
-app.listen(portNumber);
-
 // successful connection
 
 io.set('authorization', function (data, accept) {
@@ -223,7 +217,12 @@ io.sockets.on('connection', function (socket) {
 	console.log('connected users: ', totalUsers());
 });
 
-console.log("Server Started at localhost:"+portNumber);
+mongoose.connect('mongodb://localhost/lvg');
+
+var port = process.env.PORT || 3000;
+app.listen(port, function() {
+  console.log("Guerrilla-checkers listening on http://localhost:" + port);
+});
 
 }); // requirejs Checkers
 
