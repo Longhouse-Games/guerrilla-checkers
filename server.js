@@ -108,11 +108,20 @@ app.configure(function() {
 	app.use(express.session({secret: 'secret', key: 'express.sid'}));
 });
 // routing
+sendfile = function(res, file) {
+	applyHeaders(res);
+	res.sendfile(file);
+};
+serve_dir = function(req, res) {
+	applyHeaders(res);
+	res.sendfile(__dirname + req.originalUrl);
+}
+
 app.get('/white_draughts_man.png', function(req, res) {
-	res.sendfile(__dirname + '/white_draughts_man.png');
+	sendfile(__dirname + '/white_draughts_man.png');
 });
 app.get('/board.css', function(req, res) {
-	res.sendfile(__dirname + '/board.css');
+	sendfile(__dirname + '/board.css');
 });
 app.post('/', function (req, res) {
 	handleLogin(req, res);
@@ -121,11 +130,8 @@ app.get('/', function (req, res) {
 	handleLogin(req, res);
 });
 app.get('/debug', function (req, res) {
-	res.sendfile(__dirname + '/debug.html');
+	sendfile(__dirname + '/debug.html');
 });
-serve_dir = function(req, res) {
-	res.sendfile(__dirname + req.originalUrl);
-}
 app.get('/images/*', serve_dir);
 app.get('/style/*', serve_dir);
 app.get('/lib/*', serve_dir);
