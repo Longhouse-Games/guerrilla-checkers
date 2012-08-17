@@ -113,9 +113,6 @@ serve_dir = function(req, res) {
 	res.sendfile(__dirname + req.originalUrl);
 }
 
-app.get('/board.css', function(req, res) {
-	sendfile(__dirname + '/board.css');
-});
 app.post('/', function (req, res) {
 	handleLogin(req, res);
 });
