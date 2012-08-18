@@ -133,6 +133,26 @@ describe('A Guerrilla piece', function() {
     });
   })
 
+  describe('placed in a pocket as the first Guerrilla move, function() {
+    var state = {
+      currentPhase: 'GUERRILLA',
+      arrGuerrillaPieces: [
+        new GuerrillaPiece(new Position(0,1)),
+        new GuerrillaPiece(new Position(1,1)),
+        new GuerrillaPiece(new Position(1,0))
+      ],
+      arrSoldierPieces: [],
+      placedGuerrilla: null,
+      movedSoldier: null,
+    };
+    board.fromDTO(state);
+
+    it('the next Guerrilla turn will be skipped.', function() {
+      board.placeGuerrillaPiece(new Position(0,0));
+      expect(board.getCurrentPhase().toBe('SOLDIER'));
+    });
+  });
+
 
   
   
