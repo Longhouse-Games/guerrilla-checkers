@@ -120,9 +120,6 @@ var Player = function(_socket, server, role) {
     //saveMessageToMongo(data);
   });
 
-  // disconnect message
-  
-
   // checkers protocol
   me.socket.on('moveCOIN', function(data) {
     console.log(data);
