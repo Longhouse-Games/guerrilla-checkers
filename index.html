@@ -1,28 +1,28 @@
 <html>
-	<head>
-		<meta http-equiv="Pragma" content="no-cache">
-		<meta http-equiv="Expires" content="-1">
-		<meta http-equiv="CACHE-CONTROL" content="NO-CACHE">
-		<link rel="stylesheet" href="/style/board.css" />
-		<!--[if IE]>
-		<link rel="stylesheet" href="/style/ie.css" />
-		<![endif]-->
-		<script src="http://code.jquery.com/jquery.min.js"></script>
-		<script src="http://code.jquery.com/ui/jquery-ui-git.js"></script>
-		<!--[if lt IE 9]>
-		<script src="http://ie7-js.googlecode.com/svn/version/2.1(beta4)/IE9.js"></script>
-		<![endif]-->
+  <head>
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="-1">
+    <meta http-equiv="CACHE-CONTROL" content="NO-CACHE">
+    <link rel="stylesheet" href="/style/board.css" />
+    <!--[if IE]>
+    <link rel="stylesheet" href="/style/ie.css" />
+    <![endif]-->
+    <script src="http://code.jquery.com/jquery.min.js"></script>
+    <script src="http://code.jquery.com/ui/jquery-ui-git.js"></script>
+    <!--[if lt IE 9]>
+    <script src="http://ie7-js.googlecode.com/svn/version/2.1(beta4)/IE9.js"></script>
+    <![endif]-->
 
-		<script src="/socket.io/socket.io.js"></script>
-		<script data-main="client/main" src="scripts/require.js"></script>
-	</head>
-	<body>
-		<div id="checkers" class="board"></div>
-		<div id="waiting">Waiting For Opponent</div>
-		<div id="users"></div>
-		<div id="chatlog"></div>
-		<input id="username" value="player" />
-		<input id="message" />
-		<input id="send_button" type="button" value="Send" \>
-	</body>
+    <script src="/socket.io/socket.io.js"></script>
+    <script data-main="client/main" src="scripts/require.js"></script>
+  </head>
+  <body>
+    <div id="checkers" class="board"></div>
+    <div id="waiting">Waiting For Opponent</div>
+    <div id="users"></div>
+    <div id="chatlog"></div>
+    <input id="username" value="player" />
+    <input id="message" />
+    <input id="send_button" type="button" value="Send" \>
+  </body>
 </html>
