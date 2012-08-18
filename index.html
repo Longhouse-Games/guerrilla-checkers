@@ -18,14 +18,16 @@
   </head>
   <body>
     <div id="checkers" class="board">
-      <div id="overlay" class="overlay"></div>
+      <div id="bottom_overlay">
+        <div id="turn_overlay" class="overlay"></div>
+        <input id="message" class="overlay" />
+        <input type="hidden" id="username" value="player" />
+        <input id="send_button" class="overlay" type="button" value="Chat" \>
+      </div>
     </div>
     <div id="waiting">Waiting For Opponent</div>
     <div id="users"></div>
     <div id="chatlog" class="chat" ></div>
-    <input id="username" value="player" />
-    <input id="message" />
-    <input id="send_button" type="button" value="Send" \>
     <div id="reset">
       <span>reset game</span>
     </div>

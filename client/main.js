@@ -65,7 +65,7 @@ require(["lib/checkers", 'helpers'], function(checkers, helpers) {
 
   function setOverlayText(text) {
     text = text || "";
-    var $overlay = $('#overlay').first();
+    var $overlay = $('#turn_overlay').first();
     $overlay.text(text);
   }
 

@@ -35,28 +35,64 @@ body {
 	overflow-x: none;
 }
 
-#overlay {
+.overlay {
   position: absolute;
+  top: 0px;
+  left: 0px;
   text-align: center;
-  font-size: 18;
+  font-size: 18px;
   font-weight: 800;
-  width: 210px;
-  top: 592px;
-  left: 62px;
   padding: 4px 0px;
   z-index: 10000;
 
-  -webkit-box-shadow: 2px 2px 2px #333;
-     -mox-box-shadow: 2px 2px 2px #333;
-          box-shadow: 2px 2px 2px #333;
+  -webkit-box-shadow: 2px 2px 2px #222;
+     -mox-box-shadow: 2px 2px 2px #222;
+          box-shadow: 2px 2px 2px #222;
 	border-radius: 5px;
 	-moz-border-radius: 5px;
 
+  color: #DDD;
+	background-color: rgb(51, 51, 51);
+	background-color: rgba(51, 51, 51, 0.9);
+	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#DD333333, endColorstr=#DD333333);
+	-ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#DD333333, endColorstr=#DD333333)";
+}
+
+@media screen and (-webkit-min-device-pixel-ratio:0) { 
+  #turn_overlay { top: 2px !important; }
+  #bottom_overlay { top: 588px !important; }
+}
+
+#turn_overlay {
+  width: 220px;
+  left: 52px;
+}
+
+#message {
+  width: 200px;
+  left: 290px;
+  padding: 4px 6px;
+  text-align: left;
+  font-size: 16px;
+  font-weight: initial;
+}
+
+#send_button {
+  width: 80px;
+  left: 500px;
+  border: none;
+
   color: #333;
-	background-color: rgb(255, 255, 255);
-	background-color: rgba(255, 255, 255, 0.9);
-	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#DDFFFFFF, endColorstr=#DDFFFFFF);
-	-ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#DDFFFFFF, endColorstr=#DDFFFFFF)";
+	background-color: rgb(255, 204, 0);
+	background-color: rgba(255, 204, 0, 0.9);
+	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#DDFFCC00, endColorstr=#DDFFCC00);
+	-ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#DDFFCC00, endColorstr=#DDFFCC00)";
+}
+
+#bottom_overlay {
+  position: absolute;
+  top: 590px;
+  left: 0px;
 }
 
 .guerrilla_board {
