@@ -63,10 +63,37 @@ require(["lib/checkers", 'helpers'], function(checkers, helpers) {
     }
   }
 
+  function setTransitionProperty($element, value) {
+    $element.css('transition', value);
+    $element.css('webkitTransition', value);
+    $element.css('mozTransition', value);
+    $element.css('oTransition', value);
+  }
+
+  function clearTransitionProperty($element) {
+    $element.css('transition', '');
+    $element.css('webkitTransition', '');
+    $element.css('mozTransition', '');
+    $element.css('oTransition', '');
+  }
+
   function setOverlayText(text) {
     text = text || "";
     var $overlay = $('#turn_overlay').first();
+    if ($overlay.text() == text) {
+      return;
+    }
+    var oldBackground = $overlay[0].style.background;
+    var timeout = 450;
     $overlay.text(text);
+    setTransitionProperty($overlay, 'background ' + timeout + 'ms');
+    $overlay.css('background', '#C90');
+    setTimeout(function() {
+      $overlay.css('background', oldBackground);
+      setTimeout(function() {
+        clearTransitionProperty
+      }, timeout);
+    }, timeout);
   }
 
   var printMessage = function(user, message) {
@@ -76,6 +103,7 @@ require(["lib/checkers", 'helpers'], function(checkers, helpers) {
     document.getElementById('chatlog').appendChild(messageDiv);
     $('#chatlog').scrollTop($('#chatlog')[0].scrollHeight);
   };
+
   var $reset = $('#reset');
   $reset.bind('click', function() {
     socket.emit('reset');
@@ -91,6 +119,9 @@ require(["lib/checkers", 'helpers'], function(checkers, helpers) {
   };
 
   var placeGuerrilla = function(socket, x, y) {
+    if (!g_gameState.isValidGuerrillaPlacement({ x:x, y:y })) {
+      return;
+    }
     console.log("Placing guerrilla at " + x + ", " +y);
     socket.emit('placeGuerrilla', {
       position: {x: x, y: y}
