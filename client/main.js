@@ -5,7 +5,7 @@ requirejs.config({
   }
 });
 
-require(["lib/checkers", 'helpers'], function(checkers, h) {
+require(["lib/checkers", 'helpers'], function(checkers, helpers) {
   if (Array.prototype.forEach === undefined) {
     Array.prototype.forEach = function(callback) {
       for (var idx = 0; idx < this.length; ++idx) {
@@ -30,6 +30,10 @@ require(["lib/checkers", 'helpers'], function(checkers, h) {
     return g_role === 'guerrilla';
   }
 
+  function isSpectator() {
+    return g_role === 'spectator';
+  }
+
   // allow direct querying of board squares by x/y
   var g_boardSquares = {};
   function getSquare(x, y) {
@@ -40,6 +44,29 @@ require(["lib/checkers", 'helpers'], function(checkers, h) {
   }
   function getIntersection(x, y) {
     return $(getSquare(x,y)).children(".intersection");
+  }
+
+  function setTurnText() {
+    var yourTurn = "YOUR TURN";
+    var opponentsTurn = "OPPONENT'S TURN";
+    if (isSpectator()) {
+      setOverlayText(getCurrentPhase() + "'S TURN");
+      return;
+    }
+    if (isCOINPlayer()) {
+      setOverlayText(isCOINTurn() ? yourTurn : opponentsTurn);
+      return;
+    }
+    if (isGuerrillaPlayer()) {
+      setOverlayText(isGuerrillaTurn() ? yourTurn : opponentsTurn);
+      return;
+    }
+  }
+
+  function setOverlayText(text) {
+    text = text || "";
+    var $overlay = $('#overlay').first();
+    $overlay.text(text);
   }
 
   var printMessage = function(user, message) {
@@ -66,12 +93,16 @@ require(["lib/checkers", 'helpers'], function(checkers, h) {
     });
   };
 
+  function getCurrentPhase() {
+    return g_phases[g_gameState.getCurrentPhaseIndex()];
+  }
+
   function isGuerrillaTurn() {
-    return g_phases[g_gameState.getCurrentPhaseIndex()] === 'GUERRILLA';
+    return getCurrentPhase() === 'GUERRILLA';
   }
 
   function isCOINTurn() {
-    return g_phases[g_gameState.getCurrentPhaseIndex()] === 'SOLDIER';
+    return getCurrentPhase() === 'SOLDIER';
   }
 
   function drawCOINPiece(x, y) {
@@ -79,6 +110,15 @@ require(["lib/checkers", 'helpers'], function(checkers, h) {
     img = $('<img src="images/' + g_boardType + '/soldier_piece.png" class="soldier piece" width=68 height=68 alt="white" />');
     square.append(img);
     return square;
+  }
+
+  function clearPossibleMoves() {
+    function removeShadow(index, element) {
+      element.parentNode && element.parentNode.removeChild(element);
+    }
+    var $board = $("#checkers").first();
+    var $shadows = $board.find("img.shadow");
+    $shadows.each(removeShadow);
   }
 
   function drawCOINShadow(x, y) {
@@ -132,10 +172,12 @@ require(["lib/checkers", 'helpers'], function(checkers, h) {
   }
 
   $(window).bind('load', function() {
-    var generateSelectHandler = function(x, y, square) {
-      var squareClass = h.getSquareClass(x, y);
+    function generateSelectHandler(x, y, square) {
+      var squareClass = helpers.getSquareClass(x, y);
       return function() {
-        //printMessage({user: '*debug*', message: 'you clicked square {' + x + ',' + y + '}'});
+        if (!isCOINTurn()) {
+          return;
+        }
         if (!selected) {
           if (!doesSquareContainCOINPiece(x, y)) {
             return;
@@ -159,7 +201,9 @@ require(["lib/checkers", 'helpers'], function(checkers, h) {
 
     var generateIntersectionHandler = function(x, y, intersection) {
       return function() {
-        console.log("You click intersection: " + x + ", " + y);
+        if (!isGuerrillaTurn()) {
+          return;
+        }
         placeGuerrilla(socket, x, y);
       };
     }
@@ -167,58 +211,92 @@ require(["lib/checkers", 'helpers'], function(checkers, h) {
     var HALF_SQUARE_SIZE = 35;
 
     var initBoard = function() {
-      // init board
-      for(y = 7; y >= 0; --y)
-      for(x = 0; x < 8; ++x)
-      {
-        $('#checkers')
-          .first()
-          .append(function() {
-            var zindex = isCOINPlayer() ? (x+1)*(y+1) : 0;
-            var square = $('<div />')
-              .addClass('square')
-              .addClass(h.getSquareClass(x, y))
-              .css('z-index', ''+zindex);
 
-            square.append('<span>' + '{' + x + ',' + y + '}' + '</span>');
-
-            if (x < 7 && y < 7) {
-              var zindex = isGuerrillaPlayer() ? (x+1)*(y+1) : 0;
-              var intersection = $('<div />')
-                .addClass('intersection')
-                .css('z-index', ''+zindex);
-
-              square.append(intersection);
-              if (isGuerrillaPlayer()) {
-                intersection.bind('click', generateIntersectionHandler(x, y, intersection));
-              }
-            }
-
-            setSquare(x, y, square);
-
-            if (isCOINPlayer()) {
-              $(square).bind('click', generateSelectHandler(x, y, square));
-              (function(destX, destY) {
-                $(square).droppable({
-                  hoverClass: 'square_hover',
-                  drop: function( event, ui ) {
-                    var srcPosition = ui.draggable.context.boardPosition;
-                    moveCOIN(socket, srcPosition.x, srcPosition.y, destX, destY);
-                  }
-                });
-              })(x, y);
-            }
-            return square;
-          }());
+      function getSquareZIndex(x, y) {
+        return "" + (isCOINPlayer() ? (x+1)*(y+1) : 0);
       }
 
-      var board = $('#checkers');
-      board.css('position', 'relative');
-      board.css('overflow', 'hidden');
+      function getIntersectionZIndex(x, y) {
+        return "" + (isGuerrillaPlayer() ? (x+1)*(y+1) : 0);
+      }
 
-      board.children('div.square').each(function(index, square) {
-        square = $(square);
+      function squareHasIntersection(x, y) {
+        return x < 7 && y < 7;
+      }
+
+      function createIntersectionDomElement(x, y) {
+        var intersection = $('<div />')
+          .addClass('intersection')
+          .css('z-index', getIntersectionZIndex(x, y));
+        return intersection;
+      }
+
+      function createSquareDomElement(x, y) {
+        var squareClass = helpers.getSquareClass(x, y);
+        var square = $('<div />');
+        square.addClass('square');
+        square.addClass(squareClass);
+        square.css('z-index', getSquareZIndex());
+        return square;
+      }
+
+      function addIntersectionHandlers($intersection, x, y) {
+        if (isGuerrillaPlayer()) {
+          var clickHandler = generateIntersectionHandler(x, y, $intersection);
+          $intersection.bind('click', clickHandler);
+        }
+      }
+
+      function addSquareHandlers($square, x, y) {
+        if (!isCOINPlayer()) {
+          return;
+        }
+        var clickHandler = generateSelectHandler(x, y, $square);
+        function dropHandler(event, ui) {
+          if (!isCOINTurn()) {
+            return;
+          }
+          var srcPosition = ui.draggable.context.boardPosition;
+          moveCOIN(socket, srcPosition.x, srcPosition.y, x, y);
+        }
+        $square.bind('click', clickHandler);
+        $square.droppable({ hoverClass: 'square_hover', drop: dropHandler });
+      }
+
+      function forEachPosition(callback) {
+        if (typeof callback !== 'function') {
+          return;
+        }
+        for(y = 7; y >= 0; --y) {
+          for(x = 0; x < 8; ++x) {
+            callback(x, y);
+          }
+        }
+      }
+
+      function createSquare(x, y) {
+        var $square = createSquareDomElement(x, y);
+        if (squareHasIntersection(x, y)) {
+          var $intersection = createIntersectionDomElement(x, y);
+          $square.append($intersection);
+          addIntersectionHandlers($intersection, x, y);
+        }
+        setSquare(x, y, $square);
+        addSquareHandlers($square, x, y);
+        return $square;
+      }
+
+      function setBoardStyle($board) {
+        $board.css('position', 'relative');
+        $board.css('overflow', 'hidden');
+      }
+
+      var $board = $('#checkers').first();
+      forEachPosition(function(x, y) {
+        $board.append(createSquare(x, y));
       });
+      setBoardStyle($board);
+
     }
 
     // receive messages
@@ -275,7 +353,7 @@ require(["lib/checkers", 'helpers'], function(checkers, h) {
       g_gameState.fromDTO(dto);
       console.log(g_gameState);
 
-      printMessage('server', "It is the " + g_phases[g_gameState.getCurrentPhaseIndex()] + "'s turn");
+      setTurnText();
 
       // clear board state
       $(".piece").remove();
@@ -301,6 +379,9 @@ require(["lib/checkers", 'helpers'], function(checkers, h) {
         if (isCOINPlayer()) {
           square.children('img').each(function(index, pieceImage) {
             pieceImage.boardPosition = position;
+            if (!isCOINTurn()) {
+              return;
+            }
             $(pieceImage).draggable({
               containment: '#checkers',
               cursorAt: { top: HALF_SQUARE_SIZE, left: HALF_SQUARE_SIZE },
@@ -309,10 +390,22 @@ require(["lib/checkers", 'helpers'], function(checkers, h) {
               opacity: 0.6,
               helper: "clone",
               start: function() {
+                if (!isCOINTurn()) {
+                  return;
+                }
+                var x = pieceImage.boardPosition.x;
+                var y = pieceImage.boardPosition.y;
+                var squareClass = helpers.getSquareClass(x, y);
+                selected = { x: x, y: y, square: square, squareClass: squareClass };
+                square.removeClass(squareClass);
                 square.addClass('selected');
+                showPossibleCOINMoves({ position: selected });
               },
               stop: function() {
+                var squareClass = helpers.getSquareClass(x, y);
                 square.removeClass('selected');
+                square.addClass(squareClass);
+                clearPossibleMoves();
               }
             });
           });

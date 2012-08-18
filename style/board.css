@@ -31,6 +31,26 @@ body {
 	overflow-x: none;
 }
 
+#overlay {
+  position: absolute;
+  text-align: center;
+  font-size: 18;
+  font-weight: 800;
+  width: 210px;
+  top: 592px;
+  left: 62px;
+  padding: 4px 0px;
+  z-index: 10000;
+
+	border-radius: 5px;
+	-moz-border-radius: 5px;
+
+	background-color: rgb(255, 255, 255);
+	background-color: rgba(255, 255, 255, 0.86);
+	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#DDFFFFFF, endColorstr=#DDFFFFFF);
+	-ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#DDFFFFFF, endColorstr=#DDFFFFFF)";
+}
+
 .guerrilla_board {
 	background: top left no-repeat url('../images/guerrilla/board.jpg');
 }
