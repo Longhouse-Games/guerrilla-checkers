@@ -13,10 +13,11 @@ define(['underscore', '../lib/checkers'], function( _, Checkers ) {
 //   socket.broadcast.emit('update', data);
 // };
 
-var Server = function(game, id) {
+var Server = function(gameFactory, id) {
   var me = this;
   me.id = id;
-  me.game = game;
+  me.gameFactory = gameFactory,
+  me.game = gameFactory();
   me.arrPlayers = [];
   me.arrRoles = ['guerrilla', 'coin'];
 };
@@ -39,6 +40,12 @@ Server.prototype.refreshBoard = function(result, arrPlayers) {
   });
 };
 
+Server.prototype.resetGame = function() {
+  this.game = this.gameFactory();
+  this.refreshBoard(true);
+};
+
+
 Server.prototype.addPlayer = function(socket) {
   var role = _.first(this.arrRoles);
   var player = new Player(socket, this, role);
@@ -53,22 +60,33 @@ Server.prototype.addPlayer = function(socket) {
     me.broadcast('num_connected_users', me.arrPlayers.length);
   });
 
+  socket.on('reset', function(data) {
+    console.log('reseting game');
+    me.resetGame();
+  });
+
   this.arrRoles = _.without(this.arrRoles, role);
   this.broadcast('num_connected_users', this.arrPlayers.length);
   socket.emit('board_type', ['guerrilla', 'soldier'][this.id % 2]);
   return player;
-};
+
+  };
 
 Server.prototype.getPlayerCount = function() {
   return this.arrPlayers.length;
 };
 
-Server.prototype.broadcast = function(message, data) {
-  _.each(this.arrPlayers, function(player) {
+Server.prototype.broadcast = function(message, data, source) {
+  var players = this.arrPlayers;
+  if (source) {
+    players = _.reject(this.arrPlayers, function(player) {
+      player === source;
+    });
+  }
+  _.each(players, function(player) {
     player.getSocket().emit(message, data);
   });
 };
-
 
 Server.prototype.getGame = function() {
   return this.game;
@@ -81,8 +99,6 @@ Server.prototype.getId = function() {
 Server.prototype.getOpenRoles = function() {
   return this.arrRoles.slice(0); // fake immutability
 };
-
-
 
 var Player = function(_socket, server, role) {
   var me = this;
@@ -102,8 +118,6 @@ var Player = function(_socket, server, role) {
     }
   };
 
-  
-
   // welcome message
   me.socket.emit('message', {
     user: 'server',
@@ -119,9 +133,6 @@ var Player = function(_socket, server, role) {
     //liferay.sendMessage({ type: 'message', data: data });
     //saveMessageToMongo(data);
   });
-
-  // disconnect message
-  
 
   // checkers protocol
   me.socket.on('moveCOIN', function(data) {

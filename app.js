@@ -175,7 +175,7 @@ io.sockets.on('connection', function (socket) {
   if (_.isUndefined(server)) {
     console.log('created game ', gameId);
     var game = new Checkers.GameState();
-    server = new Server.Server(new Checkers.GameState(), gameId);
+    server = new Server.Server(function() { return new Checkers.GameState(); }, gameId);
     arrGames.push(server);
     gameId++;
   }
