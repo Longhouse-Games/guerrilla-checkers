@@ -9,6 +9,7 @@ div  {
 
 body {
 	background: #111;
+  color: white;
 }
 
 #waiting {
@@ -22,6 +23,9 @@ body {
 	color: #EEE;
 }
 
+.chat {
+  color: black;
+}
 #chatlog {
 	height: 580px;
 	background: #EEE;

@@ -49,6 +49,10 @@ require(["lib/checkers", 'helpers'], function(checkers, h) {
     document.getElementById('chatlog').appendChild(messageDiv);
     $('#chatlog').scrollTop($('#chatlog')[0].scrollHeight);
   };
+  var $reset = $('#reset');
+  $reset.bind('click', function() {
+    socket.emit('reset');
+  });
 
   var selected = null;
 
