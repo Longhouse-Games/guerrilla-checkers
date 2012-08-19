@@ -1,3 +1,6 @@
+// TODO move to config file / environment variables
+var CAS_HOST = "cas.littlevikinggames.com"
+var CAS_URL = "https://" + CAS_HOST + "/login";
 
 var express = require('express')
   , app = express.createServer()
@@ -48,10 +51,8 @@ var saveMessageToMongo = function(data) {
   new ChatModel({time: new Date(), user: data.user, message: data.message}).save();
 };
 
-
-
 function handleLogin(request, response) {
-  
+
   console.log("Handling Login!");
 
   applyHeaders(response);
@@ -65,10 +66,10 @@ function handleLogin(request, response) {
   var hasServiceTicket = typeof serviceTicket !== 'undefined';
 
   var hostname = 'http://' + request.headers.host;
-  var loginUrl = 'https://test.littlevikinggames.com/login?service=' + encodeURIComponent(hostname);
+  var loginUrl = CAS_URL + '?service=' + encodeURIComponent(hostname);
 
   var casInstance = new cas({
-    base_url: 'https://test.littlevikinggames.com',
+    base_url: "https://" + CAS_HOST,
     service: hostname
   });
 
