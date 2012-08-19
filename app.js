@@ -40,7 +40,7 @@ var ChatModel = mongoose.model('Chat', ChatSchema);
 var userSchema = new Schema({
   name: String,
   session_id: String
-})
+});
 var User = mongoose.model('User', userSchema);
 
 
