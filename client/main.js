@@ -54,6 +54,11 @@ require(["lib/checkers", 'helpers'], function(checkers, helpers) {
     piecesOnBoard[getPositionKey(piece.position)] = newPieceOnBoard;
   }
 
+  function addSoldierPiece(piece) {
+    addPiece(piece, 'soldier_piece', SOLDIER_MARGIN, g_soldierPiecesOnBoard);
+    addSoldierPieceBehaviour(piece);
+  }
+
   function addSoldierPieceBehaviour(piece) {
     var positionKey = getPositionKey(piece.position);
     var pieceOnBoard = g_soldierPiecesOnBoard[positionKey];
@@ -63,9 +68,9 @@ require(["lib/checkers", 'helpers'], function(checkers, helpers) {
     $(pieceOnBoard).draggable();
   }
 
-  function addSoldierPiece(piece) {
-    addPiece(piece, 'soldier_piece', SOLDIER_MARGIN, g_soldierPiecesOnBoard);
-    addSoldierPieceBehaviour(piece);
+  function addGuerrillaPiece(piece) {
+    addPiece(piece, 'guerrilla_piece', GUERRILLA_MARGIN, g_guerrillaPiecesOnBoard);
+    addGuerrillaPieceBehaviour(piece);
   }
 
   function addGuerrillaPieceBehaviour(piece) {
@@ -74,11 +79,6 @@ require(["lib/checkers", 'helpers'], function(checkers, helpers) {
     if (!pieceOnBoard) {
       return;
     }
-  }
-
-  function addGuerrillaPiece(piece) {
-    addPiece(piece, 'guerrilla_piece', GUERRILLA_MARGIN, g_guerrillaPiecesOnBoard);
-    addGuerrillaPieceBehaviour(piece);
   }
 
   function updatePieces(arrPieces, piecesOnBoard, addPiece) {
@@ -171,7 +171,7 @@ require(["lib/checkers", 'helpers'], function(checkers, helpers) {
     socket.emit('requestReset');
   });
 
-  $(window).bind('load', function() {
+  socket.on('connect', function() {
 
     // receive messages
     socket.on('message', function (data) {
