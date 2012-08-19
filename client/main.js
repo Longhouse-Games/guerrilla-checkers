@@ -19,6 +19,13 @@ require(["lib/checkers", 'helpers'], function(checkers, helpers) {
   var g_role = 'spectator';
   var g_gameState = null;
 
+  function getPositionKey(position) {
+    if (!position) {
+      return undefined;
+    }
+    return position.x + "," + position.y;
+  }
+
   function isSoldierPlayer() {
     return g_role === 'coin';
   }
@@ -29,6 +36,56 @@ require(["lib/checkers", 'helpers'], function(checkers, helpers) {
 
   function isSpectator() {
     return g_role === 'spectator';
+  }
+
+  var g_soldierPiecesOnBoard = {}; // "x,y" -> img
+  var g_guerrillaPiecesOnBoard = {}; // "x,y" -> img
+
+  var SQUARE_SIZE = 70;
+  var SOLDIER_MARGIN = 39;
+  var GUERRILLA_MARGIN = 88;
+
+  function addPiece(piece, className, margin, piecesOnBoard) {
+    var newPieceOnBoard = document.createElement("div");
+    newPieceOnBoard.className += " " + className;
+    newPieceOnBoard.style.left = margin + ((piece.position.x) * SQUARE_SIZE) + 'px';
+    newPieceOnBoard.style.bottom = margin + ((piece.position.y) * SQUARE_SIZE) + 'px';
+    document.getElementById('checkers').appendChild(newPieceOnBoard);
+    piecesOnBoard[getPositionKey(piece.position)] = newPieceOnBoard;
+  }
+
+  function addSoldierPiece(piece) {
+    addPiece(piece, 'soldier_piece', SOLDIER_MARGIN, g_soldierPiecesOnBoard);
+  }
+
+  function addGuerrillaPiece(piece) {
+    addPiece(piece, 'guerrilla_piece', GUERRILLA_MARGIN, g_guerrillaPiecesOnBoard);
+  }
+
+  function updatePieces(arrPieces, piecesOnBoard, addPiece) {
+    var arrPieces = arrPieces || [];
+    for (var idxPiece = 0; idxPiece < arrPieces.length; ++idxPiece) {
+      var piece = arrPieces[idxPiece];
+      var positionKey = getPositionKey(piece.position);
+      var pieceOnBoard = piecesOnBoard[positionKey];
+      if (!pieceOnBoard) {
+        addPiece(piece);
+      }
+    }
+  }
+
+  function updateSoldierPieces() {
+    if (g_gameState) {
+      var arrPieces = g_gameState.arrSoldierPieces;
+      updatePieces(arrPieces, g_soldierPiecesOnBoard, addSoldierPiece);
+    }
+  }
+
+  function updateGuerrillaPieces() {
+    if (g_gameState) {
+      var arrPieces = g_gameState.arrGuerrillaPieces;
+      updatePieces(arrPieces, g_guerrillaPiecesOnBoard, addGuerrillaPiece);
+    }
   }
 
   function setTransitionProperty($element, value) {
@@ -80,7 +137,6 @@ require(["lib/checkers", 'helpers'], function(checkers, helpers) {
       return;
     }
   }
-
 
   function printMessage(user, message) {
     var messageDiv = document.createElement('div');
@@ -144,6 +200,8 @@ require(["lib/checkers", 'helpers'], function(checkers, helpers) {
       g_gameState = new checkers.GameState;
       g_gameState.fromDTO(updateResponse.gameState);
       updatePlayerTurnOverlay();
+      updateGuerrillaPieces();
+      updateSoldierPieces();
     });
 
     // send message functionality
