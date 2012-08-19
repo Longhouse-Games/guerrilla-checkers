@@ -350,6 +350,12 @@ require(["lib/checkers", 'helpers'], function(checkers, helpers) {
         $board.css('overflow', 'hidden');
       }
 
+      // clear board if populated
+      // barf
+      $('.square').each(function(idx, square) {
+        console.log('removing: ', square);
+        $(square).remove();
+      });
       var $board = $('#checkers').first();
       forEachPosition(function(x, y) {
         $board.append(createSquare(x, y));
@@ -379,6 +385,7 @@ require(["lib/checkers", 'helpers'], function(checkers, helpers) {
     });
 
     socket.on('role', function(role) {
+      g_init = false; // force ui events to be recreated
       g_role = role;
       if (role === 'guerrilla') {
         printMessage("server", "You are the Guerrilla player!");
