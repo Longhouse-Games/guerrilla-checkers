@@ -8,7 +8,8 @@ var express = require('express')
   , io = require('socket.io').listen(app)
   , assert = require('assert')
   , cas = require('cas')
-  , cookie = require('cookie');
+  , cookie = require('cookie')
+  , Server = require('./server/server');
 // requirejs
 var requirejs = require('requirejs');
 requirejs.config({
@@ -23,7 +24,7 @@ requirejs.config({
   }
 });
 
-requirejs(['underscore', 'moment', './lib/checkers', './server/server.js'], function(_, moment, Checkers, Server) {
+requirejs(['underscore', 'moment', './lib/checkers'], function(_, moment, Checkers) {
 
 // global variables
 var connectedUsers = 0;

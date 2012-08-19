@@ -1,4 +1,17 @@
-define(['underscore', '../lib/checkers', '../lib/vote'], function( _, Checkers, Vote) {
+var requirejs = require('requirejs');
+requirejs.config({
+  nodeRequire: require,
+  paths: {
+    underscore: "./vendor/underscore"
+  },
+  shim: {
+    underscore: {
+      exports: '_'
+    }
+  }
+});
+
+requirejs(['underscore', './lib/checkers', './lib/vote'], function( _, Checkers, Vote) {
 // var refreshBoard = function(socket, checkers, result) {
 //   var data = {
 //     result: true,
@@ -256,9 +269,7 @@ Player.prototype.getRole = function() {
   return this.role;
 };
 
-return {
-  Player: Player,
-  Server: Server
-};
+module.exports.Player = Player;
+module.exports.Server = Server;
 }); // requirejs define
 
