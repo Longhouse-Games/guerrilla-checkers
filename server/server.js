@@ -22,13 +22,17 @@ requirejs([
     Checkers,
     Vote) {
 
-var Server = function(gameFactory, id) {
+var GUERRILLA_ROLE = 'guerrilla';
+var COIN_ROLE = 'coin';
+var SPECTATOR = 'spectator';
+
+var Server = function(gameFactory, dbgame) {
   var me = this;
-  me.id = id;
+  me.dbgame = dbgame;
   me.gameFactory = gameFactory;
   me.game = gameFactory();
   me.arrPlayers = [];
-  me.arrRoles = ['guerrilla', 'coin'];
+  me.arrRoles = [GUERRILLA_ROLE, COIN_ROLE];
   me.votes = {};
 
   me.requestReset = function() {
@@ -39,6 +43,9 @@ var Server = function(gameFactory, id) {
   };
 };
 
+Server.prototype.getDBGame = function() {
+  return this.dbgame;
+}
 
 Server.prototype.startVote = function(name, question, onPass, getVoters) {
   var me = this;
@@ -70,7 +77,7 @@ Server.prototype.requestVote = function(player, vote) {
 
 Server.prototype.updateServerStatus = function() {
   var me = this;
-  me.broadcast('num_connected_users', 2 - Math.max(0, me.arrRoles.length));
+  me.broadcast('num_connected_users', me.arrPlayers.length);
 };
 
 Server.prototype.refreshBoard = function(result, arrPlayers) {
@@ -83,6 +90,11 @@ Server.prototype.refreshBoard = function(result, arrPlayers) {
     placedGuerrilla: me.game.placedGuerrilla,
     gameState: me.game.asDTO()
   };
+
+  console.log('saving new game state');
+  this.dbgame.gameState = JSON.stringify(data.gameState);
+  this.dbgame.save(function(err) { if (err) throw err; });
+
   console.log('update players: ', me.arrPlayers.length);
   _.each(arrPlayers || me.arrPlayers, function(player) {
     var socket = player.getSocket();
@@ -108,15 +120,49 @@ Server.prototype.endGame = function() {
 };
 
 Server.prototype.addPlayer = function(socket, user) {
+  if (!user) throw "AddPlayer called with 'null' for user."
+
   var me = this;
-  var role = _.first(me.arrRoles);
+
+  var role = null;
+
+  var coin_player_id = _.isUndefined(this.dbgame._coin_player_id) ? null : this.dbgame._coin_player_id;
+  var guerrilla_player_id = _.isUndefined(this.dbgame._guerrilla_player_id) ? null : this.dbgame._guerrilla_player_id;
+
+  logger.error("Checking roles for dbgame.");
+  logger.error("COIN_ID: " + coin_player_id);
+  logger.error("GUERRILLA_ID: " + guerrilla_player_id);
+  logger.error("USER_ID: " + user._id);
+
+  if (coin_player_id !== null && user._id.equals(coin_player_id)) {
+    role = COIN_ROLE;
+  } else if (guerrilla_player_id !== null && user._id.equals(guerrilla_player_id)) {
+    role = GUERRILLA_ROLE;
+  } else {
+    // Player was not previously assigned a role (or was spectating)
+    if (guerrilla_player_id === null) {
+
+      role = GUERRILLA_ROLE;
+      this.dbgame._guerrilla_player_id = user._id;
+      this.dbgame.save(function(err) { if (err) throw err; });
+
+    } else if (coin_player_id === null) {
+
+      role = COIN_ROLE;
+      this.dbgame._coin_player_id = user._id;
+      this.dbgame.save(function(err) { if (err) throw err; });
+
+    } else {
+      role = SPECTATOR;
+    }
+  }
+
   var player = new Player(socket, this, user, role);
   this.arrPlayers.push(player);
 
   socket.on('disconnect', function(data) {
     console.log('disconnected player: ', player);
     me.arrPlayers = _.without(me.arrPlayers, player);
-    me.arrRoles.push(player.getRole());
     me.updateServerStatus();
     var votesToDelete = [];
     console.log('active votes: ', me.votes);
@@ -155,9 +201,8 @@ Server.prototype.addPlayer = function(socket, user) {
     me.refreshBoard(true, [player]);
   });
 
-  me.arrRoles = _.without(me.arrRoles, role);
   me.broadcast('num_connected_users', me.arrPlayers.length);
-  socket.emit('board_type', ['guerrilla', 'soldier'][me.id % 2]);
+  socket.emit('board_type', 'guerrilla');
   return player;
 };
 
@@ -182,12 +227,17 @@ Server.prototype.getGame = function() {
 };
 
 Server.prototype.getId = function() {
-  return this.id;
+  return this.dbgame.id;
 };
 
 Server.prototype.isAvailableRole = function(role) {
   var me = this;
-  return _.contains(me.arrRoles, role) || role === 'spectator';
+  if (role === GUERRILLA_ROLE) {
+    return _.isUndefined(me.dbgame._guerrilla_player_id) || me.dbgame._guerrilla_player_id === null;
+  } else if (role === COIN_ROLE) {
+    return _.isUndefined(me.dbgame._coin_player_id) || me.dbgame._coin_player_id === null;
+  }
+  throw "Invalid role: '" + role + "'";
 };
 
 Server.prototype.takeRole = function(role, player) {
@@ -195,18 +245,20 @@ Server.prototype.takeRole = function(role, player) {
   logger.debug('role change requested ' + role + '->' + player.getRole());
   var roleChanged = false;
 
-  var returnRoleToPool = function(role) {
-    if (role !== 'spectator') {
-      me.arrRoles.push(role);
+  var freeRole = function(role) {
+    if (role === GUERRILLA_ROLE) {
+      me.dbgame._guerrilla_player_id === null;
+      me.dbgame.save(function(err) { if (err) throw err; });
+    } else if (role === COIN_ROLE) {
+      me.dbgame._coin_player_id === null;
+      me.dbgame.save(function(err) { if (err) throw err; });
     }
   };
 
-  logger.debug('available roles', me.arrRoles);
   if (me.isAvailableRole(role)) {
     logger.debug('desired role is available');
-    returnRoleToPool(player.getRole());
+    freeRole(player.getRole());
     player.setRole(role);
-    me.arrRoles = _.without(me.arrRoles, role);
     me.broadcast('roles', me.arrRoles);
     player.getSocket().emit('role', role);
     me.updateServerStatus();
@@ -214,7 +266,14 @@ Server.prototype.takeRole = function(role, player) {
 };
 
 Server.prototype.getOpenRoles = function() {
-  return this.arrRoles.slice(0); // fake immutability
+  var roles = [];
+  if (_.isUndefined(this.dbgame._coin_player_id) || this.dbgame._coin_player_id === null) {
+    roles.push(COIN_ROLE);
+  }
+  if (_.isUndefined(this.dbgame._guerrilla_player_id) || this.dbgame._guerrilla_player_id === null) {
+    roles.push(GUERRILLA_ROLE);
+  }
+  return roles;
 };
 
 var Player = function(_socket, server, user, role) {
@@ -231,7 +290,7 @@ var Player = function(_socket, server, user, role) {
   // welcome message
   me.socket.emit('message', {
     user: 'server',
-    message: 'Welcome to Guerrilla Checkers!' 
+    message: 'Welcome to Guerrilla Checkers!'
   });
 
   // handle user message
@@ -240,7 +299,6 @@ var Player = function(_socket, server, user, role) {
     me.socket.broadcast.emit('message', data);
     me.socket.emit('message', data);
 
-    //liferay.sendMessage({ type: 'message', data: data });
     //saveMessageToMongo(data);
   });
 

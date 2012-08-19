@@ -46,6 +46,50 @@ var userSchema = new Schema({
 });
 var User = mongoose.model('User', userSchema);
 
+var gameSchema = new Schema({
+  is_in_progress: { type: Boolean, default: false },
+  _coin_player_id: { type: Schema.Types.ObjectId, ref: 'User' },
+  _guerrilla_player_id: { type: Schema.Types.ObjectId, ref: 'User' },
+  gameState: String
+});
+
+var gameHasUser = function(dbgame, user) {
+  return dbgame._coin_player_id === user._id || dbgame._guerrilla_player_id === user._id;
+}
+
+// next takes game found, or null if none were found
+gameSchema.statics.findMeAGame = function(user, next) {
+  _this = this;
+  // Find a game that the player is participating in
+  _this.findOne()
+    .where('is_in_progress', true)
+    .where({$or: [ {_coin_player_id: user._id}, {_guerrilla_player_id: user._id} ]})
+    .exec(function(err, game) {
+      if (err) throw err;
+      if (game) next(game);
+      else {
+        logger.debug("FindingMeAGame: Couldn't find a game that user '"+user.name+"' is participating in.");
+        // Find a game where there is an empty slot
+        _this.findOne()
+          .where('is_in_progress', true)
+          .where({$or: [ {_coin_player_id: null}, {_guerrilla_player_id: null} ] })
+          .exec(function(err, game) {
+            if (err) throw err;
+            if (game) next(game);
+            else {
+              logger.debug("FindingMeAGame: Couldn't find a game for user '"+user.name+"' that has an empty slot.");
+              // No open games, create a new one! yay!
+              dbgame = new Game({ is_in_progress: true });
+              dbgame.save(function (err) {
+                if (err) { throw err; }
+                next(dbgame);
+              });
+            }
+          });
+      }
+    });
+}
+var Game = mongoose.model('Game', gameSchema);
 
 // next takes the found/created user as parameter
 var find_or_create_user = function(username, session_id, next) {
@@ -184,57 +228,87 @@ io.set('authorization', function (data, accept) {
   accept(null, true);
 });
 
-var arrPlayers = [];
-var arrGames = [];
-var gameId = 0;
+var active_games = [];
 
 var totalUsers = function() {
-  return _.reduce(arrGames, function(accum, server) {
+  return _.reduce(active_games, function(accum, server) {
     return accum + server.getPlayerCount();
   }, 0)
 };
 
-var findOpenServer = function() {
-  for(i=0; i < arrGames.length; ++i) {
-    var game = arrGames[i];
-    var openRoles = game.getOpenRoles();
-    console.log('open roles in ', game.getId(), ': ', openRoles);
-    if (openRoles.length > 0) {
-      return game;
+var attachPlayerToGame = function(game, socket, user) {
+  var player = game.addPlayer(socket, user);
+
+  socket.on('disconnect', function(socket) {
+    console.log('connected users: ', totalUsers());
+  });
+
+  logger.debug('joined game', util.inspect(game, 1));
+  logger.debug('active games: ' + active_games.length);
+  logger.debug('connected users: ' + totalUsers());
+}
+
+var findActiveGameByUser = function(user) {
+  var i = 0;
+  for(i = 0; i < active_games.length; i++) {
+    dbgame = active_games[i].getDBGame();
+    if (gameHasUser(dbgame, user)) {
+      return active_games[i];
     }
   }
-};
+  return null;
+}
 
+var findActiveGameByDBGame = function(dbgame) {
+  var i = 0;
+  for(i = 0; i < active_games.length; i++) {
+    tmp = active_games[i].getDBGame();
+    if (tmp._id.equals(dbgame._id)) {
+      return active_games[i];
+    }
+  }
+  return null;
+}
+
+var loadGame = function(dbgame) {
+  var factory = null;
+  if (_.isUndefined(dbgame.gameState) || dbgame.gameState === null) {
+    logger.debug("Creating new game: "+dbgame._id);
+    factory = function() { return new Checkers.GameState(); };
+  } else {
+    logger.debug("Restoring old game: "+dbgame._id);
+    factory = function() {
+      gameState = new Checkers.GameState();
+      gameState.fromDTO(JSON.parse(dbgame.gameState));
+      return gameState;
+    };
+  }
+  return game = new Server.Server(factory, dbgame);
+}
 
 io.sockets.on('connection', function (socket) {
   console.log('connection from: ', socket.handshake.sessionID);
   User.findOne({session_id: socket.handshake.sessionID}, function(err, user) {
-    if (err) {
+    if (err || !user) {
       throw "Unable to look up user by sessionID '"+sessionID+"': "+err;
     }
-    var server = findOpenServer();
-    console.log('open slots in: ', server);
-    if (_.isUndefined(server)) {
-      console.log('created game ', gameId);
-      var game = new Checkers.GameState();
-      server = new Server.Server(function() { return new Checkers.GameState(); }, gameId);
-      arrGames.push(server);
-      gameId++;
+    var game = findActiveGameByUser(user);
+    logger.debug("Game for user '"+user.name+"': " + game === null ? "not found" : "found");
+
+    if (game) {
+      attachPlayerToGame(game, socket, user);
+    } else {
+      Game.findMeAGame(user, function(dbgame) {
+        logger.debug("FoundMeAGame for user '"+user.name+"': " + dbgame._id);
+        var game = findActiveGameByDBGame(dbgame);
+        if (!game) {
+          game = loadGame(dbgame);
+          logger.debug("Stuffing game into active_games: " + dbgame._id);
+          active_games.push(game);
+        }
+        attachPlayerToGame(game, socket, user);
+      });
     }
-
-    var player = server.addPlayer(socket, user);
-    if (!_.isUndefined(player) && !_.isNull(player))
-    {
-      arrPlayers.push(player);
-    }
-
-    socket.on('disconnect', function(socket) {
-      console.log('connected userse: ', totalUsers());
-    });
-
-    logger.debug('joined server', util.inspect(server, 1));
-    logger.debug('active games: ' + arrGames.length);
-    logger.debug('connected users: ' + totalUsers());
   });
 });
 
