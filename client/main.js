@@ -54,12 +54,31 @@ require(["lib/checkers", 'helpers'], function(checkers, helpers) {
     piecesOnBoard[getPositionKey(piece.position)] = newPieceOnBoard;
   }
 
+  function addSoldierPieceBehaviour(piece) {
+    var positionKey = getPositionKey(piece.position);
+    var pieceOnBoard = g_soldierPiecesOnBoard[positionKey];
+    if (!pieceOnBoard) {
+      return;
+    }
+    $(pieceOnBoard).draggable();
+  }
+
   function addSoldierPiece(piece) {
     addPiece(piece, 'soldier_piece', SOLDIER_MARGIN, g_soldierPiecesOnBoard);
+    addSoldierPieceBehaviour(piece);
+  }
+
+  function addGuerrillaPieceBehaviour(piece) {
+    var positionKey = getPositionKey(piece.position);
+    var pieceOnBoard = g_soldierPiecesOnBoard[positionKey];
+    if (!pieceOnBoard) {
+      return;
+    }
   }
 
   function addGuerrillaPiece(piece) {
     addPiece(piece, 'guerrilla_piece', GUERRILLA_MARGIN, g_guerrillaPiecesOnBoard);
+    addGuerrillaPieceBehaviour(piece);
   }
 
   function updatePieces(arrPieces, piecesOnBoard, addPiece) {
