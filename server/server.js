@@ -1,5 +1,3 @@
-/*jslint white: false*/
-
 define(['underscore', '../lib/checkers', '../lib/vote'], function( _, Checkers, Vote) {
 // var refreshBoard = function(socket, checkers, result) {
 //   var data = {
@@ -37,11 +35,10 @@ Server.prototype.startVote = function(name, question, onPass, getVoters) {
   console.log('getVoters: ', getVoters);
   var vote = new Vote('reset',
            "Would you like to reset the game?",
-           function() {
-            onPass();
-            delete me.votes[name];
-           },
-           getVoters);
+           getVoters,
+           function() { onPass(); }, //onPass
+           function() { delete me.votes[name]; }, //onCompleted
+           function() {}); //onFail
   me.votes[vote.getName()] = vote;
   _.each(getVoters(), function(player){ me.requestVote(player, vote); });
 };
@@ -88,25 +85,43 @@ Server.prototype.addPlayer = function(socket) {
     me.arrPlayers = _.without(me.arrPlayers, player);
     me.arrRoles.push(player.getRole());
     me.broadcast('num_connected_users', me.arrPlayers.length);
+    var votesToDelete = [];
+    console.log('active votes: ', me.votes);
     _.each(me.votes, function(vote) {
-      vote.invalidate(player);
+      if (vote.getVoters().length === 0) {
+        votesToDelete.push(vote.getName());
+      }
+      else {
+        vote.determineResult();
+      }
+    });
+    _.each(votesToDelete, function(name) {
+      console.log('removing dead vote: ', name);
+      delete me.votes[name];
     });
   });
 
   socket.on('requestReset', function(data) {
     console.log('reseting game');
-    me.startVote('reset', 'Would you like reset the game', function() { me.resetGame(); });
+    me.startVote(
+      'reset',
+      'Would you like reset the game',
+      function() { me.resetGame(); });
   });
 
-  socket.on('vote', function(vote) {
-    console.log(player.getSocket().id, ' voted ', vote.choice, ' for ', vote.name);
-    me.votes[vote.name].addVote(vote.choice, player);
+  socket.on('vote', function(ballot) {
+    if (ballot) {
+      console.log(player.getSocket().id, ' voted ', ballot.choice, ' for ', ballot.name);
+      var vote = me.votes[ballot.name];
+      if (vote) {
+        vote.addVote(ballot.choice, player);
+      }
+    }
   });
 
   this.arrRoles = _.without(this.arrRoles, role);
   this.broadcast('num_connected_users', this.arrPlayers.length);
   socket.emit('board_type', ['guerrilla', 'soldier'][this.id % 2]);
-  _.each(this.votes, function(vote) { me.requestVote(player, vote); });
   return player;
 };
 
