@@ -109,6 +109,16 @@ require(["lib/checkers", 'helpers'], function(checkers, helpers) {
     socket.emit('requestReset');
   });
 
+  $('#join_guerrilla').bind('click', function() {
+    socket.emit('takeRole', 'guerrilla');
+  });
+  $('#join_coin').bind('click', function() {
+    socket.emit('takeRole', 'coin');
+  });
+  $('#join_spectator').bind('click', function() {
+    socket.emit('takeRole', 'spectator');
+  });
+
   var selected = null;
 
   var moveCOIN = function(socket, start_x, start_y, target_x, target_y) {

@@ -232,9 +232,9 @@ io.sockets.on('connection', function (socket) {
       console.log('connected userse: ', totalUsers());
     });
 
-    console.log('joined server: ', server);
-    console.log('active games: ', arrGames.length);
-    console.log('connected users: ', totalUsers());
+    logger.debug('joined server', util.inspect(server, 1));
+    logger.debug('active games: ' + arrGames.length);
+    logger.debug('connected users: ' + totalUsers());
   });
 });
 

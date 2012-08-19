@@ -1,4 +1,6 @@
-var requirejs = require('requirejs');
+var requirejs = require('requirejs'),
+    logger    = require('./logger');
+
 requirejs.config({
   nodeRequire: require,
   paths: {
@@ -11,18 +13,14 @@ requirejs.config({
   }
 });
 
-requirejs(['underscore', './lib/checkers', './lib/vote'], function( _, Checkers, Vote) {
-// var refreshBoard = function(socket, checkers, result) {
-//   var data = {
-//     result: true,
-//     remainingGuerrillaPieces: checkers.getRemainingGuerrillaPieces(),
-//     phase: checkers.getCurrentPhaseIndex(),
-//     board: checkers.getPieces(),
-//     placedGuerrilla: checkers.placedGuerrilla,
-//   };
-//   socket.emit('update', data);
-//   socket.broadcast.emit('update', data);
-// };
+requirejs([
+  'underscore',
+  './lib/checkers',
+  './lib/vote'],
+  function(
+    _,
+    Checkers,
+    Vote) {
 
 var Server = function(gameFactory, id) {
   var me = this;
@@ -70,6 +68,11 @@ Server.prototype.requestVote = function(player, vote) {
   });
 };
 
+Server.prototype.updateServerStatus = function() {
+  var me = this;
+  me.broadcast('num_connected_users', 2 - Math.max(0, me.arrRoles.length));
+};
+
 Server.prototype.refreshBoard = function(result, arrPlayers) {
   var me = this;
   var data = {
@@ -104,19 +107,17 @@ Server.prototype.endGame = function() {
   this.requestReset();
 };
 
-
 Server.prototype.addPlayer = function(socket, user) {
-  var role = _.first(this.arrRoles);
+  var me = this;
+  var role = _.first(me.arrRoles);
   var player = new Player(socket, this, user, role);
   this.arrPlayers.push(player);
-  var arrRoles = this.arrRoles;
-  var me = this;
 
   socket.on('disconnect', function(data) {
     console.log('disconnected player: ', player);
     me.arrPlayers = _.without(me.arrPlayers, player);
     me.arrRoles.push(player.getRole());
-    me.broadcast('num_connected_users', me.arrPlayers.length);
+    me.updateServerStatus();
     var votesToDelete = [];
     console.log('active votes: ', me.votes);
     _.each(me.votes, function(vote) {
@@ -149,9 +150,13 @@ Server.prototype.addPlayer = function(socket, user) {
     }
   });
 
-  this.arrRoles = _.without(this.arrRoles, role);
-  this.broadcast('num_connected_users', this.arrPlayers.length);
-  socket.emit('board_type', ['guerrilla', 'soldier'][this.id % 2]);
+  socket.on('takeRole', function(role) {
+    me.takeRole(role, player); 
+  });
+
+  me.arrRoles = _.without(me.arrRoles, role);
+  me.broadcast('num_connected_users', me.arrPlayers.length);
+  socket.emit('board_type', ['guerrilla', 'soldier'][me.id % 2]);
   return player;
 };
 
@@ -179,6 +184,34 @@ Server.prototype.getId = function() {
   return this.id;
 };
 
+Server.prototype.isAvailableRole = function(role) {
+  var me = this;
+  return _.contains(me.arrRoles, role) || role === 'spectator';
+};
+
+Server.prototype.takeRole = function(role, player) {
+  var me = this;
+  logger.debug('role change requested ' + role + '->' + player.getRole());
+  var roleChanged = false;
+
+  var returnRoleToPool = function(role) {
+    if (role !== 'spectator') {
+      me.arrRoles.push(role);
+    }
+  };
+
+  logger.debug('available roles', me.arrRoles);
+  if (me.isAvailableRole(role)) {
+    logger.debug('desired role is available');
+    returnRoleToPool(player.getRole());
+    player.setRole(role);
+    me.arrRoles = _.without(me.arrRoles, role);
+    me.broadcast('roles', me.arrRoles);
+    player.getSocket().emit('role', role);
+    me.updateServerStatus();
+  }
+};
+
 Server.prototype.getOpenRoles = function() {
   return this.arrRoles.slice(0); // fake immutability
 };
@@ -189,17 +222,6 @@ var Player = function(_socket, server, user, role) {
   me.role = role;
   me.socket = _socket;
   me.id = me.socket.handshake.sessionID;
-
-  var chooseRole = function(magic_number) {
-    switch(magic_number) {
-      case 1:
-        return 'guerrilla';
-      case 2:
-        return 'coin';
-      default:
-        return 'spectator';
-    }
-  };
 
   me.socket.emit('user_info', {
     name: user.name
@@ -268,6 +290,11 @@ Player.prototype.getSocket = function() {
 Player.prototype.getRole = function() {
   return this.role;
 };
+
+Player.prototype.setRole = function(role) {
+  this.role = role;
+};
+
 
 module.exports.Player = Player;
 module.exports.Server = Server;
