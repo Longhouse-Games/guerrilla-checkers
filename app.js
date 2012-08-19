@@ -38,20 +38,32 @@ var ChatSchema = new Schema({
 var ChatModel = mongoose.model('Chat', ChatSchema);
 
 var userSchema = new Schema({
-  name: String
+  name: String,
+  session_id: String
 })
 var User = mongoose.model('User', userSchema);
 
+
 // next takes the found/created user as parameter
-var find_or_create_user = function(username, next) {
+var find_or_create_user = function(username, session_id, next) {
   User.findOne({ name: username }, function (err, user) {
     if (err) {
       throw err;
     }
     if (user) {
-      next(user);
+      if (user.session_id !== session_id) {
+        user.session_id = session_id;
+        user.save(function (err) {
+          if (err) {
+            throw err;
+          }
+          next(user);
+        });
+      } else {
+        next(user);
+      }
     } else {
-      var user = new User({ name: username });
+      var user = new User({ name: username, session_id: session_id });
       user.save(function (err) {
         if (err) {
           throw err;
@@ -82,11 +94,6 @@ function handleLogin(request, response) {
 
   applyHeaders(response);
 
-  // DEBUG DEBUG DEBUG
-  response.sendfile(__dirname + '/index.html');
-  return;
-  // DEBUG DEBUG DEBUG
-
   var serviceTicket = request.query.ticket;
   var hasServiceTicket = typeof serviceTicket !== 'undefined';
 
@@ -113,8 +120,8 @@ function handleLogin(request, response) {
       response.redirect(loginUrl);
       return;
     }
-    console.log(username + " logged in!");
-    find_or_create_user(username, function(user) {
+    console.log(username + " logged in! SessionID: " + request.cookies['express.sid']);
+    find_or_create_user(username, request.cookies['express.sid'], function(user) {
       response.sendfile(__dirname + '/index.html');
     });
   });
