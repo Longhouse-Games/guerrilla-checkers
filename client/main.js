@@ -200,10 +200,24 @@ require(["lib/checkers", 'helpers'], function(checkers, helpers) {
   }
 
   function showPossibleCOINMoves(coin_piece) {
-    positions = g_gameState.getPotentialSoldierMoves(coin_piece);
+
+    function getPossibleMovesFunctionName() {
+      var movedSoldier = g_gameState.movedSoldier;
+      if (!movedSoldier) {
+        return "getPotentialSoldierMoves";
+      }
+      var thisPieceMoved = coin_piece.position.x === movedSoldier.position.x && 
+        coin_piece.position.y === movedSoldier.position.y;
+      return thisPieceMoved ? "getSoldierCapturingMoves" : "getPotentialSoldierMoves";
+    }
+
+    clearPossibleMoves();
+    var possibleMovesFunctionName = getPossibleMovesFunctionName();
+    positions = g_gameState[possibleMovesFunctionName](coin_piece);
     for (i = 0; i < positions.length; i++) {
       drawCOINShadow(positions[i].x, positions[i].y);
     }
+
   }
 
   $(window).bind('load', function() {
@@ -410,41 +424,57 @@ require(["lib/checkers", 'helpers'], function(checkers, helpers) {
         if (!square) {
           return;
         }
-        square = drawCOINPiece(position.x, position.y);
-        if (isCOINPlayer()) {
-          square.children('img').each(function(index, pieceImage) {
-            pieceImage.boardPosition = position;
-            if (!isCOINTurn()) {
-              return;
-            }
-            $(pieceImage).draggable({
-              containment: '#checkers',
-              cursorAt: { top: HALF_SQUARE_SIZE, left: HALF_SQUARE_SIZE },
-              scroll: false,
-              revert: false,
-              opacity: 0.6,
-              helper: "clone",
-              start: function() {
-                if (!isCOINTurn()) {
-                  return;
-                }
-                var x = pieceImage.boardPosition.x;
-                var y = pieceImage.boardPosition.y;
-                var squareClass = helpers.getSquareClass(x, y);
-                selected = { x: x, y: y, square: square, squareClass: squareClass };
-                square.removeClass(squareClass);
-                square.addClass('selected');
-                showPossibleCOINMoves({ position: selected });
-              },
-              stop: function() {
-                var squareClass = helpers.getSquareClass(x, y);
-                square.removeClass('selected');
-                square.addClass(squareClass);
-                clearPossibleMoves();
-              }
-            });
-          });
+
+        function showPossibleMovesForPiece(pieceImage, square) {
+          var x = pieceImage.boardPosition.x;
+          var y = pieceImage.boardPosition.y;
+          var squareClass = helpers.getSquareClass(x, y);
+          selected = { x: x, y: y, square: square, squareClass: squareClass };
+          square.removeClass(squareClass);
+          square.addClass('selected');
+          showPossibleCOINMoves({ position: selected });
         }
+
+        square = drawCOINPiece(position.x, position.y);
+        if (!isCOINPlayer()) {
+          return;
+        }
+        square.children('img').each(function(index, pieceImage) {
+          pieceImage.boardPosition = position;
+          if (!isCOINTurn()) {
+            return;
+          }
+
+          var movedSoldier = g_gameState.movedSoldier;
+          if (movedSoldier) {
+            var thisPieceMoved = pieceImage.boardPosition.x === movedSoldier.position.x && 
+              pieceImage.boardPosition.y === movedSoldier.position.y;
+            if (thisPieceMoved) {
+              showPossibleMovesForPiece(pieceImage, square);
+            }
+          }
+
+          $(pieceImage).draggable({
+            containment: '#checkers',
+            cursorAt: { top: HALF_SQUARE_SIZE, left: HALF_SQUARE_SIZE },
+            scroll: false,
+            revert: false,
+            opacity: 0.6,
+            helper: "clone",
+            start: function() {
+              if (!isCOINTurn()) {
+                return;
+              }
+              showPossibleMovesForPiece(pieceImage, square);
+            },
+            stop: function() {
+              var squareClass = helpers.getSquareClass(x, y);
+              square.removeClass('selected');
+              square.addClass(squareClass);
+              clearPossibleMoves();
+            }
+          });
+        });
       });
 
       var arrGuerrillaPieces = g_gameState.getGuerrillaPieces() || [];
