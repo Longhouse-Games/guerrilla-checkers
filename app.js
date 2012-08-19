@@ -205,29 +205,34 @@ var findOpenServer = function() {
 
 io.sockets.on('connection', function (socket) {
   console.log('connection from: ', socket.handshake.sessionID);
-  var server = findOpenServer();
-  console.log('open slots in: ', server);
-  if (_.isUndefined(server)) {
-    console.log('created game ', gameId);
-    var game = new Checkers.GameState();
-    server = new Server.Server(function() { return new Checkers.GameState(); }, gameId);
-    arrGames.push(server);
-    gameId++;
-  }
+  User.findOne({session_id: socket.handshake.sessionID}, function(err, user) {
+    if (err) {
+      throw "Unable to look up user by sessionID '"+sessionID+"': "+err;
+    }
+    var server = findOpenServer();
+    console.log('open slots in: ', server);
+    if (_.isUndefined(server)) {
+      console.log('created game ', gameId);
+      var game = new Checkers.GameState();
+      server = new Server.Server(function() { return new Checkers.GameState(); }, gameId);
+      arrGames.push(server);
+      gameId++;
+    }
 
-  var player = server.addPlayer(socket);
-  if (!_.isUndefined(player) && !_.isNull(player))
-  {
-    arrPlayers.push(player);
-  }
+    var player = server.addPlayer(socket, user);
+    if (!_.isUndefined(player) && !_.isNull(player))
+    {
+      arrPlayers.push(player);
+    }
 
-  socket.on('disconnect', function(socket) {
-    console.log('connected userse: ', totalUsers());
+    socket.on('disconnect', function(socket) {
+      console.log('connected userse: ', totalUsers());
+    });
+
+    console.log('joined server: ', server);
+    console.log('active games: ', arrGames.length);
+    console.log('connected users: ', totalUsers());
   });
-
-  console.log('joined server: ', server);
-  console.log('active games: ', arrGames.length);
-  console.log('connected users: ', totalUsers());
 });
 
 mongoose.connect('mongodb://localhost/lvg');

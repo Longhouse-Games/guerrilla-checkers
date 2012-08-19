@@ -92,9 +92,9 @@ Server.prototype.endGame = function() {
 };
 
 
-Server.prototype.addPlayer = function(socket) {
+Server.prototype.addPlayer = function(socket, user) {
   var role = _.first(this.arrRoles);
-  var player = new Player(socket, this, role);
+  var player = new Player(socket, this, user, role);
   this.arrPlayers.push(player);
   var arrRoles = this.arrRoles;
   var me = this;
@@ -170,7 +170,7 @@ Server.prototype.getOpenRoles = function() {
   return this.arrRoles.slice(0); // fake immutability
 };
 
-var Player = function(_socket, server, role) {
+var Player = function(_socket, server, user, role) {
   var me = this;
   me.server = server;
   me.role = role;
@@ -187,6 +187,10 @@ var Player = function(_socket, server, role) {
         return 'spectator';
     }
   };
+
+  me.socket.emit('user_info', {
+    name: user.name
+  });
 
   // welcome message
   me.socket.emit('message', {
