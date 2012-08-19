@@ -37,6 +37,31 @@ var ChatSchema = new Schema({
 });
 var ChatModel = mongoose.model('Chat', ChatSchema);
 
+var userSchema = new Schema({
+  name: String
+})
+var User = mongoose.model('User', userSchema);
+
+// next takes the found/created user as parameter
+var find_or_create_user = function(username, next) {
+  User.findOne({ name: username }, function (err, user) {
+    if (err) {
+      throw err;
+    }
+    if (user) {
+      next(user);
+    } else {
+      var user = new User({ name: username });
+      user.save(function (err) {
+        if (err) {
+          throw err;
+        }
+        next(user);
+      });
+    }
+  });
+};
+
 // helper functions 
 var fetchRecentMessages = function(callback) {
   var chatModel = mongoose.model('Chat');
@@ -89,7 +114,9 @@ function handleLogin(request, response) {
       return;
     }
     console.log(username + " logged in!");
-    response.sendfile(__dirname + '/index.html');
+    find_or_create_user(username, function(user) {
+      response.sendfile(__dirname + '/index.html');
+    });
   });
 }
 
