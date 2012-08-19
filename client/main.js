@@ -349,6 +349,9 @@ require(["lib/checkers", 'helpers'], function(checkers, helpers) {
     }
 
     // receive messages
+    socket.on('user_info', function(user_info) {
+      $('#username').val(user_info.name);
+    });
     socket.on('message', function (data) {
       printMessage(data.user, data.message);
       window.scrollTo(0, document.body.scrollHeight);
