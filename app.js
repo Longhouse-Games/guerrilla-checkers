@@ -9,7 +9,9 @@ var express = require('express')
   , assert = require('assert')
   , cas = require('cas')
   , cookie = require('cookie')
-  , Server = require('./server/server');
+  , Server = require('./server/server')
+  , logger = require('./server/logger')
+  , util = require('util');
 // requirejs
 var requirejs = require('requirejs');
 requirejs.config({
