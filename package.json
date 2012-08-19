@@ -26,7 +26,7 @@
     "underscore": "",
     "moment": "",
     "cookie": ">=0.0.4",
-    "winston: ""
+    "winston": ""
   },
   "devDependencies": {
     "jasmine-node" : ">=1.0.26"
