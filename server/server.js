@@ -1,6 +1,6 @@
+/*jslint white: false*/
 
-
-define(['underscore', '../lib/checkers'], function( _, Checkers ) {
+define(['underscore', '../lib/checkers', '../lib/vote'], function( _, Checkers, Vote) {
 // var refreshBoard = function(socket, checkers, result) {
 //   var data = {
 //     result: true,
@@ -16,12 +16,42 @@ define(['underscore', '../lib/checkers'], function( _, Checkers ) {
 var Server = function(gameFactory, id) {
   var me = this;
   me.id = id;
-  me.gameFactory = gameFactory,
+  me.gameFactory = gameFactory;
   me.game = gameFactory();
   me.arrPlayers = [];
   me.arrRoles = ['guerrilla', 'coin'];
+  me.votes = {};
 };
 
+
+Server.prototype.startVote = function(name, question, onPass, getVoters) {
+  var me = this;
+  onPass = onPass || function() {};
+  if (this.votes[name]) { return; } // vote already in progress
+  getVoters = getVoters || function() { 
+      return _.filter(me.arrPlayers, function(player) {
+        var role = player.getRole();
+        return role === 'guerrilla'
+          || role === 'coin';
+      });};
+  console.log('getVoters: ', getVoters);
+  var vote = new Vote('reset',
+           "Would you like to reset the game?",
+           function() {
+            onPass();
+            delete me.votes[name];
+           },
+           getVoters);
+  me.votes[vote.getName()] = vote;
+  _.each(getVoters(), function(player){ me.requestVote(player, vote); });
+};
+
+Server.prototype.requestVote = function(player, vote) {
+  player.getSocket().emit('getVote', {
+    'name': vote.getName(),
+    'question': vote.getQuestion()
+  });
+};
 
 Server.prototype.refreshBoard = function(result, arrPlayers) {
   var data = {
@@ -58,19 +88,27 @@ Server.prototype.addPlayer = function(socket) {
     me.arrPlayers = _.without(me.arrPlayers, player);
     me.arrRoles.push(player.getRole());
     me.broadcast('num_connected_users', me.arrPlayers.length);
+    _.each(me.votes, function(vote) {
+      vote.invalidate(player);
+    });
   });
 
-  socket.on('reset', function(data) {
+  socket.on('requestReset', function(data) {
     console.log('reseting game');
-    me.resetGame();
+    me.startVote('reset', 'Would you like reset the game', function() { me.resetGame(); });
+  });
+
+  socket.on('vote', function(vote) {
+    console.log(player.getSocket().id, ' voted ', vote.choice, ' for ', vote.name);
+    me.votes[vote.name].addVote(vote.choice, player);
   });
 
   this.arrRoles = _.without(this.arrRoles, role);
   this.broadcast('num_connected_users', this.arrPlayers.length);
   socket.emit('board_type', ['guerrilla', 'soldier'][this.id % 2]);
+  _.each(this.votes, function(vote) { me.requestVote(player, vote); });
   return player;
-
-  };
+};
 
 Server.prototype.getPlayerCount = function() {
   return this.arrPlayers.length;

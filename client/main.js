@@ -78,7 +78,7 @@ require(["lib/checkers", 'helpers'], function(checkers, helpers) {
   };
   var $reset = $('#reset');
   $reset.bind('click', function() {
-    socket.emit('reset');
+    socket.emit('requestReset');
   });
 
   var selected = null;
@@ -339,6 +339,11 @@ require(["lib/checkers", 'helpers'], function(checkers, helpers) {
         $('#waiting').show();
         $('.board').first().hide();
       }
+    });
+
+    socket.on('getVote', function(vote) {
+      var choice = confirm(vote.question);
+      socket.emit('vote', {name: vote.name, choice: choice ? 'yes' : 'no'});
     });
 
     socket.on('update', function(updateResponse) {
