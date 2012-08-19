@@ -19,6 +19,13 @@ var Server = function(gameFactory, id) {
   me.arrPlayers = [];
   me.arrRoles = ['guerrilla', 'coin'];
   me.votes = {};
+
+  me.requestReset = function() {
+    me.startVote(
+      'reset',
+      'Would you like reset the game',
+      function() { me.resetGame(); });
+  };
 };
 
 
@@ -51,25 +58,37 @@ Server.prototype.requestVote = function(player, vote) {
 };
 
 Server.prototype.refreshBoard = function(result, arrPlayers) {
+  var me = this;
   var data = {
     result: result,
-    remainingGuerrillaPieces: this.game.getRemainingGuerrillaPieces(),
-    phase: this.game.getCurrentPhaseIndex(),
-    board: this.game.getPieces(),
-    placedGuerrilla: this.game.placedGuerrilla,
-    gameState: this.game.asDTO()
+    remainingGuerrillaPieces: me.game.getRemainingGuerrillaPieces(),
+    phase: me.game.getCurrentPhaseIndex(),
+    board: me.game.getPieces(),
+    placedGuerrilla: me.game.placedGuerrilla,
+    gameState: me.game.asDTO()
   };
-  console.log('update players: ', this.arrPlayers.length);
-  _.each(arrPlayers || this.arrPlayers, function(player) {
+  console.log('update players: ', me.arrPlayers.length);
+  _.each(arrPlayers || me.arrPlayers, function(player) {
     var socket = player.getSocket();
     if (_.isUndefined(socket) || _.isNull(socket)) { return; }
     socket.emit('update', data);
   });
+  var winner = me.game.getWinner();
+  if (winner) {
+    me.broadcast('gameOver', {winner: winner});
+    me.broadcast('message', {user: 'game', message: 'Game Over'});
+    me.broadcast('message', {user: 'game', message: 'Winner: ' + winner});
+    me.requestReset();
+  }
 };
 
 Server.prototype.resetGame = function() {
   this.game = this.gameFactory();
   this.refreshBoard(true);
+};
+
+Server.prototype.endGame = function() {
+  this.requestReset();
 };
 
 
@@ -103,11 +122,9 @@ Server.prototype.addPlayer = function(socket) {
 
   socket.on('requestReset', function(data) {
     console.log('reseting game');
-    me.startVote(
-      'reset',
-      'Would you like reset the game',
-      function() { me.resetGame(); });
+    me.requestReset();
   });
+
 
   socket.on('vote', function(ballot) {
     if (ballot) {
