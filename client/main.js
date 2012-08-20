@@ -281,7 +281,7 @@ require(["lib/checkers", 'helpers'], function(checkers, helpers) {
     });
 
     socket.on('user_info', function(userInfo) {
-      $('#username')val(userInfo.name);
+      $('#username').val(userInfo.name);
     });
 
     socket.on('update', function(updateResponse) {
