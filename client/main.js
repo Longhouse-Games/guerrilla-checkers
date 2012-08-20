@@ -70,19 +70,26 @@ require(["lib/checkers", 'helpers'], function(checkers, helpers) {
     return g_selectedSoldierPiece;
   }
 
-  function setSelectedSoldierPiece(pieceOnBoard) {
+  function setSelectedSoldierPiece(piece) {
     for (var positionKey in g_soldierPiecesOnBoard) {
       var otherPieceOnBoard = g_soldierPiecesOnBoard[positionKey];
       var className = otherPieceOnBoard.className.replace(/\s*selected/g, '');
       otherPieceOnBoard.className = className;
     }
-    if (g_gameState.isSoldierTurn()) {
+    if (g_gameState.isSoldierTurn() && piece) {
+      var positionKey = getPositionKey(piece.position);
+      var pieceOnBoard = g_soldierPiecesOnBoard[positionKey];
       g_selectedSoldierPiece = pieceOnBoard;
       if (pieceOnBoard) {
         pieceOnBoard.className += " selected";
       }
     } else {
       g_selectedSoldierPiece = null;
+    }
+    if (piece) {
+      updateSoldierMoves(piece);
+    } else {
+      hideSoldierMoves();
     }
   }
 
@@ -94,8 +101,9 @@ require(["lib/checkers", 'helpers'], function(checkers, helpers) {
     }
     if (isSoldierPlayer()) {
       pieceOnBoard.onclick = function() {
-        setSelectedSoldierPiece(pieceOnBoard);
-        updateSoldierMoves(piece);
+        if (!g_gameState.movedSoldier) {
+          setSelectedSoldierPiece(piece);
+        }
       }
     }
   }
@@ -108,13 +116,29 @@ require(["lib/checkers", 'helpers'], function(checkers, helpers) {
   }
 
   function updatePieces(arrPieces, piecesOnBoard, addPiece) {
-    var arrPieces = arrPieces || [];
+    arrPieces = arrPieces || [];
+    piecesOnBoard = piecesOnBoard || {};
+    var removedPieces = {};
+    for (var positionKey in piecesOnBoard) {
+      removedPieces[positionKey] = piecesOnBoard[positionKey];
+    }
+    // add new pieces
     for (var idxPiece = 0; idxPiece < arrPieces.length; ++idxPiece) {
       var piece = arrPieces[idxPiece];
       var positionKey = getPositionKey(piece.position);
       var pieceOnBoard = piecesOnBoard[positionKey];
       if (!pieceOnBoard) {
         addPiece(piece);
+      }
+      delete removedPieces[positionKey];
+    }
+    // remove extra pieces
+    for (var positionKey in removedPieces) {
+      delete piecesOnBoard[positionKey];
+      var pieceOnBoard = removedPieces[positionKey];
+      var parentNode = pieceOnBoard.parentNode;
+      if (parentNode) {
+        parentNode.removeChild(pieceOnBoard);
       }
     }
   }
@@ -123,6 +147,9 @@ require(["lib/checkers", 'helpers'], function(checkers, helpers) {
     if (g_gameState) {
       var arrPieces = g_gameState.arrSoldierPieces;
       updatePieces(arrPieces, g_soldierPiecesOnBoard, addSoldierPiece);
+      if (isSoldierPlayer() && g_gameState.movedSoldier) {
+        setSelectedSoldierPiece(g_gameState.movedSoldier);
+      }
     }
   }
 
@@ -190,7 +217,11 @@ require(["lib/checkers", 'helpers'], function(checkers, helpers) {
   function showSoldierMoves(piece) {
     var $moves = $('#soldier_moves');
     $moves.text("");
-    var arrMoves = g_gameState.getPotentialSoldierMoves(piece);
+    if (g_gameState.movedSoldier) {
+      var arrMoves = g_gameState.getSoldierCapturingMoves(piece);
+    } else {
+      var arrMoves = g_gameState.getPotentialSoldierMoves(piece);
+    }
     for (var idx = 0; idx < arrMoves.length; ++idx) {
       var position = arrMoves[idx];
       createSoldierMove($moves, piece, position);
@@ -206,7 +237,7 @@ require(["lib/checkers", 'helpers'], function(checkers, helpers) {
     if (!isSoldierPlayer()) {
       return;
     }
-    if (g_gameState.isSoldierTurn()) {
+    if (piece && g_gameState.isSoldierTurn()) {
       showSoldierMoves(piece);
     }
   }
