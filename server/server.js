@@ -196,6 +196,11 @@ Server.prototype.addPlayer = function(socket, user) {
     me.refreshBoard(true, [player]);
   });
 
+  // handle user chat message
+  socket.on('message', function(data) {
+    me.broadcast('message', data);
+  });
+
   me.broadcast('num_connected_users', me.arrPlayers.length);
   socket.emit('board_type', 'guerrilla');
   return player;
@@ -286,15 +291,6 @@ var Player = function(_socket, server, user, role) {
   me.socket.emit('message', {
     user: 'server',
     message: 'Welcome to Guerrilla Checkers!'
-  });
-
-  // handle user message
-  me.socket.on('message', function(data) {
-
-    me.socket.broadcast.emit('message', data);
-    me.socket.emit('message', data);
-
-    //saveMessageToMongo(data);
   });
 
   // checkers protocol
