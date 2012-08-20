@@ -65,6 +65,17 @@ require(["lib/checkers", 'helpers'], function(checkers, helpers) {
     return newPieceOnBoard;
   }
 
+  function setSelectedSoldierPiece(pieceOnBoard) {
+    for (var positionKey in g_soldierPiecesOnBoard) {
+      var otherPieceOnBoard = g_soldierPiecesOnBoard[positionKey];
+      var className = otherPieceOnBoard.className.replace(/\s*selected/g, '');
+      otherPieceOnBoard.className = className;
+    }
+    if (g_gameState.isSoldierTurn()) {
+      pieceOnBoard.className += " selected";
+    }
+  }
+
   function addSoldierPieceBehaviour(piece) {
     var positionKey = getPositionKey(piece.position);
     var pieceOnBoard = g_soldierPiecesOnBoard[positionKey];
@@ -72,7 +83,10 @@ require(["lib/checkers", 'helpers'], function(checkers, helpers) {
       return;
     }
     if (isSoldierPlayer()) {
-      $(pieceOnBoard).draggable();
+      pieceOnBoard.onclick = function() {
+        setSelectedSoldierPiece(pieceOnBoard);
+        updateSoldierMoves(piece);
+      }
     }
   }
 
@@ -145,6 +159,10 @@ require(["lib/checkers", 'helpers'], function(checkers, helpers) {
     if (isGuerrillaPlayer() && g_gameState.isGuerrillaTurn()) {
       showGuerrillaMoves();
     }
+  }
+
+  function updateSoldierMoves(piece) {
+    debugger;
   }
 
   function setTransitionProperty($element, value) {

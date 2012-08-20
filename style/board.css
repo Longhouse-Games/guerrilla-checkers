@@ -122,57 +122,28 @@ body {
 	top: 0px;
 }
 
-img.guerrilla {
-	width: 36px;
-	height: 36px;
-	margin-top: 12px;
-	margin-left: 12px;
-}
-
-.piece {
-}
-
-img.shadow {
-	opacity: 0.5;
-}
-
-.selected > img, .selected_img {
-	-webkit-animation: myanim 1s infinite ease-in-out; /* Saf5, Chrome */
-	-moz-animation: myanim 1s infinite ease-in-out; /* FF5+ */
-	-o-animation: myanim 1s infinite ease-in-out; /* Opera 12+ */
-	animation: myanim 1s infinite ease-in-out; /* Saf5, Chrome */
-
-}
-
-div.selected {
-	background-color: rgb(0, 170, 170) !important;
-	background-color: rgba(0, 170, 170, 0.4) !important;
-	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#6600AAAA, endColorstr=#6600AAAA) !important;
-	-ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#6600AAAA, endColorstr=#6600AAAA)" !important;
-}
-
-.box_animation:hover {
-  -webkit-animation: myanim 5s infinite; /* Saf5, Chrome */
-     -moz-animation: myanim 5s infinite; /* FF5+ */
-       -o-animation: myanim 5s infinite; /* Opera 12+ */
-          animation: myanim 5s infinite; /* Saf5, Chrome */
+.selected {
+  -webkit-animation: myanim 1s ease-in-out infinite; /* Saf5, Chrome */
+     -moz-animation: myanim 1s ease-in-out infinite; /* FF5+ */
+       -o-animation: myanim 1s ease-in-out infinite; /* Opera 12+ */
+          animation: myanim 1s ease-in-out infinite; /* Saf5, Chrome */
 }
 
 @-webkit-keyframes myanim {
-	0%, 100% { -webkit-transform: rotate(0deg) scale3d(1, 1, 1); zoom: 1; }
-	50%      { -webkit-transform: rotate(20deg) scale3d(1.2, 1.2, 1); zoom: 1; }
+	0%, 100% { -webkit-transform: scale3d(1, 1, 1); zoom: 1; }
+	50%      { -webkit-transform: scale3d(1.2, 1.2, 1); zoom: 1; }
 }
 @-moz-keyframes myanim {
-	0%, 100% { -moz-transform: rotate(0deg) scale3d(1, 1, 1); zoom: 1; }
-	50%      { -moz-transform: rotate(20deg) scale3d(1.2, 1.2, 1); zoom: 1; }
+	0%, 100% { -moz-transform: scale3d(1, 1, 1); zoom: 1; }
+	50%      { -moz-transform: scale3d(1.2, 1.2, 1); zoom: 1; }
 }
 @-o-keyframes myanim {
-	0%, 100% { -o-transform: rotate(0deg) scale3d(1, 1, 1); zoom: 1; }
-	50%      { -o-transform: rotate(20deg) scale3d(1.2, 1.2, 1); zoom: 1; }
+	0%, 100% { -o-transform: scale3d(1, 1, 1); zoom: 1; }
+	50%      { -o-transform: scale3d(1.2, 1.2, 1); zoom: 1; }
 }
 @keyframes myanim {
-	0%, 100% { transform: rotate(0deg) scale3d(1, 1, 1); zoom: 1; }
-	50%      { transform: rotate(20deg) scale3d(1.2, 1.2, 1); zoom: 1; }
+	0%, 100% { transform: scale3d(1, 1, 1); zoom: 1; }
+	50%      { transform: scale3d(1.2, 1.2, 1); zoom: 1; }
 }
 
 #soldier_moves div, #guerrilla_moves div {
