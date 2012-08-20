@@ -25,7 +25,8 @@
     "socket.io": "0.9.6",
     "underscore": "",
     "moment": "",
-    "cookie": ">=0.0.4"
+    "cookie": ">=0.0.4",
+    "winston": ""
   },
   "devDependencies": {
     "jasmine-node" : ">=1.0.26"

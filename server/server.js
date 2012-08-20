@@ -1,23 +1,38 @@
-define(['underscore', '../lib/checkers', '../lib/vote'], function( _, Checkers, Vote) {
-// var refreshBoard = function(socket, checkers, result) {
-//   var data = {
-//     result: true,
-//     remainingGuerrillaPieces: checkers.getRemainingGuerrillaPieces(),
-//     phase: checkers.getCurrentPhaseIndex(),
-//     board: checkers.getPieces(),
-//     placedGuerrilla: checkers.placedGuerrilla,
-//   };
-//   socket.emit('update', data);
-//   socket.broadcast.emit('update', data);
-// };
+var requirejs = require('requirejs'),
+    logger    = require('./logger');
 
-var Server = function(gameFactory, id) {
+requirejs.config({
+  nodeRequire: require,
+  paths: {
+    underscore: "./vendor/underscore"
+  },
+  shim: {
+    underscore: {
+      exports: '_'
+    }
+  }
+});
+
+requirejs([
+  'underscore',
+  './lib/checkers',
+  './lib/vote'],
+  function(
+    _,
+    Checkers,
+    Vote) {
+
+var GUERRILLA_ROLE = 'guerrilla';
+var COIN_ROLE = 'coin';
+var SPECTATOR = 'spectator';
+
+var Server = function(gameFactory, dbgame) {
   var me = this;
-  me.id = id;
+  me.dbgame = dbgame;
   me.gameFactory = gameFactory;
   me.game = gameFactory();
   me.arrPlayers = [];
-  me.arrRoles = ['guerrilla', 'coin'];
+  me.arrRoles = [GUERRILLA_ROLE, COIN_ROLE];
   me.votes = {};
 
   me.requestReset = function() {
@@ -28,6 +43,9 @@ var Server = function(gameFactory, id) {
   };
 };
 
+Server.prototype.getDBGame = function() {
+  return this.dbgame;
+}
 
 Server.prototype.startVote = function(name, question, onPass, getVoters) {
   var me = this;
@@ -57,6 +75,11 @@ Server.prototype.requestVote = function(player, vote) {
   });
 };
 
+Server.prototype.updateServerStatus = function() {
+  var me = this;
+  me.broadcast('num_connected_users', me.arrPlayers.length);
+};
+
 Server.prototype.refreshBoard = function(result, arrPlayers) {
   var me = this;
   var data = {
@@ -67,6 +90,11 @@ Server.prototype.refreshBoard = function(result, arrPlayers) {
     placedGuerrilla: me.game.placedGuerrilla,
     gameState: me.game.asDTO()
   };
+
+  console.log('saving new game state');
+  this.dbgame.gameState = JSON.stringify(data.gameState);
+  this.dbgame.save(function(err) { if (err) throw err; });
+
   console.log('update players: ', me.arrPlayers.length);
   _.each(arrPlayers || me.arrPlayers, function(player) {
     var socket = player.getSocket();
@@ -91,19 +119,46 @@ Server.prototype.endGame = function() {
   this.requestReset();
 };
 
+Server.prototype.addPlayer = function(socket, user) {
+  if (!user) throw "AddPlayer called with 'null' for user."
 
-Server.prototype.addPlayer = function(socket) {
-  var role = _.first(this.arrRoles);
-  var player = new Player(socket, this, role);
-  this.arrPlayers.push(player);
-  var arrRoles = this.arrRoles;
   var me = this;
+
+  var role = null;
+
+  var coin_player_name = _.isUndefined(this.dbgame.coin_player_name) ? null : this.dbgame.coin_player_name;
+  var guerrilla_player_name = _.isUndefined(this.dbgame.guerrilla_player_name) ? null : this.dbgame.guerrilla_player_name;
+
+  if (coin_player_name !== null && user.name === coin_player_name) {
+    role = COIN_ROLE;
+  } else if (guerrilla_player_name !== null && user.name === guerrilla_player_name) {
+    role = GUERRILLA_ROLE;
+  } else {
+    // Player was not previously assigned a role (or was spectating)
+    if (guerrilla_player_name === null) {
+
+      role = GUERRILLA_ROLE;
+      this.dbgame.guerrilla_player_name = user.name;
+      this.dbgame.save(function(err) { if (err) throw err; });
+
+    } else if (coin_player_name === null) {
+
+      role = COIN_ROLE;
+      this.dbgame.coin_player_name = user.name;
+      this.dbgame.save(function(err) { if (err) throw err; });
+
+    } else {
+      role = SPECTATOR;
+    }
+  }
+
+  var player = new Player(socket, this, user, role);
+  this.arrPlayers.push(player);
 
   socket.on('disconnect', function(data) {
     console.log('disconnected player: ', player);
     me.arrPlayers = _.without(me.arrPlayers, player);
-    me.arrRoles.push(player.getRole());
-    me.broadcast('num_connected_users', me.arrPlayers.length);
+    me.updateServerStatus();
     var votesToDelete = [];
     console.log('active votes: ', me.votes);
     _.each(me.votes, function(vote) {
@@ -136,9 +191,18 @@ Server.prototype.addPlayer = function(socket) {
     }
   });
 
-  this.arrRoles = _.without(this.arrRoles, role);
-  this.broadcast('num_connected_users', this.arrPlayers.length);
-  socket.emit('board_type', ['guerrilla', 'soldier'][this.id % 2]);
+  socket.on('takeRole', function(role) {
+    me.takeRole(role, player); 
+    me.refreshBoard(true, [player]);
+  });
+
+  // handle user chat message
+  socket.on('message', function(data) {
+    me.broadcast('message', data);
+  });
+
+  me.broadcast('num_connected_users', me.arrPlayers.length);
+  socket.emit('board_type', 'guerrilla');
   return player;
 };
 
@@ -163,45 +227,70 @@ Server.prototype.getGame = function() {
 };
 
 Server.prototype.getId = function() {
-  return this.id;
+  return this.dbgame.id;
+};
+
+Server.prototype.isAvailableRole = function(role) {
+  var me = this;
+  if (role === GUERRILLA_ROLE) {
+    return _.isUndefined(me.dbgame.guerrilla_player_name) || me.dbgame.guerrilla_player_name === null;
+  } else if (role === COIN_ROLE) {
+    return _.isUndefined(me.dbgame.coin_player_name) || me.dbgame.coin_player_name === null;
+  }
+  throw "Invalid role: '" + role + "'";
+};
+
+Server.prototype.takeRole = function(role, player) {
+  var me = this;
+  logger.debug('role change requested ' + role + '->' + player.getRole());
+  var roleChanged = false;
+
+  var freeRole = function(role) {
+    if (role === GUERRILLA_ROLE) {
+      me.dbgame.guerrilla_player_name === null;
+      me.dbgame.save(function(err) { if (err) throw err; });
+    } else if (role === COIN_ROLE) {
+      me.dbgame.coin_player_name === null;
+      me.dbgame.save(function(err) { if (err) throw err; });
+    }
+  };
+
+  if (me.isAvailableRole(role)) {
+    logger.debug('desired role is available');
+    freeRole(player.getRole());
+    player.setRole(role);
+    me.broadcast('roles', me.arrRoles);
+    player.getSocket().emit('role', role);
+    me.updateServerStatus();
+  }
 };
 
 Server.prototype.getOpenRoles = function() {
-  return this.arrRoles.slice(0); // fake immutability
+  var roles = [];
+  if (_.isUndefined(this.dbgame.coin_player_name) || this.dbgame.coin_player_name === null) {
+    roles.push(COIN_ROLE);
+  }
+  if (_.isUndefined(this.dbgame.guerrilla_player_name) || this.dbgame.guerrilla_player_name === null) {
+    roles.push(GUERRILLA_ROLE);
+  }
+  return roles;
 };
 
-var Player = function(_socket, server, role) {
+var Player = function(_socket, server, user, role) {
   var me = this;
   me.server = server;
   me.role = role;
   me.socket = _socket;
   me.id = me.socket.handshake.sessionID;
 
-  var chooseRole = function(magic_number) {
-    switch(magic_number) {
-      case 1:
-        return 'guerrilla';
-      case 2:
-        return 'coin';
-      default:
-        return 'spectator';
-    }
-  };
+  me.socket.emit('user_info', {
+    name: user.name
+  });
 
   // welcome message
   me.socket.emit('message', {
     user: 'server',
-    message: 'Welcome to Guerrilla Checkers!' 
-  });
-
-  // handle user message
-  me.socket.on('message', function(data) {
-
-    me.socket.broadcast.emit('message', data);
-    me.socket.emit('message', data);
-
-    //liferay.sendMessage({ type: 'message', data: data });
-    //saveMessageToMongo(data);
+    message: 'Welcome to Guerrilla Checkers!'
   });
 
   // checkers protocol
@@ -252,9 +341,12 @@ Player.prototype.getRole = function() {
   return this.role;
 };
 
-return {
-  Player: Player,
-  Server: Server
+Player.prototype.setRole = function(role) {
+  this.role = role;
 };
+
+
+module.exports.Player = Player;
+module.exports.Server = Server;
 }); // requirejs define
 
