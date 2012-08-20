@@ -229,6 +229,16 @@ require(["lib/checkers", 'helpers'], function(checkers, helpers) {
     socket.emit('requestReset');
   });
 
+  $('#join_guerrilla').bind('click', function() {
+    socket.emit('takeRole', 'guerrilla');
+  });
+  $('#join_coin').bind('click', function() {
+    socket.emit('takeRole', 'coin');
+  });
+  $('#join_spectator').bind('click', function() {
+    socket.emit('takeRole', 'spectator');
+  });
+
   socket.on('connect', function() {
 
     // receive messages
@@ -268,6 +278,10 @@ require(["lib/checkers", 'helpers'], function(checkers, helpers) {
     socket.on('getVote', function(vote) {
       var choice = confirm(vote.question);
       socket.emit('vote', {name: vote.name, choice: choice ? 'yes' : 'no'});
+    });
+
+    socket.on('user_info', function(userInfo) {
+      $('#username')val(userInfo.name);
     });
 
     socket.on('update', function(updateResponse) {
