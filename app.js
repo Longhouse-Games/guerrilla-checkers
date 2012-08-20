@@ -48,32 +48,39 @@ var User = mongoose.model('User', userSchema);
 
 var gameSchema = new Schema({
   is_in_progress: { type: Boolean, default: false },
-  _coin_player_id: { type: Schema.Types.ObjectId, ref: 'User' },
-  _guerrilla_player_id: { type: Schema.Types.ObjectId, ref: 'User' },
+  coin_player_name: { type: String, default: null },
+  guerrilla_player_name: { type: String, default: null },
   gameState: String
 });
 
 var gameHasUser = function(dbgame, user) {
-  return dbgame._coin_player_id === user._id || dbgame._guerrilla_player_id === user._id;
+  return dbgame.coin_player_name === user.name || dbgame.guerrilla_player_name === user.name;
 }
 
 // next takes game found, or null if none were found
 gameSchema.statics.findMeAGame = function(user, next) {
   _this = this;
+
   // Find a game that the player is participating in
-  _this.findOne()
-    .where('is_in_progress', true)
-    .where({$or: [ {_coin_player_id: user._id}, {_guerrilla_player_id: user._id} ]})
-    .exec(function(err, game) {
+  _this.findOne(
+    // Mongo queries are truly a highpoint of code beauty.
+      {$and: [
+        {is_in_progress: true},
+        {$or: [
+          {coin_player_name: user.name},
+          {guerrilla_player_name: user.name}
+        ]},
+      ]},
+    function(err, game) {
       if (err) throw err;
-      if (game) next(game);
+      if (game) {
+        logger.debug("Found a game with stoopid query");
+        next(game);
+      }
       else {
         logger.debug("FindingMeAGame: Couldn't find a game that user '"+user.name+"' is participating in.");
         // Find a game where there is an empty slot
-        _this.findOne()
-          .where('is_in_progress', true)
-          .where({$or: [ {_coin_player_id: null}, {_guerrilla_player_id: null} ] })
-          .exec(function(err, game) {
+        _this.findOne({$and: [ {is_in_progress: true}, {$or: [{coin_player_name: null},{guerrilla_player_name: null}]}]}, function(err, game) {
             if (err) throw err;
             if (game) next(game);
             else {
@@ -287,13 +294,12 @@ var loadGame = function(dbgame) {
 }
 
 io.sockets.on('connection', function (socket) {
-  console.log('connection from: ', socket.handshake.sessionID);
   User.findOne({session_id: socket.handshake.sessionID}, function(err, user) {
     if (err || !user) {
       throw "Unable to look up user by sessionID '"+sessionID+"': "+err;
     }
     var game = findActiveGameByUser(user);
-    logger.debug("Game for user '"+user.name+"': " + game === null ? "not found" : "found");
+    logger.debug("Game for user '"+user.name+"': ", game === null ? "not found" : "found");
 
     if (game) {
       attachPlayerToGame(game, socket, user);

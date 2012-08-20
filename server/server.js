@@ -126,30 +126,25 @@ Server.prototype.addPlayer = function(socket, user) {
 
   var role = null;
 
-  var coin_player_id = _.isUndefined(this.dbgame._coin_player_id) ? null : this.dbgame._coin_player_id;
-  var guerrilla_player_id = _.isUndefined(this.dbgame._guerrilla_player_id) ? null : this.dbgame._guerrilla_player_id;
+  var coin_player_name = _.isUndefined(this.dbgame.coin_player_name) ? null : this.dbgame.coin_player_name;
+  var guerrilla_player_name = _.isUndefined(this.dbgame.guerrilla_player_name) ? null : this.dbgame.guerrilla_player_name;
 
-  logger.error("Checking roles for dbgame.");
-  logger.error("COIN_ID: " + coin_player_id);
-  logger.error("GUERRILLA_ID: " + guerrilla_player_id);
-  logger.error("USER_ID: " + user._id);
-
-  if (coin_player_id !== null && user._id.equals(coin_player_id)) {
+  if (coin_player_name !== null && user.name === coin_player_name) {
     role = COIN_ROLE;
-  } else if (guerrilla_player_id !== null && user._id.equals(guerrilla_player_id)) {
+  } else if (guerrilla_player_name !== null && user.name === guerrilla_player_name) {
     role = GUERRILLA_ROLE;
   } else {
     // Player was not previously assigned a role (or was spectating)
-    if (guerrilla_player_id === null) {
+    if (guerrilla_player_name === null) {
 
       role = GUERRILLA_ROLE;
-      this.dbgame._guerrilla_player_id = user._id;
+      this.dbgame.guerrilla_player_name = user.name;
       this.dbgame.save(function(err) { if (err) throw err; });
 
-    } else if (coin_player_id === null) {
+    } else if (coin_player_name === null) {
 
       role = COIN_ROLE;
-      this.dbgame._coin_player_id = user._id;
+      this.dbgame.coin_player_name = user.name;
       this.dbgame.save(function(err) { if (err) throw err; });
 
     } else {
@@ -233,9 +228,9 @@ Server.prototype.getId = function() {
 Server.prototype.isAvailableRole = function(role) {
   var me = this;
   if (role === GUERRILLA_ROLE) {
-    return _.isUndefined(me.dbgame._guerrilla_player_id) || me.dbgame._guerrilla_player_id === null;
+    return _.isUndefined(me.dbgame.guerrilla_player_name) || me.dbgame.guerrilla_player_name === null;
   } else if (role === COIN_ROLE) {
-    return _.isUndefined(me.dbgame._coin_player_id) || me.dbgame._coin_player_id === null;
+    return _.isUndefined(me.dbgame.coin_player_name) || me.dbgame.coin_player_name === null;
   }
   throw "Invalid role: '" + role + "'";
 };
@@ -247,10 +242,10 @@ Server.prototype.takeRole = function(role, player) {
 
   var freeRole = function(role) {
     if (role === GUERRILLA_ROLE) {
-      me.dbgame._guerrilla_player_id === null;
+      me.dbgame.guerrilla_player_name === null;
       me.dbgame.save(function(err) { if (err) throw err; });
     } else if (role === COIN_ROLE) {
-      me.dbgame._coin_player_id === null;
+      me.dbgame.coin_player_name === null;
       me.dbgame.save(function(err) { if (err) throw err; });
     }
   };
@@ -267,10 +262,10 @@ Server.prototype.takeRole = function(role, player) {
 
 Server.prototype.getOpenRoles = function() {
   var roles = [];
-  if (_.isUndefined(this.dbgame._coin_player_id) || this.dbgame._coin_player_id === null) {
+  if (_.isUndefined(this.dbgame.coin_player_name) || this.dbgame.coin_player_name === null) {
     roles.push(COIN_ROLE);
   }
-  if (_.isUndefined(this.dbgame._guerrilla_player_id) || this.dbgame._guerrilla_player_id === null) {
+  if (_.isUndefined(this.dbgame.guerrilla_player_name) || this.dbgame.guerrilla_player_name === null) {
     roles.push(GUERRILLA_ROLE);
   }
   return roles;
