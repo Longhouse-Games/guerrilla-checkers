@@ -65,6 +65,11 @@ require(["lib/checkers", 'helpers'], function(checkers, helpers) {
     return newPieceOnBoard;
   }
 
+  var g_selectedSoldierPiece = null;
+  function getSelectedSoldierPiece() {
+    return g_selectedSoldierPiece;
+  }
+
   function setSelectedSoldierPiece(pieceOnBoard) {
     for (var positionKey in g_soldierPiecesOnBoard) {
       var otherPieceOnBoard = g_soldierPiecesOnBoard[positionKey];
@@ -72,7 +77,12 @@ require(["lib/checkers", 'helpers'], function(checkers, helpers) {
       otherPieceOnBoard.className = className;
     }
     if (g_gameState.isSoldierTurn()) {
-      pieceOnBoard.className += " selected";
+      g_selectedSoldierPiece = pieceOnBoard;
+      if (pieceOnBoard) {
+        pieceOnBoard.className += " selected";
+      }
+    } else {
+      g_selectedSoldierPiece = null;
     }
   }
 
@@ -153,16 +163,52 @@ require(["lib/checkers", 'helpers'], function(checkers, helpers) {
       return;
     }
     hideGuerrillaMoves();
-    if (isSoldierPlayer()) {
+    if (!isGuerrillaPlayer()) {
       return;
     }
-    if (isGuerrillaPlayer() && g_gameState.isGuerrillaTurn()) {
+    if (g_gameState.isGuerrillaTurn()) {
       showGuerrillaMoves();
     }
   }
 
+  function createSoldierMove($moves, piece, position) {
+    var move = { piece: piece.position, position: position };
+    var container = $moves.get(0);
+    var newPieceOnBoard = addPiece(container, move, 'soldier_piece', SOLDIER_MARGIN);
+    newPieceOnBoard.onclick = function() {
+      socket.emit('moveCOIN', move);
+      setSelectedSoldierPiece(null);
+      hideSoldierMoves();
+    }
+  }
+
+  function hideSoldierMoves() {
+    var $moves = $('#soldier_moves');
+    $moves.css('visibility', 'hidden');
+  }
+
+  function showSoldierMoves(piece) {
+    var $moves = $('#soldier_moves');
+    $moves.text("");
+    var arrMoves = g_gameState.getPotentialSoldierMoves(piece);
+    for (var idx = 0; idx < arrMoves.length; ++idx) {
+      var position = arrMoves[idx];
+      createSoldierMove($moves, piece, position);
+    }
+    $moves.css('visibility', 'visible');
+  }
+
   function updateSoldierMoves(piece) {
-    debugger;
+    if (!g_gameState) {
+      return;
+    }
+    hideSoldierMoves();
+    if (!isSoldierPlayer()) {
+      return;
+    }
+    if (g_gameState.isSoldierTurn()) {
+      showSoldierMoves(piece);
+    }
   }
 
   function setTransitionProperty($element, value) {
