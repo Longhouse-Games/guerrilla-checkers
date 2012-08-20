@@ -230,7 +230,7 @@ require(["lib/checkers", 'helpers'], function(checkers, helpers) {
 
   }
 
-  $(window).bind('load', function() {
+  socket.on('connect', function() {
     function generateSelectHandler(x, y, square) {
       var squareClass = helpers.getSquareClass(x, y);
       return function() {
