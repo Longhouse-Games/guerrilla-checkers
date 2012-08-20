@@ -41,10 +41,15 @@ var ChatSchema = new Schema({
 var ChatModel = mongoose.model('Chat', ChatSchema);
 
 var userSchema = new Schema({
-  name: String,
-  session_id: String
+  name: String
 });
 var User = mongoose.model('User', userSchema);
+
+var sessionSchema = new Schema({
+  session_id: { type: String, default: null },
+  username: {type: String, default: null }
+});
+var Session = mongoose.model('Session', sessionSchema);
 
 var gameSchema = new Schema({
   is_in_progress: { type: Boolean, default: false },
@@ -98,33 +103,39 @@ gameSchema.statics.findMeAGame = function(user, next) {
 }
 var Game = mongoose.model('Game', gameSchema);
 
+var find_or_create_session = function(username, session_id, next) {
+  Session.findOne({ session_id: session_id }, function(err, session) {
+    if (err) { throw err; }
+    if (session) {
+      next(session);
+    } else {
+      session = new Session({ session_id: session_id, username: username });
+      session.save(function(err) {
+        if (err) { throw err; }
+        next(session);
+      });
+    }
+  });
+}
 // next takes the found/created user as parameter
 var find_or_create_user = function(username, session_id, next) {
-  User.findOne({ name: username }, function (err, user) {
-    if (err) {
-      throw err;
-    }
-    if (user) {
-      if (user.session_id !== session_id) {
-        user.session_id = session_id;
+  find_or_create_session(username, session_id, function(session) {
+    User.findOne({ name: username }, function (err, user) {
+      if (err) {
+        throw err;
+      }
+      if (user) {
+        next(user);
+      } else {
+        var user = new User({ name: username });
         user.save(function (err) {
           if (err) {
             throw err;
           }
           next(user);
         });
-      } else {
-        next(user);
       }
-    } else {
-      var user = new User({ name: username, session_id: session_id });
-      user.save(function (err) {
-        if (err) {
-          throw err;
-        }
-        next(user);
-      });
-    }
+    });
   });
 };
 
@@ -294,27 +305,32 @@ var loadGame = function(dbgame) {
 }
 
 io.sockets.on('connection', function (socket) {
-  User.findOne({session_id: socket.handshake.sessionID}, function(err, user) {
-    if (err || !user) {
+  Session.findOne({session_id: socket.handshake.sessionID}, function(err, session) {
+    if (err || !session) {
       throw "Unable to look up user by sessionID '"+sessionID+"': "+err;
     }
-    var game = findActiveGameByUser(user);
-    logger.debug("Game for user '"+user.name+"': ", game === null ? "not found" : "found");
+    User.findOne({name: session.username}, function(err, user) {
+      if (err || !user) {
+        throw "Unable to look up user by user.name '"+user.name+"': "+err;
+      }
+      var game = findActiveGameByUser(user);
+      logger.debug("Game for user '"+user.name+"': ", game === null ? "not found" : "found");
 
-    if (game) {
-      attachPlayerToGame(game, socket, user);
-    } else {
-      Game.findMeAGame(user, function(dbgame) {
-        logger.debug("FoundMeAGame for user '"+user.name+"': " + dbgame._id);
-        var game = findActiveGameByDBGame(dbgame);
-        if (!game) {
-          game = loadGame(dbgame);
-          logger.debug("Stuffing game into active_games: " + dbgame._id);
-          active_games.push(game);
-        }
+      if (game) {
         attachPlayerToGame(game, socket, user);
-      });
-    }
+      } else {
+        Game.findMeAGame(user, function(dbgame) {
+          logger.debug("FoundMeAGame for user '"+user.name+"': " + dbgame._id);
+          var game = findActiveGameByDBGame(dbgame);
+          if (!game) {
+            game = loadGame(dbgame);
+            logger.debug("Stuffing game into active_games: " + dbgame._id);
+            active_games.push(game);
+          }
+          attachPlayerToGame(game, socket, user);
+        });
+      }
+    });
   });
 });
 
