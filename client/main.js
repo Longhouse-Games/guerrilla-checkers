@@ -45,18 +45,24 @@ require(["lib/checkers", 'helpers'], function(checkers, helpers) {
   var SOLDIER_MARGIN = 39;
   var GUERRILLA_MARGIN = 88;
 
-  function addPiece(piece, className, margin, piecesOnBoard) {
+  function addPiece(container, piece, className, margin, piecesOnBoard) {
     var newPieceOnBoard = document.createElement("div");
     newPieceOnBoard.className += " " + className;
     newPieceOnBoard.style.left = margin + ((piece.position.x) * SQUARE_SIZE) + 'px';
     newPieceOnBoard.style.bottom = margin + ((piece.position.y) * SQUARE_SIZE) + 'px';
-    document.getElementById('checkers').appendChild(newPieceOnBoard);
-    piecesOnBoard[getPositionKey(piece.position)] = newPieceOnBoard;
+    container.appendChild(newPieceOnBoard);
+    if (piecesOnBoard) {
+      piecesOnBoard[getPositionKey(piece.position)] = newPieceOnBoard;
+    }
+    return newPieceOnBoard;
   }
 
-  function addSoldierPiece(piece) {
-    addPiece(piece, 'soldier_piece', SOLDIER_MARGIN, g_soldierPiecesOnBoard);
+  function addSoldierPiece(piece, container) {
+    container = container || document.getElementById('pieces');
+    var piecesOnBoard = g_soldierPiecesOnBoard;
+    var newPieceOnBoard = addPiece(container, piece, 'soldier_piece', SOLDIER_MARGIN, piecesOnBoard);
     addSoldierPieceBehaviour(piece);
+    return newPieceOnBoard;
   }
 
   function addSoldierPieceBehaviour(piece) {
@@ -65,20 +71,16 @@ require(["lib/checkers", 'helpers'], function(checkers, helpers) {
     if (!pieceOnBoard) {
       return;
     }
-    $(pieceOnBoard).draggable();
-  }
-
-  function addGuerrillaPiece(piece) {
-    addPiece(piece, 'guerrilla_piece', GUERRILLA_MARGIN, g_guerrillaPiecesOnBoard);
-    addGuerrillaPieceBehaviour(piece);
-  }
-
-  function addGuerrillaPieceBehaviour(piece) {
-    var positionKey = getPositionKey(piece.position);
-    var pieceOnBoard = g_soldierPiecesOnBoard[positionKey];
-    if (!pieceOnBoard) {
-      return;
+    if (isSoldierPlayer()) {
+      $(pieceOnBoard).draggable();
     }
+  }
+
+  function addGuerrillaPiece(piece, container) {
+    container = container || document.getElementById('pieces');
+    var piecesOnBoard = g_guerrillaPiecesOnBoard;
+    var newPieceOnBoard = addPiece(container, piece, 'guerrilla_piece', GUERRILLA_MARGIN, piecesOnBoard);
+    return newPieceOnBoard;
   }
 
   function updatePieces(arrPieces, piecesOnBoard, addPiece) {
@@ -104,6 +106,44 @@ require(["lib/checkers", 'helpers'], function(checkers, helpers) {
     if (g_gameState) {
       var arrPieces = g_gameState.arrGuerrillaPieces;
       updatePieces(arrPieces, g_guerrillaPiecesOnBoard, addGuerrillaPiece);
+    }
+  }
+
+  function createGuerrillaMove($moves, move) {
+    var piece = { position: move };
+    var container = $moves.get(0);
+    var newPieceOnBoard = addPiece(container, piece, 'guerrilla_piece', GUERRILLA_MARGIN);
+    newPieceOnBoard.onclick = function() {
+      socket.emit('placeGuerrilla', piece);
+    }
+  }
+
+  function hideGuerrillaMoves() {
+    var $moves = $('#guerrilla_moves');
+    $moves.css('visibility', 'hidden');
+  }
+
+  function showGuerrillaMoves() {
+    var $moves = $('#guerrilla_moves');
+    $moves.text("");
+    var arrMoves = g_gameState.getPotentialGuerrillaMoves();
+    for (var idx = 0; idx < arrMoves.length; ++idx) {
+      var move = arrMoves[idx];
+      createGuerrillaMove($moves, move);
+    }
+    $moves.css('visibility', 'visible');
+  }
+
+  function updateGuerrillaMoves() {
+    if (!g_gameState) {
+      return;
+    }
+    hideGuerrillaMoves();
+    if (isSoldierPlayer()) {
+      return;
+    }
+    if (isGuerrillaPlayer() && g_gameState.isGuerrillaTurn()) {
+      showGuerrillaMoves();
     }
   }
 
@@ -216,11 +256,14 @@ require(["lib/checkers", 'helpers'], function(checkers, helpers) {
       if (!updateResponse || !updateResponse.gameState) {
         return;
       }
+
       g_gameState = new checkers.GameState;
       g_gameState.fromDTO(updateResponse.gameState);
+
       updatePlayerTurnOverlay();
       updateGuerrillaPieces();
       updateSoldierPieces();
+      updateGuerrillaMoves();
     });
 
     // send message functionality

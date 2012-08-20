@@ -113,13 +113,13 @@ body {
 	border-radius: 10px;
 	-moz-border-radius: 10px;
 	float: left;
+  z-index: 100;
 }
 
 .soldier {
 	position: absolute;
 	left: 0px;
 	top: 0px;
-	z-index: 1000;
 }
 
 img.guerrilla {
@@ -175,13 +175,26 @@ div.selected {
 	50%      { transform: rotate(20deg) scale3d(1.2, 1.2, 1); zoom: 1; }
 }
 
+#soldier_moves div, #guerrilla_moves div {
+  z-index: 300;
+}
+
+#pieces {
+  width: 100%;
+  height: 100%;
+}
+
+#soldier_moves, #guerrilla_moves {
+  visibility: hidden;
+  opacity: 0.4;
+}
+
 .soldier_piece {
   background: top left no-repeat url('../images/guerrilla/soldier_piece.png');
   position: absolute;
 	width: 68px;
 	height: 68px;
 	margin: 2px;
-  z-index: 100;
 }
 
 .guerrilla_piece {
@@ -190,7 +203,6 @@ div.selected {
 	width: 39px;
 	height: 40px;
 	margin: 1px 1px 1px 3px;
-  z-index: 200;
 }
 
 .intersection {
