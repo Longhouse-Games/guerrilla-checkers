@@ -1,6 +1,7 @@
 // TODO move to config file / environment variables
 var CAS_HOST = "cas.littlevikinggames.com"
 var CAS_URL = "https://" + CAS_HOST + "/login";
+var PORT = process.env.PORT || 3000;
 
 var express = require('express')
   , app = express.createServer()
@@ -336,9 +337,8 @@ io.sockets.on('connection', function (socket) {
 
 mongoose.connect('mongodb://localhost/lvg');
 
-var port = process.env.PORT || 3000;
-app.listen(port, function() {
-  console.log("Guerrilla-checkers listening on http://localhost:" + port);
+app.listen(PORT, function() {
+  console.log("Guerrilla-checkers listening on http://localhost:" + PORT);
 });
 
 }); // requirejs Checkers
