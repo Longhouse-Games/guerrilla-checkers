@@ -1,5 +1,7 @@
-var CAS_HOST = process.env.CAS_HOST || "cas.littlevikinggames.com"
+var CAS_HOST = process.env.CAS_HOST || "cas.littlevikinggames.com";
 var CAS_URL = process.env.CAS_URL || "https://" + CAS_HOST + "/login";
+var CAS_HOST_FALLBACK = process.env.CAS_HOST_FALLBACK;
+var CAS_URL_FALLBACK = process.env.CAS_URL_FALLBACK || "https://" + CAS_HOST_FALLBACK + "/login";
 var PORT = process.env.PORT || 3000;
 
 var KEY_FILE = process.env.KEY_FILE;
@@ -185,12 +187,23 @@ function handleLogin(request, response) {
   var serviceTicket = request.query.ticket;
   var hasServiceTicket = typeof serviceTicket !== 'undefined';
 
+  var host = CAS_HOST;
+  var cas_url = CAS_URL;
+
+  if (request.query.cas == "test") {
+    host = CAS_HOST_FALLBACK;
+    cas_url = CAS_URL_FALLBACK;
+  }
+
   var protocol = use_ssl ? "https://" : "http://";
   var hostname = protocol + request.headers.host;
-  var loginUrl = CAS_URL + '?service=' + encodeURIComponent(hostname);
+  if (request.query.cas == "test") {
+    hostname = hostname + "?cas=test";
+  }
+  var loginUrl = cas_url + '?service=' + encodeURIComponent(hostname);
 
   var casInstance = new cas({
-    base_url: "https://" + CAS_HOST,
+    base_url: "https://" + host,
     service: hostname
   });
 
