@@ -1,6 +1,5 @@
-// TODO move to config file / environment variables
-var CAS_HOST = "cas.littlevikinggames.com"
-var CAS_URL = "https://" + CAS_HOST + "/login";
+var CAS_HOST = process.env.CAS_HOST || "cas.littlevikinggames.com"
+var CAS_URL = process.env.CAS_URL || "https://" + CAS_HOST + "/login";
 var PORT = process.env.PORT || 3000;
 
 var express = require('express')
