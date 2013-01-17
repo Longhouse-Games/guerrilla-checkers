@@ -2,9 +2,32 @@ var CAS_HOST = process.env.CAS_HOST || "cas.littlevikinggames.com"
 var CAS_URL = process.env.CAS_URL || "https://" + CAS_HOST + "/login";
 var PORT = process.env.PORT || 3000;
 
-var express = require('express')
-  , app = express.createServer()
-  , mongoose = require('mongoose')
+var KEY_FILE = process.env.KEY_FILE;
+var CERT_FILE = process.env.CERT_FILE;
+
+var app;
+
+var use_ssl = false;
+
+var fs = require('fs'),
+    express = require('express');
+
+if (KEY_FILE && CERT_FILE) {
+  console.log("Using SSL");
+  use_ssl = true;
+
+  var server_options = {};
+  server_options.key = fs.readFileSync(KEY_FILE);
+  server_options.cert = fs.readFileSync(CERT_FILE);
+
+  app = express.createServer(server_options);
+} else if ((KEY_FILE && !CERT_FILE) || (CERT_FILE && !KEY_FILE)) {
+  throw "If one of KEY_FILE or CERT_FILE are specified, you must supply both of them, not just one";
+} else {
+  app = express.createServer();
+}
+
+var mongoose = require('mongoose')
   , io = require('socket.io').listen(app)
   , assert = require('assert')
   , cas = require('cas')
@@ -162,7 +185,8 @@ function handleLogin(request, response) {
   var serviceTicket = request.query.ticket;
   var hasServiceTicket = typeof serviceTicket !== 'undefined';
 
-  var hostname = 'http://' + request.headers.host;
+  var protocol = use_ssl ? "https://" : "http://";
+  var hostname = protocol + request.headers.host;
   var loginUrl = CAS_URL + '?service=' + encodeURIComponent(hostname);
 
   var casInstance = new cas({
