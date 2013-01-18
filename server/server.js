@@ -191,11 +191,6 @@ Server.prototype.addPlayer = function(socket, user) {
     }
   });
 
-  socket.on('takeRole', function(role) {
-    me.takeRole(role, player); 
-    me.refreshBoard(true, [player]);
-  });
-
   // handle user chat message
   socket.on('message', function(data) {
     me.broadcast('message', data);

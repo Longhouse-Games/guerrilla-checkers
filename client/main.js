@@ -300,22 +300,6 @@ require(["lib/checkers", 'helpers'], function(checkers, helpers) {
     $('#chatlog').scrollTop($('#chatlog')[0].scrollHeight);
   };
 
-  // reset game handler
-  var $reset = $('#reset');
-  $reset.bind('click', function() {
-    socket.emit('requestReset');
-  });
-
-  $('#join_guerrilla').bind('click', function() {
-    socket.emit('takeRole', 'guerrilla');
-  });
-  $('#join_coin').bind('click', function() {
-    socket.emit('takeRole', 'coin');
-  });
-  $('#join_spectator').bind('click', function() {
-    socket.emit('takeRole', 'spectator');
-  });
-
   socket.on('connect', function() {
 
     // receive messages
