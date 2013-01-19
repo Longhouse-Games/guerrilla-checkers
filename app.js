@@ -250,12 +250,129 @@ serve_dir = function(req, res) {
   res.sendfile(__dirname + req.originalUrl);
 }
 
+authenticateAppServer = function(req, res, callback) {
+  //TODO implement
+  callback();
+};
+
+handleNew = function(req, res) {
+  console.log("Got /new");
+  authenticateAppServer(req, res, function() {
+    return createGame(req, res);
+  });
+};
+
+handlePlay = function(req, res) {
+  console.log("Got /play");
+  handleLogin(req, res, function() {
+    return playGame(req, res);
+  });
+};
+
+var egs_response = function(req, res, params) {
+  if (!params.stat) { throw "Params.stat is required"; }
+
+  var format = "xml";
+  if (req.param('fmt')) {
+    format = req.param('fmt').toLowerCase();
+  }
+
+  var code = params.stat === "ERROR" ? 400 : 200;
+  if (format === "xml") {
+    var body = "<rslt><stat>"+params.stat+"</stat></rlst>";
+    if (params.msg) {
+      body = body + "<msg>"+params.msg+"</msg>";
+    }
+    if (params.game_id) {
+      body = body + "<glst><cnt>1</cnt><game><gid>"+params.game_id+"</gid></game></glst>";
+    }
+    res.send(body, { 'Content-Type': 'application/xml' }, code);
+  } else if (format === "json") {
+    var json = { rslt: { stat: params.stat } };
+    if (params.msg) {
+      json.rslt.msg = params.msg;
+    }
+    if (params.game_id) {
+      json.rslt.glst = {
+        cnt: 1,
+        games: [params.game_id]
+      };
+    }
+    res.json(json, code);
+  } else if (format === "html" && req.param("dbg") === "1") {
+    var html = "";
+    html = html + "<a href='/play?gid="+params.game_id+"&role=guerrillas&app=BRSR'>Join game '"+params.game_id+"' as Guerrillas</a><br>";
+    html = html + "<a href='/play?gid="+params.game_id+"&role=coin&app=BRSR'>Join game '"+params.game_id+"' as COIN</a><br>";
+    res.send(html, { 'Content-Type': 'text/html' }, code);
+  } else {
+    res.send("Invalid format: " + req.fmt+". Must be one of 'json' or 'xml'", 400);
+  }
+};
+
+var egs_error_response = function(req, res, message) {
+  return egs_response(req, res, {
+    stat: "ERROR",
+    msg: message
+  });
+};
+
+var egs_game_response = function(req, res, game_id) {
+  return egs_response(req, res, {
+    stat: "OK",
+    game_id: game_id
+  });
+};
+
+var createGame = function(req, res) {
+  var lang = req.lang;
+  var debug = req.debug;
+  var app = req.app;
+  var guerrillas = req.param('role1') || req.param('guerrillas');
+  var coin = req.param('role2') || req.param('coin');
+  if (!guerrillas || !coin) {
+    console.log("Got invalid request for new game:");
+    console.log(req.query);
+    return egs_error_response(req, res, "Both roles must be provided (guerrillas and coin)");
+  }
+  var dbgame = new Game({
+    is_in_progress: true,
+    guerrilla_player_name: guerrillas,
+    coin_player_name: coin
+  });
+  dbgame.save(function (err, game) {
+    if (err) { throw err; }
+
+    console.log("Created game: "+game._id+". Guerrillas: "+guerrillas+", COIN: "+coin);
+    return egs_game_response(req, res, game._id);
+  });
+};
+
+var playGame = function(req, res) {
+  console.log("Playing game.");
+};
+
+app.post('/new', function(req, res) {
+  handleNew(req, res);
+});
+app.get('/new', function(req,res) {
+  handleNew(req, res);
+});
+app.post('/play', function(req, res) {
+  handlePlay(req, res);
+});
+app.get('/play', function(req, res) {
+  handlePlay(req, res);
+});
+
 app.post('/', function (req, res) {
+  // TODO something sensible here
   handleLogin(req, res);
 });
 app.get('/', function (req, res) {
+  // TODO something sensible here
   handleLogin(req, res);
 });
+
 app.get('/debug', function (req, res) {
   sendfile(__dirname + '/debug.html');
 });
