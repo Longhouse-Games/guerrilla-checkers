@@ -106,7 +106,7 @@ Server.prototype.refreshBoard = function(result, arrPlayers) {
     me.broadcast('gameOver', {winner: winner});
     me.broadcast('message', {user: 'game', message: 'Game Over'});
     me.broadcast('message', {user: 'game', message: 'Winner: ' + winner});
-    me.requestReset();
+//    me.requestReset();
   }
 };
 
@@ -116,7 +116,7 @@ Server.prototype.resetGame = function() {
 };
 
 Server.prototype.endGame = function() {
-  this.requestReset();
+//  this.requestReset();
 };
 
 Server.prototype.addPlayer = function(socket, user) {
@@ -176,8 +176,8 @@ Server.prototype.addPlayer = function(socket, user) {
   });
 
   socket.on('requestReset', function(data) {
-    console.log('reseting game');
-    me.requestReset();
+//    console.log('reseting game');
+//    me.requestReset();
   });
 
 
