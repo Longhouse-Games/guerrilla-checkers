@@ -348,7 +348,30 @@ var createGame = function(req, res) {
 };
 
 var playGame = function(req, res) {
-  console.log("Playing game.");
+  var game_id = req.param('gid');
+  var role = req.param('role');
+
+  if (!game_id) {
+    res.send("gid is a required parameter", 400);
+    return;
+  }
+  if (!role) {
+    res.send("role is a required parameter", 400);
+    return;
+  }
+
+  Game.findOne({_id: game_id}, function(err, game) {
+    if (err) {
+      console.log("Error looking up game '"+game_id+"'");
+      res.send("Could not find game with id: " + game_id, 400);
+      return;
+    }
+    console.log("Found game: " + game_id);
+    console.log(game);
+
+    console.log("Playing game: "+game_id);
+    res.sendfile(__dirname + '/index.html');
+  });
 };
 
 app.post('/new', function(req, res) {
