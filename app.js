@@ -72,7 +72,8 @@ var User = mongoose.model('User', userSchema);
 
 var sessionSchema = new Schema({
   session_id: { type: String, default: null },
-  username: {type: String, default: null }
+  username: {type: String, default: null },
+  game_id: {type: String, default: null}
 });
 var Session = mongoose.model('Session', sessionSchema);
 
@@ -369,8 +370,23 @@ var playGame = function(req, res) {
     console.log("Found game: " + game_id);
     console.log(game);
 
-    console.log("Playing game: "+game_id);
-    res.sendfile(__dirname + '/index.html');
+    // TODO HACK temporary hack to quickly lookup game_id after they connect with websockets
+    Session.findOne({session_id: req.cookies['express.sid']}, function(err, session) {
+      if (err) {
+        console.log("Error looking up session for: " + req.cookies['express.sid']);
+        res.send("Could not find session. Try reconnecting.", 400);
+        return;
+      }
+
+      session.game_id = game_id;
+      console.log("Saved game_id to session.");
+      session.save(function(err) {
+        if (err) { throw err; }
+
+        console.log("Playing game: "+game_id);
+        res.sendfile(__dirname + '/index.html');
+      });
+    });
   });
 };
 
@@ -486,27 +502,25 @@ io.sockets.on('connection', function (socket) {
     if (err || !session) {
       throw "Unable to look up user by sessionID '"+sessionID+"': "+err;
     }
-    User.findOne({name: session.username}, function(err, user) {
-      if (err || !user) {
-        throw "Unable to look up user by user.name '"+user.name+"': "+err;
+    var game_id = session.game_id;
+    Game.findOne({_id: game_id}, function(err, dbgame) {
+      if (err || !dbgame) {
+        console.log("Unable to lookup game: "+game_id);
+        socket.emit('error', "Unable to lookup requested game. Try refreshing your browser.");
+        return;
       }
-      var game = findActiveGameByUser(user);
-      logger.debug("Game for user '"+user.name+"': ", game === null ? "not found" : "found");
-
-      if (game) {
+      User.findOne({name: session.username}, function(err, user) {
+        if (err || !user) {
+          throw "Unable to look up user by user.name '"+user.name+"': "+err;
+        }
+        var game = findActiveGameByDBGame(dbgame);
+        if (!game) {
+          game = loadGame(dbgame);
+          logger.debug("Stuffing game into active_games: " + dbgame._id);
+          active_games.push(game);
+        }
         attachPlayerToGame(game, socket, user);
-      } else {
-        Game.findMeAGame(user, function(dbgame) {
-          logger.debug("FoundMeAGame for user '"+user.name+"': " + dbgame._id);
-          var game = findActiveGameByDBGame(dbgame);
-          if (!game) {
-            game = loadGame(dbgame);
-            logger.debug("Stuffing game into active_games: " + dbgame._id);
-            active_games.push(game);
-          }
-          attachPlayerToGame(game, socket, user);
-        });
-      }
+      });
     });
   });
 });
