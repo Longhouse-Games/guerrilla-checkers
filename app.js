@@ -178,7 +178,7 @@ var saveMessageToMongo = function(data) {
   new ChatModel({time: new Date(), user: data.user, message: data.message}).save();
 };
 
-function handleLogin(request, response) {
+function handleLogin(request, response, callback) {
 
   console.log("Handling Login!");
 
@@ -224,7 +224,7 @@ function handleLogin(request, response) {
     }
     console.log(username + " logged in! SessionID: " + request.cookies['express.sid']);
     find_or_create_user(username, request.cookies['express.sid'], function(user) {
-      response.sendfile(__dirname + '/index.html');
+      callback();
     });
   });
 }
