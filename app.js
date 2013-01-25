@@ -197,6 +197,7 @@ function handleLogin(request, response, callback) {
   }
 
   var protocol = use_ssl ? "https://" : "http://";
+  var path = request.url.replace(/ticket=[\w|-]+/i, "");
   var hostname = protocol + request.headers.host + request.url;
   if (request.query.cas == "test") {
     hostname = hostname + "?cas=test";
