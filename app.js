@@ -198,7 +198,7 @@ function handleLogin(request, response, callback) {
 
   var protocol = use_ssl ? "https://" : "http://";
   console.log("Request.url: " + request.url);
-  var path = request.url.replace(/&?ticket=[\w|-]+/i, "");
+  var path = request.url.replace(/[&|\?]?ticket=[\w|-]+/i, "");
   console.log("Path: " + path);
   var hostname = protocol + request.headers.host + path;
   if (request.query.cas == "test") {
@@ -406,15 +406,6 @@ app.post('/play', function(req, res) {
 });
 app.get('/play', function(req, res) {
   handlePlay(req, res);
-});
-
-app.post('/', function (req, res) {
-  // TODO something sensible here
-  handleLogin(req, res);
-});
-app.get('/', function (req, res) {
-  // TODO something sensible here
-  handleLogin(req, res);
 });
 
 app.get('/debug', function (req, res) {
