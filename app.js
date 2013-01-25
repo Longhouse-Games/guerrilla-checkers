@@ -197,12 +197,16 @@ function handleLogin(request, response, callback) {
   }
 
   var protocol = use_ssl ? "https://" : "http://";
-  var path = request.url.replace(/ticket=[\w|-]+/i, "");
+  console.log("Request.url: " + request.url);
+  var path = request.url.replace(/&?ticket=[\w|-]+/i, "");
+  console.log("Path: " + path);
   var hostname = protocol + request.headers.host + path;
   if (request.query.cas == "test") {
     hostname = hostname + "?cas=test";
   }
+  console.log("CAS service: "+hostname);
   var loginUrl = cas_url + '?service=' + encodeURIComponent(hostname);
+  console.log("CAS Login URL: "+loginUrl);
 
   var casInstance = new cas({
     base_url: "https://" + host,
