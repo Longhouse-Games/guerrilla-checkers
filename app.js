@@ -201,9 +201,6 @@ function handleLogin(request, response, callback) {
   var path = request.url.replace(/[&|\?]?ticket=[\w|-]+/i, "");
   console.log("Path: " + path);
   var hostname = protocol + request.headers.host + path;
-  if (request.query.cas == "test") {
-    hostname = hostname + "?cas=test";
-  }
   console.log("CAS service: "+hostname);
   var loginUrl = cas_url + '?service=' + encodeURIComponent(hostname);
   console.log("CAS Login URL: "+loginUrl);
