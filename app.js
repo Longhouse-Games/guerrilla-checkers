@@ -3,6 +3,10 @@ var CAS_URL = process.env.CAS_URL || "https://" + CAS_HOST + "/login";
 var CAS_HOST_FALLBACK = process.env.CAS_HOST_FALLBACK;
 var CAS_URL_FALLBACK = process.env.CAS_URL_FALLBACK || "https://" + CAS_HOST_FALLBACK + "/login";
 var PORT = process.env.PORT || 3000;
+var EGS_HOST = process.env.EGS_HOST || "globalecco.org";
+var EGS_PORT = process.env.EGS_PORT || 443;
+var EGS_USERNAME = process.env.EGS_USERNAME;
+var EGS_PASSWORD = process.env.EGS_PASSWORD;
 
 var KEY_FILE = process.env.KEY_FILE;
 var CERT_FILE = process.env.CERT_FILE;
@@ -36,6 +40,7 @@ var mongoose = require('mongoose')
   , cookie = require('cookie')
   , Server = require('./server/server')
   , logger = require('./server/logger')
+  , http_request = require('request')
   , util = require('util');
 // requirejs
 var requirejs = require('requirejs');
@@ -330,6 +335,55 @@ var egs_game_response = function(req, res, game_id) {
   });
 };
 
+var getPlayerProfile = function(liferay_id, callback) {
+  var path = "/api/secure/jsonws/egs-portlet.gamingprofile/current?casid="+encodeURIComponent(liferay_id);
+
+  var url = "http://"+encodeURIComponent(EGS_USERNAME)+":"+EGS_PASSWORD+"@"+EGS_HOST+":"+EGS_PORT+path;
+//  var url = "http://"+EGS_HOST+":"+EGS_PORT+path;
+  var opts = {
+    url: url
+  };
+  console.log("Opts for request:");
+  console.log(opts);
+  http_request(opts, function(error, response, body) {
+    if (error) {
+      console.log("Error getting gaming profile from EGS. Error: " + error);
+      callback("Unable to retrieve gaming profile for "+liferay_id);
+      return;
+    }
+    if (response.statusCode !== 200) {
+      console.log("Error getting gaming profile from EGS. Response code: " + (response.statusCode || 'none') );
+      console.log(body);
+      callback("Unable to retrieve gaming profile for "+liferay_id);
+      return;
+    }
+
+    console.log("Response from EGS: " + body);
+/*
+     {
+       "userId":"xxxxx",
+       "requestedGamingId":"xxxxxxx",
+       "requestedNickname":"some name",
+       "currentGamingId":"xxxxxxx",
+       "currentNickname":"some name",
+       "casId": "some email address"
+     }
+*/
+    var response = JSON.parse(body);
+    if (response.exception) {
+      callback(response.exception, null);
+    } else {
+      callback(null, response);
+    }
+    return;
+  });
+};
+
+var respond_with_error = function(response, message) {
+  console.log("Error: " + message);
+  response.send(message, 400);
+};
+
 var createGame = function(req, res) {
   var lang = req.lang;
   var debug = req.debug;
@@ -341,16 +395,32 @@ var createGame = function(req, res) {
     console.log(req.query);
     return egs_error_response(req, res, "Both roles must be provided (guerrillas and coin)");
   }
-  var dbgame = new Game({
-    is_in_progress: true,
-    guerrilla_player_name: guerrillas,
-    coin_player_name: coin
-  });
-  dbgame.save(function (err, game) {
-    if (err) { throw err; }
+  getPlayerProfile(guerrillas, function(error, guerrilla_profile) {
+    if (error) {
+      respond_with_error(res, error);
+      return;
+    }
+    console.log("Got player profile. Guerrilla Player: " + guerrilla_profile.currentNickname);
 
-    console.log("Created game: "+game._id+". Guerrillas: "+guerrillas+", COIN: "+coin);
-    return egs_game_response(req, res, game._id);
+    getPlayerProfile(coin, function(error, coin_profile) {
+      if (error) {
+        respond_with_error(res, error);
+        return;
+      }
+      console.log("Got player profile. COIN player: " + coin_profile.currentNickname);
+
+      var dbgame = new Game({
+        is_in_progress: true,
+        guerrilla_player_name: guerrilla_profile.currentNickname,
+        coin_player_name: coin_profile.currentNickname
+      });
+      dbgame.save(function (err, game) {
+        if (err) { throw err; }
+
+        console.log("Created game: "+game._id+". Guerrillas: "+game.guerrilla_player_name+", COIN: "+game.coin_player_name);
+        return egs_game_response(req, res, game._id);
+      });
+    });
   });
 };
 
