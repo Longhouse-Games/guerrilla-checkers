@@ -595,7 +595,7 @@ io.sockets.on('connection', function (socket) {
 mongoose.connect('mongodb://localhost/lvg');
 
 app.listen(PORT, function() {
-  console.log("Guerrilla-checkers listening on http://localhost:" + PORT);
+  console.log("["+new Date()+"] Guerrilla-checkers listening on http://localhost:" + PORT);
 });
 
 }); // requirejs Checkers
