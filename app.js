@@ -71,26 +71,27 @@ var ChatSchema = new Schema({
 var ChatModel = mongoose.model('Chat', ChatSchema);
 
 var userSchema = new Schema({
-  name: String
+  gaming_id: {type: String, default: null },
+  cas_handle: {type: String, default: null }
 });
 var User = mongoose.model('User', userSchema);
 
 var sessionSchema = new Schema({
   session_id: { type: String, default: null },
-  username: {type: String, default: null },
+  gaming_id: {type: String, default: null },
   game_id: {type: String, default: null}
 });
 var Session = mongoose.model('Session', sessionSchema);
 
 var gameSchema = new Schema({
   is_in_progress: { type: Boolean, default: false },
-  coin_player_name: { type: String, default: null },
-  guerrilla_player_name: { type: String, default: null },
+  coin_id: { type: String, default: null },
+  guerrilla_id: { type: String, default: null },
   gameState: String
 });
 
 var gameHasUser = function(dbgame, user) {
-  return dbgame.coin_player_name === user.name || dbgame.guerrilla_player_name === user.name;
+  return dbgame.coin_id === user.gaming_id || dbgame.guerrilla_id === user.gaming_id;
 }
 
 // next takes game found, or null if none were found
@@ -103,8 +104,8 @@ gameSchema.statics.findMeAGame = function(user, next) {
       {$and: [
         {is_in_progress: true},
         {$or: [
-          {coin_player_name: user.name},
-          {guerrilla_player_name: user.name}
+          {coin_id: user.gaming_id},
+          {guerrilla_id: user.gaming_id}
         ]},
       ]},
     function(err, game) {
@@ -114,13 +115,13 @@ gameSchema.statics.findMeAGame = function(user, next) {
         next(game);
       }
       else {
-        logger.debug("FindingMeAGame: Couldn't find a game that user '"+user.name+"' is participating in.");
+        logger.debug("FindingMeAGame: Couldn't find a game that user '"+user.gaming_id+"' is participating in.");
         // Find a game where there is an empty slot
-        _this.findOne({$and: [ {is_in_progress: true}, {$or: [{coin_player_name: null},{guerrilla_player_name: null}]}]}, function(err, game) {
+        _this.findOne({$and: [ {is_in_progress: true}, {$or: [{coin_id: null},{guerrilla_id: null}]}]}, function(err, game) {
             if (err) throw err;
             if (game) next(game);
             else {
-              logger.debug("FindingMeAGame: Couldn't find a game for user '"+user.name+"' that has an empty slot.");
+              logger.debug("FindingMeAGame: Couldn't find a game for user '"+user.gaming_id+"' that has an empty slot.");
               // No open games, create a new one! yay!
               dbgame = new Game({ is_in_progress: true });
               dbgame.save(function (err) {
@@ -134,13 +135,13 @@ gameSchema.statics.findMeAGame = function(user, next) {
 }
 var Game = mongoose.model('Game', gameSchema);
 
-var find_or_create_session = function(username, session_id, next) {
+var find_or_create_session = function(gaming_id, session_id, next) {
   Session.findOne({ session_id: session_id }, function(err, session) {
     if (err) { throw err; }
     if (session) {
       next(session);
     } else {
-      session = new Session({ session_id: session_id, username: username });
+      session = new Session({ session_id: session_id, gaming_id: gaming_id });
       session.save(function(err) {
         if (err) { throw err; }
         next(session);
@@ -149,16 +150,17 @@ var find_or_create_session = function(username, session_id, next) {
   });
 }
 // next takes the found/created user as parameter
-var find_or_create_user = function(username, session_id, next) {
-  find_or_create_session(username, session_id, function(session) {
-    User.findOne({ name: username }, function (err, user) {
+var find_or_create_user = function(profile, session_id, next) {
+  var gaming_id = profile.gamingId;
+  find_or_create_session(gaming_id, session_id, function(session) {
+    User.findOne({ gaming_id: gaming_id }, function (err, user) {
       if (err) {
         throw err;
       }
       if (user) {
         next(user);
       } else {
-        var user = new User({ name: username });
+        var user = new User({ gaming_id: gaming_id, cas_handle: profile.casId });
         user.save(function (err) {
           if (err) {
             throw err;
@@ -184,7 +186,7 @@ var saveMessageToMongo = function(data) {
   new ChatModel({time: new Date(), user: data.user, message: data.message}).save();
 };
 
-function handleLogin(request, response, callback) {
+function handleLogin(request, response, game_id, callback) {
 
   console.log("Handling Login!");
 
@@ -225,14 +227,19 @@ function handleLogin(request, response, callback) {
   console.log("Got service ticket!");
 
   // validate service ticket
-  casInstance.validate(serviceTicket, function(error, status, username) {
+  casInstance.validate(serviceTicket, function(error, status, cas_handle) {
     if (error || !status) {
       response.redirect(loginUrl);
       return;
     }
-    console.log(username + " logged in! SessionID: " + request.cookies['express.sid']);
-    find_or_create_user(username, request.cookies['express.sid'], function(user) {
-      callback();
+    console.log(cas_handle + " logged in! SessionID: " + request.cookies['express.sid']);
+    getPlayerProfile(cas_handle, game_id, function(error, profile) {
+      if (error) {
+        respond_with_error(response, error);
+      }
+      find_or_create_user(profile, request.cookies['express.sid'], function(user) {
+        callback(user);
+      });
     });
   });
 }
@@ -272,8 +279,13 @@ handleNew = function(req, res) {
 
 handlePlay = function(req, res) {
   console.log("Got /play");
-  handleLogin(req, res, function() {
-    return playGame(req, res);
+  var game_id = req.param('gid');
+  if (!game_id) {
+    res.send("gid is a required parameter", 400);
+    return;
+  }
+  handleLogin(req, res, game_id, function(user) {
+    return playGame(req, res, game_id, user);
   });
 };
 
@@ -335,37 +347,35 @@ var egs_game_response = function(req, res, game_id) {
   });
 };
 
-var getPlayerProfile = function(liferay_id, callback) {
-  var path = "/api/secure/jsonws/egs-portlet.gamingprofile/current?casid="+encodeURIComponent(liferay_id);
+var getPlayerProfile = function(cas_handle, game_id, callback) {
+  console.log("getPlayerProfile() called with cas_handle: "+cas_handle+", and gameid: " + game_id);
+  var path = "/api/secure/jsonws/egs-portlet.gamingprofile/specific?ver=1.0&title=guerrilla_checkers&gid="+encodeURIComponent(game_id)+"&email="+encodeURIComponent(cas_handle);
 
   var url = "http://"+encodeURIComponent(EGS_USERNAME)+":"+EGS_PASSWORD+"@"+EGS_HOST+":"+EGS_PORT+path;
-//  var url = "http://"+EGS_HOST+":"+EGS_PORT+path;
   var opts = {
-    url: url
+    url: url,
+    method: 'POST'
   };
   console.log("Opts for request:");
   console.log(opts);
   http_request(opts, function(error, response, body) {
     if (error) {
       console.log("Error getting gaming profile from EGS. Error: " + error);
-      callback("Unable to retrieve gaming profile for "+liferay_id);
+      callback("Unable to retrieve gaming profile for "+cas_handle);
       return;
     }
     if (response.statusCode !== 200) {
       console.log("Error getting gaming profile from EGS. Response code: " + (response.statusCode || 'none') );
       console.log(body);
-      callback("Unable to retrieve gaming profile for "+liferay_id);
+      callback("Unable to retrieve gaming profile for "+cas_handle);
       return;
     }
 
     console.log("Response from EGS: " + body);
 /*
      {
-       "userId":"xxxxx",
-       "requestedGamingId":"xxxxxxx",
-       "requestedNickname":"some name",
-       "currentGamingId":"xxxxxxx",
-       "currentNickname":"some name",
+       "gameInstanceId": "xxx",
+       "gamingId":"xxxxxxx",
        "casId": "some email address"
      }
 */
@@ -395,45 +405,29 @@ var createGame = function(req, res) {
     console.log(req.query);
     return egs_error_response(req, res, "Both roles must be provided (guerrillas and coin)");
   }
-  getPlayerProfile(guerrillas, function(error, guerrilla_profile) {
-    if (error) {
-      respond_with_error(res, error);
-      return;
-    }
-    console.log("Got player profile. Guerrilla Player: " + guerrilla_profile.currentNickname);
 
-    getPlayerProfile(coin, function(error, coin_profile) {
-      if (error) {
-        respond_with_error(res, error);
-        return;
-      }
-      console.log("Got player profile. COIN player: " + coin_profile.currentNickname);
+  var dbgame = new Game({
+    is_in_progress: true,
+    guerrilla_id: guerrillas,
+    coin_id: coin
+  });
+  dbgame.save(function (err, game) {
+    if (err) { throw err; }
 
-      var dbgame = new Game({
-        is_in_progress: true,
-        guerrilla_player_name: guerrilla_profile.currentNickname,
-        coin_player_name: coin_profile.currentNickname
-      });
-      dbgame.save(function (err, game) {
-        if (err) { throw err; }
-
-        console.log("Created game: "+game._id+". Guerrillas: "+game.guerrilla_player_name+", COIN: "+game.coin_player_name);
-        return egs_game_response(req, res, game._id);
-      });
-    });
+    console.log("Created game: "+game._id+". Guerrillas: "+game.guerrilla_id+", COIN: "+game.coin_id);
+    return egs_game_response(req, res, game._id);
   });
 };
 
-var playGame = function(req, res) {
-  var game_id = req.param('gid');
+var playGame = function(req, res, game_id, user) {
   var role = req.param('role');
 
-  if (!game_id) {
-    res.send("gid is a required parameter", 400);
-    return;
-  }
   if (!role) {
     res.send("role is a required parameter", 400);
+    return;
+  }
+  if (role !== "guerrillas" && role !== "coin") {
+    res.send("role must be one of 'guerrillas' or 'coin'");
     return;
   }
 
@@ -445,6 +439,21 @@ var playGame = function(req, res) {
     }
     console.log("Found game: " + game_id);
     console.log(game);
+
+    console.log("User:");
+    console.log(user);
+
+    var requested_nickname;
+    if (role === 'guerrillas') {
+      requested_nickname = game.guerrilla_id;
+    } else if (role === 'coin') {
+      requested_nickname = game.coin_id;
+    }
+    if (user.gaming_id !== requested_nickname) {
+      respond_with_error(res, "Requested game role does not match the logged in user ('"+user.gaming_id+"').");
+      console.log("Requested role: " + role + ", saved handle: " + requested_nickname + ", current handle: " + user.gaming_id);
+      return;
+    }
 
     // TODO HACK temporary hack to quickly lookup game_id after they connect with websockets
     Session.findOne({session_id: req.cookies['express.sid']}, function(err, session) {
@@ -576,9 +585,9 @@ io.sockets.on('connection', function (socket) {
         socket.emit('error', "Unable to lookup requested game. Try refreshing your browser.");
         return;
       }
-      User.findOne({name: session.username}, function(err, user) {
+      User.findOne({gaming_id: session.gaming_id}, function(err, user) {
         if (err || !user) {
-          throw "Unable to look up user by user.name '"+user.name+"': "+err;
+          throw "Unable to look up user by user.gaming_id '"+user.gaming_id+"': "+err;
         }
         var game = findActiveGameByDBGame(dbgame);
         if (!game) {
