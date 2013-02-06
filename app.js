@@ -285,7 +285,7 @@ handlePlay = function(req, res) {
     return;
   }
   handleLogin(req, res, game_id, function(user) {
-    return playGame(req, res, user);
+    return playGame(req, res, game_id, user);
   });
 };
 
@@ -349,11 +349,12 @@ var egs_game_response = function(req, res, game_id) {
 
 var getPlayerProfile = function(cas_handle, game_id, callback) {
   console.log("getPlayerProfile() called with cas_handle: "+cas_handle+", and gameid: " + game_id);
-  var path = "/api/secure/jsonws/egs-portlet.gamingprofile/specific?title=guerrilla_checkers&gid="+encodeURIComponent(game_id)+"&email="+encodeURIComponent(cas_handle);
+  var path = "/api/secure/jsonws/egs-portlet.gamingprofile/specific?ver=1.0&title=guerrilla_checkers&gid="+encodeURIComponent(game_id)+"&email="+encodeURIComponent(cas_handle);
 
   var url = "http://"+encodeURIComponent(EGS_USERNAME)+":"+EGS_PASSWORD+"@"+EGS_HOST+":"+EGS_PORT+path;
   var opts = {
-    url: url
+    url: url,
+    method: 'POST'
   };
   console.log("Opts for request:");
   console.log(opts);
@@ -418,7 +419,7 @@ var createGame = function(req, res) {
   });
 };
 
-var playGame = function(req, res, user) {
+var playGame = function(req, res, game_id, user) {
   var role = req.param('role');
 
   if (!role) {
@@ -448,9 +449,9 @@ var playGame = function(req, res, user) {
     } else if (role === 'coin') {
       requested_nickname = game.coin_id;
     }
-    if (profile.gaming_id !== requested_nickname) {
-      respond_with_error(res, "Requested game role does not match the logged in user ('"+profile.gaming_id+"').");
-      console.log("Requested role: " + role + ", saved handle: " + requested_nickname + ", current handle: " + profile.gaming_id);
+    if (user.gaming_id !== requested_nickname) {
+      respond_with_error(res, "Requested game role does not match the logged in user ('"+user.gaming_id+"').");
+      console.log("Requested role: " + role + ", saved handle: " + requested_nickname + ", current handle: " + user.gaming_id);
       return;
     }
 
