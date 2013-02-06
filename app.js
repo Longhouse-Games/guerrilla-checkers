@@ -449,9 +449,9 @@ var playGame = function(req, res, game_id, user) {
     } else if (role === 'coin') {
       requested_nickname = game.coin_id;
     }
-    if (profile.gaming_id !== requested_nickname) {
-      respond_with_error(res, "Requested game role does not match the logged in user ('"+profile.gaming_id+"').");
-      console.log("Requested role: " + role + ", saved handle: " + requested_nickname + ", current handle: " + profile.gaming_id);
+    if (user.gaming_id !== requested_nickname) {
+      respond_with_error(res, "Requested game role does not match the logged in user ('"+user.gaming_id+"').");
+      console.log("Requested role: " + role + ", saved handle: " + requested_nickname + ", current handle: " + user.gaming_id);
       return;
     }
 
