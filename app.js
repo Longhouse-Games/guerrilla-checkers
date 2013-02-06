@@ -285,7 +285,7 @@ handlePlay = function(req, res) {
     return;
   }
   handleLogin(req, res, game_id, function(user) {
-    return playGame(req, res, user);
+    return playGame(req, res, game_id, user);
   });
 };
 
@@ -419,7 +419,7 @@ var createGame = function(req, res) {
   });
 };
 
-var playGame = function(req, res, user) {
+var playGame = function(req, res, game_id, user) {
   var role = req.param('role');
 
   if (!role) {
