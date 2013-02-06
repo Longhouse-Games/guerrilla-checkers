@@ -601,7 +601,7 @@ io.sockets.on('connection', function (socket) {
   });
 });
 
-mongoose.connect('mongodb://localhost/lvg');
+mongoose.connect('mongodb://localhost/lvg-guerrilla-checkers');
 
 app.listen(PORT, function() {
   console.log("["+new Date()+"] Guerrilla-checkers listening on http://localhost:" + PORT);
