@@ -576,7 +576,7 @@ var loadGame = function(dbgame) {
 io.sockets.on('connection', function (socket) {
   Session.findOne({session_id: socket.handshake.sessionID}, function(err, session) {
     if (err || !session) {
-      throw "Unable to look up user by sessionID '"+sessionID+"': "+err;
+      throw "Unable to look up user by sessionID '"+socket.handshake.sessionID+"': "+err;
     }
     var game_id = session.game_id;
     Game.findOne({_id: game_id}, function(err, dbgame) {
