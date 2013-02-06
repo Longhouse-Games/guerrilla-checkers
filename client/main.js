@@ -15,7 +15,9 @@ require(["lib/checkers", 'helpers'], function(checkers, helpers) {
     }
   }
 
-  var socket = io.connect();
+  var socket = io.connect(null, {
+    'remember transport': false
+  });
   var g_role = 'spectator';
   var g_gameState = null;
 
