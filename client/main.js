@@ -309,6 +309,15 @@ require(["lib/checkers", 'helpers'], function(checkers, helpers) {
       printMessage(data.user, data.message);
       window.scrollTo(0, document.body.scrollHeight);
     });
+    socket.on('error', function(msg) {
+      printMessage("server", "Error: " + msg);
+      console.log("Server error: " + msg);
+      window.scrollTo(0, document.body.scrollHeight);
+    });
+    socket.on('session_error', function(data) {
+      console.log("Invalid session. Reloading.");
+      location.reload();
+    });
     socket.on('user_disconnect', function(data) {
       var userSpan = document.getElementById(data.user);
       if (socket.id != data.user && userSpan && userSpan.parentNode) {

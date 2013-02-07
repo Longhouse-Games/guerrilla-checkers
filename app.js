@@ -595,10 +595,23 @@ var loadGame = function(dbgame) {
   return game = new Server.Server(factory, dbgame, egs_notifier);
 }
 
+var handleSessionError = function(socket) {
+  socket.emit('session_error', "Invalid socket session. Please refresh your browser.");
+};
+
 io.sockets.on('connection', function (socket) {
+  if (!socket.handshake.sessionID) {
+    // This occurs when a client reconnects after server restarts
+    handleSessionError(socket);
+    return;
+  }
   Session.findOne({session_id: socket.handshake.sessionID}, function(err, session) {
-    if (err || !session) {
-      throw "Unable to look up user by sessionID '"+socket.handshake.sessionID+"': "+err;
+    if (err) {
+      throw "Error looking up session: " + err;
+    }
+    if (!session) {
+      handleSessionError(socket);
+      return;
     }
     var game_id = session.game_id;
     Game.findOne({_id: game_id}, function(err, dbgame) {
