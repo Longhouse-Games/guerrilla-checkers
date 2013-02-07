@@ -356,7 +356,7 @@ var getPlayerProfile = function(cas_handle, game_id, callback) {
   var url = "http://"+auth+EGS_HOST+":"+EGS_PORT+path;
   var opts = {
     url: url,
-    method: 'POST'
+    method: 'GET'
   };
   console.log("Opts for request:");
   console.log(opts);
