@@ -39,10 +39,11 @@ var mongoose = require('mongoose')
   , cas = require('cas')
   , cookie = require('cookie')
   , Server = require('./server/server')
+  , EGSNotifier = require('./server/egs_notifier')
   , logger = require('./server/logger')
   , http_request = require('request')
   , util = require('util');
-// requirejs
+
 var requirejs = require('requirejs');
 requirejs.config({
   nodeRequire: require,
@@ -559,10 +560,24 @@ var findActiveGameByDBGame = function(dbgame) {
 }
 
 var loadGame = function(dbgame) {
+  var egs_notifier = new EGSNotifier.EGSNotifier({
+    host: EGS_HOST,
+    port: EGS_PORT,
+    username: EGS_USERNAME,
+    password: EGS_PASSWORD,
+    game_id: dbgame._id,
+    game_title: 'guerrilla-checkers',
+    game_version: '1.0',
+    coin_gaming_id: dbgame.coin_id,
+    guerrilla_gaming_id: dbgame.guerrilla_id
+  });
   var factory = null;
   if (_.isUndefined(dbgame.gameState) || dbgame.gameState === null) {
     logger.debug("Creating new game: "+dbgame._id);
-    factory = function() { return new Checkers.GameState(); };
+    factory = function() {
+      egs_notifier.guerrillasMove();
+      return new Checkers.GameState();
+    };
   } else {
     logger.debug("Restoring old game: "+dbgame._id);
     factory = function() {
@@ -571,7 +586,7 @@ var loadGame = function(dbgame) {
       return gameState;
     };
   }
-  return game = new Server.Server(factory, dbgame);
+  return game = new Server.Server(factory, dbgame, egs_notifier);
 }
 
 io.sockets.on('connection', function (socket) {

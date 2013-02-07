@@ -26,8 +26,9 @@ var GUERRILLA_ROLE = 'guerrilla';
 var COIN_ROLE = 'coin';
 var SPECTATOR = 'spectator';
 
-var Server = function(gameFactory, dbgame) {
+var Server = function(gameFactory, dbgame, egs_notifier) {
   var me = this;
+  me.egs_notifier = egs_notifier;
   me.dbgame = dbgame;
   me.gameFactory = gameFactory;
   me.game = gameFactory();
@@ -106,7 +107,7 @@ Server.prototype.refreshBoard = function(result, arrPlayers) {
     me.broadcast('gameOver', {winner: winner});
     me.broadcast('message', {user: 'game', message: 'Game Over'});
     me.broadcast('message', {user: 'game', message: 'Winner: ' + winner});
-//    me.requestReset();
+    me.egs_notifier.gameover();
   }
 };
 
@@ -298,6 +299,9 @@ var Player = function(_socket, server, user, role) {
     console.log('### COIN move requested. Piece at ('+data.piece.x+','+data.piece.y+") to ("+data.position.x+","+data.position.y+")");
     var result = me.server.getGame().moveSoldierPiece(data.piece, data.position);
     me.server.refreshBoard(result);
+    if (!me.server.getGame().getWinner() && me.server.getGame().isGuerrillaTurn()) {
+      me.server.egs_notifier.guerrillasMove();
+    }
   });
 
   me.socket.on('placeGuerrilla', function(data) {
@@ -305,6 +309,9 @@ var Player = function(_socket, server, user, role) {
     console.log(data);
     var result = me.server.getGame().placeGuerrillaPiece(data.position);
     me.server.refreshBoard(result);
+    if (!me.server.getGame().getWinner() && me.server.getGame().isSoldierTurn()) {
+      me.server.egs_notifier.coinsMove();
+    }
   });
 
   // notify other users
