@@ -491,14 +491,14 @@ app.get(PREFIX+'/play', function(req, res) {
   handlePlay(req, res);
 });
 
-app.get('/debug', function (req, res) {
+app.get(PREFIX+'/debug', function (req, res) {
   sendfile(__dirname + '/debug.html');
 });
-app.get('/images/*', serve_dir);
-app.get('/style/*', serve_dir);
-app.get('/lib/*', serve_dir);
-app.get('/client/*', serve_dir);
-app.get('/scripts/*', serve_dir);
+app.get(PREFIX+'/images/*', serve_dir);
+app.get(PREFIX+'/style/*', serve_dir);
+app.get(PREFIX+'/lib/*', serve_dir);
+app.get(PREFIX+'/client/*', serve_dir);
+app.get(PREFIX+'/scripts/*', serve_dir);
 
 // successful connection
 io.set('authorization', function (data, accept) {
