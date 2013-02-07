@@ -531,7 +531,7 @@ var attachPlayerToGame = function(game, socket, user) {
     console.log('connected users: ', totalUsers());
   });
 
-  logger.debug('joined game', util.inspect(game, 1));
+  logger.debug('joined game');
   logger.debug('active games: ' + active_games.length);
   logger.debug('connected users: ' + totalUsers());
 }

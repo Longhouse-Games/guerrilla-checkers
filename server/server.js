@@ -160,7 +160,7 @@ Server.prototype.addPlayer = function(socket, user) {
   this.arrPlayers.push(player);
 
   socket.on('disconnect', function(data) {
-    console.log('disconnected player: ', player);
+    console.log('disconnected player: '+user.gaming_id);
     me.arrPlayers = _.without(me.arrPlayers, player);
     me.updateServerStatus();
     var votesToDelete = [];
