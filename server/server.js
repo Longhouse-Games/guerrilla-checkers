@@ -58,7 +58,7 @@ Server.prototype.startVote = function(name, question, onPass, getVoters) {
         return role === 'guerrilla'
           || role === 'coin';
       });};
-  console.log('getVoters: ', getVoters);
+  logger.debug('getVoters: ', getVoters);
   var vote = new Vote('reset',
            "Would you like to reset the game?",
            getVoters,
@@ -92,11 +92,11 @@ Server.prototype.refreshBoard = function(result, arrPlayers) {
     gameState: me.game.asDTO()
   };
 
-  console.log('saving new game state');
+  logger.debug('saving new game state');
   this.dbgame.gameState = JSON.stringify(data.gameState);
   this.dbgame.save(function(err) { if (err) throw err; });
 
-  console.log('update players: ', me.arrPlayers.length);
+  logger.debug('update players: ', me.arrPlayers.length);
   _.each(arrPlayers || me.arrPlayers, function(player) {
     var socket = player.getSocket();
     if (_.isUndefined(socket) || _.isNull(socket)) { return; }
@@ -130,10 +130,10 @@ Server.prototype.addPlayer = function(socket, user) {
   var coin_id = _.isUndefined(this.dbgame.coin_id) ? null : this.dbgame.coin_id;
   var guerrilla_id = _.isUndefined(this.dbgame.guerrilla_id) ? null : this.dbgame.guerrilla_id;
 
-  console.log("Determining player role.");
-  console.log("Coin player id: " + coin_id);
-  console.log("Guerrilla player id: " + guerrilla_id);
-  console.log("User.gaming_id: " + user.gaming_id);
+  logger.debug("Determining player role.");
+  logger.debug("Coin player id: " + coin_id);
+  logger.debug("Guerrilla player id: " + guerrilla_id);
+  logger.debug("User.gaming_id: " + user.gaming_id);
   if (coin_id !== null && user.gaming_id === coin_id) {
     role = COIN_ROLE;
   } else if (guerrilla_id !== null && user.gaming_id === guerrilla_id) {
@@ -161,11 +161,11 @@ Server.prototype.addPlayer = function(socket, user) {
   this.arrPlayers.push(player);
 
   socket.on('disconnect', function(data) {
-    console.log('disconnected player: '+user.gaming_id);
+    logger.info('disconnected player: '+user.gaming_id);
     me.arrPlayers = _.without(me.arrPlayers, player);
     me.updateServerStatus();
     var votesToDelete = [];
-    console.log('active votes: ', me.votes);
+    logger.debug('active votes: ', me.votes);
     _.each(me.votes, function(vote) {
       if (vote.getVoters().length === 0) {
         votesToDelete.push(vote.getName());
@@ -175,20 +175,20 @@ Server.prototype.addPlayer = function(socket, user) {
       }
     });
     _.each(votesToDelete, function(name) {
-      console.log('removing dead vote: ', name);
+      logger.debug('removing dead vote: ', name);
       delete me.votes[name];
     });
   });
 
   socket.on('requestReset', function(data) {
-//    console.log('reseting game');
+//    logger.debug('reseting game');
 //    me.requestReset();
   });
 
 
   socket.on('vote', function(ballot) {
     if (ballot) {
-      console.log(player.getSocket().id, ' voted ', ballot.choice, ' for ', ballot.name);
+      logger.debug(player.getSocket().id, ' voted ', ballot.choice, ' for ', ballot.name);
       var vote = me.votes[ballot.name];
       if (vote) {
         vote.addVote(ballot.choice, player);
@@ -295,8 +295,8 @@ var Player = function(_socket, server, user, role) {
 
   // checkers protocol
   me.socket.on('moveCOIN', function(data) {
-    console.log(data);
-    console.log('### COIN move requested. Piece at ('+data.piece.x+','+data.piece.y+") to ("+data.position.x+","+data.position.y+")");
+    logger.debug(data);
+    logger.info('### COIN move requested. Piece at ('+data.piece.x+','+data.piece.y+") to ("+data.position.x+","+data.position.y+")");
     var result = me.server.getGame().moveSoldierPiece(data.piece, data.position);
     me.server.refreshBoard(result);
     if (!me.server.getGame().getWinner() && me.server.getGame().isGuerrillaTurn()) {
@@ -305,8 +305,8 @@ var Player = function(_socket, server, user, role) {
   });
 
   me.socket.on('placeGuerrilla', function(data) {
-    console.log("### Guerrilla move requested.");
-    console.log(data);
+    logger.info("### Guerrilla move requested.");
+    logger.debug(data);
     var result = me.server.getGame().placeGuerrillaPiece(data.position);
     me.server.refreshBoard(result);
     if (!me.server.getGame().getWinner() && me.server.getGame().isSoldierTurn()) {
@@ -328,7 +328,7 @@ var Player = function(_socket, server, user, role) {
 
   //  for(var i = messages.length-1; i >= 0; --i) {
   //    var message = messages[i];
-  //    console.log(message);
+  //    logger.debug(message);
   //    me.socket.emit('message', message);
   //  }
 

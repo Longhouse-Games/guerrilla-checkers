@@ -36,7 +36,7 @@ requirejs([ 'underscore'], function(_) {
       ATTN: "ATTN",
       OVER: "OVER"
     };
-    console.log("EGS Notifier started for host: "+this.host);
+    logger.debug("EGS Notifier started for host: "+this.host);
 
     this.deliver = function(updates) {
       var path = "/api/secure/jsonws/egs-portlet.gamebot";
@@ -49,20 +49,20 @@ requirejs([ 'underscore'], function(_) {
         headers: { "Content-type": "text/plain; charset=utf-8" },
         body: JSON.stringify(this.buildPayload(updates))
       };
-      console.log("Opts for request:");
-      console.log(opts);
+      logger.debug("Opts for request:");
+      logger.debug(opts);
       request(opts, function(error, response, body) {
         if (error) {
-          console.log("Error notifying EGS. Error: " + error);
+          logger.error("Error notifying EGS. Error: " + error);
           return;
         }
         if (response.statusCode !== 200) {
-          console.log("Error notifying EGS. Response code: " + (response.statusCode || 'none') );
-          console.log(body);
+          logger.error("Error notifying EGS. Response code: " + (response.statusCode || 'none') );
+          logger.error(body);
           return;
         }
 
-        console.log("Response from EGS: " + body);
+        logger.debug("Response from EGS: " + body);
         return;
       });
     }
@@ -90,8 +90,8 @@ requirejs([ 'underscore'], function(_) {
   };
 
   EGSNotifier.prototype.guerrillasMove = function() {
-    console.log("EGSNotifier: Notifying EGS that it's guerrilla('"+this.guerrilla_gaming_id+"') turn");
-    console.log("EGSNotifier: Notifying EGS that it's not coin('"+this.coin_gaming_id+"') turn");
+    logger.info("EGSNotifier: Notifying EGS that it's guerrilla('"+this.guerrilla_gaming_id+"') turn");
+    logger.info("EGSNotifier: Notifying EGS that it's not coin('"+this.coin_gaming_id+"') turn");
     return this.deliver([
       this.buildUpdate(this.guerrilla_gaming_id, this.STATES.ATTN),
       this.buildUpdate(this.coin_gaming_id, this.STATES.PEND)
@@ -99,8 +99,8 @@ requirejs([ 'underscore'], function(_) {
   };
 
   EGSNotifier.prototype.coinsMove = function() {
-    console.log("EGSNotifier: Notifying EGS that it's coin('"+this.coin_gaming_id+"') turn");
-    console.log("EGSNotifier: Notifying EGS that it's not guerrilla('"+this.guerrilla_gaming_id+"') turn");
+    logger.info("EGSNotifier: Notifying EGS that it's coin('"+this.coin_gaming_id+"') turn");
+    logger.info("EGSNotifier: Notifying EGS that it's not guerrilla('"+this.guerrilla_gaming_id+"') turn");
     return this.deliver([
       this.buildUpdate(this.coin_gaming_id, this.STATES.ATTN),
       this.buildUpdate(this.guerrilla_gaming_id, this.STATES.PEND)
@@ -108,7 +108,7 @@ requirejs([ 'underscore'], function(_) {
   };
 
   EGSNotifier.prototype.gameover = function() {
-    console.log("EGSNotifier: Notifying EGS that it's gameover.");
+    logger.info("EGSNotifier: Notifying EGS that it's gameover.");
     return this.deliver([
       this.buildUpdate(this.coin_gaming_id, this.STATES.OVER),
       this.buildUpdate(this.guerrilla_gaming_id, this.STATES.OVER)

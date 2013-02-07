@@ -18,10 +18,11 @@ var app;
 var use_ssl = false;
 
 var fs = require('fs'),
-    express = require('express');
+    express = require('express'),
+    logger = require('./server/logger')
 
 if (KEY_FILE && CERT_FILE) {
-  console.log("Using SSL");
+  logger.info("Using SSL");
   use_ssl = true;
 
   var server_options = {};
@@ -42,7 +43,6 @@ var mongoose = require('mongoose')
   , cookie = require('cookie')
   , Server = require('./server/server')
   , EGSNotifier = require('./server/egs_notifier')
-  , logger = require('./server/logger')
   , http_request = require('request')
   , airbrake = require('airbrake')
   , util = require('util');
@@ -104,45 +104,6 @@ var gameHasUser = function(dbgame, user) {
   return dbgame.coin_id === user.gaming_id || dbgame.guerrilla_id === user.gaming_id;
 }
 
-// next takes game found, or null if none were found
-gameSchema.statics.findMeAGame = function(user, next) {
-  _this = this;
-
-  // Find a game that the player is participating in
-  _this.findOne(
-    // Mongo queries are truly a highpoint of code beauty.
-      {$and: [
-        {is_in_progress: true},
-        {$or: [
-          {coin_id: user.gaming_id},
-          {guerrilla_id: user.gaming_id}
-        ]},
-      ]},
-    function(err, game) {
-      if (err) throw err;
-      if (game) {
-        logger.debug("Found a game with stoopid query");
-        next(game);
-      }
-      else {
-        logger.debug("FindingMeAGame: Couldn't find a game that user '"+user.gaming_id+"' is participating in.");
-        // Find a game where there is an empty slot
-        _this.findOne({$and: [ {is_in_progress: true}, {$or: [{coin_id: null},{guerrilla_id: null}]}]}, function(err, game) {
-            if (err) throw err;
-            if (game) next(game);
-            else {
-              logger.debug("FindingMeAGame: Couldn't find a game for user '"+user.gaming_id+"' that has an empty slot.");
-              // No open games, create a new one! yay!
-              dbgame = new Game({ is_in_progress: true });
-              dbgame.save(function (err) {
-                if (err) { throw err; }
-                next(dbgame);
-              });
-            }
-          });
-      }
-    });
-}
 var Game = mongoose.model('Game', gameSchema);
 
 var find_or_create_session = function(gaming_id, session_id, next) {
@@ -198,7 +159,7 @@ var saveMessageToMongo = function(data) {
 
 function handleLogin(request, response, game_id, callback) {
 
-  console.log("Handling Login!");
+  logger.info("Handling Login!");
 
   applyHeaders(response);
 
@@ -214,13 +175,13 @@ function handleLogin(request, response, game_id, callback) {
   }
 
   var protocol = use_ssl ? "https://" : "http://";
-  console.log("Request.url: " + request.url);
+  logger.debug("Request.url: " + request.url);
   var path = request.url.replace(/[&|\?]?ticket=[\w|-]+/i, "");
-  console.log("Path: " + path);
+  logger.debug("Path: " + path);
   var hostname = protocol + request.headers.host + path;
-  console.log("CAS service: "+hostname);
+  logger.debug("CAS service: "+hostname);
   var loginUrl = cas_url + '?service=' + encodeURIComponent(hostname);
-  console.log("CAS Login URL: "+loginUrl);
+  logger.debug("CAS Login URL: "+loginUrl);
 
   var casInstance = new cas({
     base_url: "https://" + host,
@@ -229,12 +190,12 @@ function handleLogin(request, response, game_id, callback) {
 
   // initial visit
   if (!hasServiceTicket) {
-    console.log("Redirecting to CAS Login");
+    logger.info("Redirecting to CAS Login");
     response.redirect(loginUrl);
     return;
   } 
 
-  console.log("Got service ticket!");
+  logger.info("Got service ticket!");
 
   // validate service ticket
   casInstance.validate(serviceTicket, function(error, status, cas_handle) {
@@ -242,7 +203,7 @@ function handleLogin(request, response, game_id, callback) {
       response.redirect(loginUrl);
       return;
     }
-    console.log(cas_handle + " logged in! SessionID: " + request.cookies['express.sid']);
+    logger.info(cas_handle + " logged in! SessionID: " + request.cookies['express.sid']);
     getPlayerProfile(cas_handle, game_id, function(error, profile) {
       if (error) {
         respond_with_error(response, error);
@@ -273,7 +234,7 @@ sendfile = function(res, file) {
 serve_dir = function(req, res) {
   applyHeaders(res);
   var path = __dirname + req.originalUrl.replace(new RegExp(PREFIX, ""), "")
-  console.log("Serving: " + path);
+  logger.debug("Serving: " + path);
   res.sendfile(path);
 }
 
@@ -283,14 +244,12 @@ authenticateAppServer = function(req, res, callback) {
 };
 
 handleNew = function(req, res) {
-  console.log("Got /new");
   authenticateAppServer(req, res, function() {
     return createGame(req, res);
   });
 };
 
 handlePlay = function(req, res) {
-  console.log("Got /play");
   var game_id = req.param('gid');
   if (!game_id) {
     res.send("gid is a required parameter", 400);
@@ -360,7 +319,7 @@ var egs_game_response = function(req, res, game_id) {
 };
 
 var getPlayerProfile = function(cas_handle, game_id, callback) {
-  console.log("getPlayerProfile() called with cas_handle: "+cas_handle+", and gameid: " + game_id);
+  logger.debug("getPlayerProfile() called with cas_handle: "+cas_handle+", and gameid: " + game_id);
   var path = "/api/secure/jsonws/egs-portlet.gamingprofile/get?ver=1.0&title=guerrilla_checkers&gid="+encodeURIComponent(game_id)+"&email="+encodeURIComponent(cas_handle);
 
   var auth = (EGS_USERNAME && EGS_PASSWORD) ? (encodeURIComponent(EGS_USERNAME)+":"+EGS_PASSWORD+"@") : "";
@@ -369,22 +328,22 @@ var getPlayerProfile = function(cas_handle, game_id, callback) {
     url: url,
     method: 'GET'
   };
-  console.log("Opts for request:");
-  console.log(opts);
+  logger.debug("Opts for request:");
+  logger.debug(opts);
   http_request(opts, function(error, response, body) {
     if (error) {
-      console.log("Error getting gaming profile from EGS. Error: " + error);
+      logger.error("Error getting gaming profile from EGS. Error: " + error);
       callback("Unable to retrieve gaming profile for "+cas_handle);
       return;
     }
     if (response.statusCode !== 200) {
-      console.log("Error getting gaming profile from EGS. Response code: " + (response.statusCode || 'none') );
-      console.log(body);
+      logger.error("Error getting gaming profile from EGS. Response code: " + (response.statusCode || 'none') );
+      logger.error(body);
       callback("Unable to retrieve gaming profile for "+cas_handle);
       return;
     }
 
-    console.log("Response from EGS: " + body);
+    logger.debug("Response from EGS: " + body);
 /*
      {
        "gameInstanceId": "xxx",
@@ -403,7 +362,7 @@ var getPlayerProfile = function(cas_handle, game_id, callback) {
 };
 
 var respond_with_error = function(response, message) {
-  console.log("Error: " + message);
+  logger.error("Error: " + message);
   response.send(message, 400);
 };
 
@@ -414,8 +373,8 @@ var createGame = function(req, res) {
   var guerrillas = req.param('role1') || req.param('guerrillas');
   var coin = req.param('role2') || req.param('coin');
   if (!guerrillas || !coin) {
-    console.log("Got invalid request for new game:");
-    console.log(req.query);
+    logger.error("Got invalid request for new game:");
+    logger.error(req.query);
     return egs_error_response(req, res, "Both roles must be provided (guerrillas and coin)");
   }
 
@@ -427,7 +386,7 @@ var createGame = function(req, res) {
   dbgame.save(function (err, game) {
     if (err) { throw err; }
 
-    console.log("Created game: "+game._id+". Guerrillas: "+game.guerrilla_id+", COIN: "+game.coin_id);
+    logger.debug("Created game: "+game._id+". Guerrillas: "+game.guerrilla_id+", COIN: "+game.coin_id);
     return egs_game_response(req, res, game._id);
   });
 };
@@ -445,16 +404,16 @@ var playGame = function(req, res, game_id, user) {
   }
 
   Game.findOne({_id: game_id}, function(err, game) {
-    if (err) {
-      console.log("Error looking up game '"+game_id+"'");
+    if (err || !game) {
+      logger.error("Error looking up game '"+game_id+"'");
       res.send("Could not find game with id: " + game_id, 400);
       return;
     }
-    console.log("Found game: " + game_id);
-    console.log(game);
+    logger.debug("Found game: " + game_id);
+    logger.debug(game);
 
-    console.log("User:");
-    console.log(user);
+    logger.debug("User:");
+    logger.debug(user);
 
     var requested_nickname;
     if (role === 'guerrillas') {
@@ -464,24 +423,24 @@ var playGame = function(req, res, game_id, user) {
     }
     if (user.gaming_id !== requested_nickname) {
       respond_with_error(res, "Requested game role does not match the logged in user ('"+user.gaming_id+"').");
-      console.log("Requested role: " + role + ", saved handle: " + requested_nickname + ", current handle: " + user.gaming_id);
+      logger.debug("Requested role: " + role + ", saved handle: " + requested_nickname + ", current handle: " + user.gaming_id);
       return;
     }
 
     // TODO HACK temporary hack to quickly lookup game_id after they connect with websockets
     Session.findOne({session_id: req.cookies['express.sid']}, function(err, session) {
       if (err) {
-        console.log("Error looking up session for: " + req.cookies['express.sid']);
+        logger.error("Error looking up session for: " + req.cookies['express.sid']);
         res.send("Could not find session. Try reconnecting.", 400);
         return;
       }
 
       session.game_id = game_id;
-      console.log("Saved game_id to session.");
+      logger.debug("Saved game_id to session.");
       session.save(function(err) {
         if (err) { throw err; }
 
-        console.log("Playing game: "+game_id);
+        logger.debug("Playing game: "+game_id);
         res.sendfile(__dirname + '/index.html');
       });
     });
@@ -543,12 +502,12 @@ var attachPlayerToGame = function(game, socket, user) {
   var player = game.addPlayer(socket, user);
 
   socket.on('disconnect', function(socket) {
-    console.log('connected users: ', totalUsers());
+    logger.info('connected users: ', totalUsers());
   });
 
   logger.debug('joined game');
   logger.debug('active games: ' + active_games.length);
-  logger.debug('connected users: ' + totalUsers());
+  logger.info('connected users: ' + totalUsers());
 }
 
 var findActiveGameByUser = function(user) {
@@ -587,7 +546,7 @@ var loadGame = function(dbgame) {
   });
   var factory = null;
   if (_.isUndefined(dbgame.gameState) || dbgame.gameState === null) {
-    logger.debug("Creating new game: "+dbgame._id);
+    logger.info("Creating new game: "+dbgame._id);
     factory = function() {
       egs_notifier.guerrillasMove();
       return new Checkers.GameState();
@@ -624,13 +583,15 @@ io.sockets.on('connection', function (socket) {
     var game_id = session.game_id;
     Game.findOne({_id: game_id}, function(err, dbgame) {
       if (err || !dbgame) {
-        console.log("Unable to lookup game: "+game_id);
+        logger.error("Unable to lookup game: "+game_id);
         socket.emit('error', "Unable to lookup requested game. Try refreshing your browser.");
         return;
       }
       User.findOne({gaming_id: session.gaming_id}, function(err, user) {
         if (err || !user) {
-          throw "Unable to look up user by user.gaming_id '"+user.gaming_id+"': "+err;
+          logger.error("Unable to look up user by user.gaming_id '"+user.gaming_id+"': "+err);
+          socket.emit('error', "Unable to look up user. Try refreshing your browser.");
+          return;
         }
         var game = findActiveGameByDBGame(dbgame);
         if (!game) {
@@ -647,7 +608,7 @@ io.sockets.on('connection', function (socket) {
 mongoose.connect('mongodb://localhost/lvg-guerrilla-checkers');
 
 app.listen(PORT, function() {
-  console.log("["+new Date()+"] Guerrilla-checkers listening on http://localhost:" + PORT + PREFIX);
+  logger.info("["+new Date()+"] Guerrilla-checkers listening on http://localhost:" + PORT + PREFIX);
 });
 
 }); // requirejs Checkers
