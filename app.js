@@ -7,6 +7,7 @@ var EGS_HOST = process.env.EGS_HOST || "globalecco.org";
 var EGS_PORT = process.env.EGS_PORT || 443;
 var EGS_USERNAME = process.env.EGS_USERNAME;
 var EGS_PASSWORD = process.env.EGS_PASSWORD;
+var PREFIX = process.env.PREFIX || "";
 
 var KEY_FILE = process.env.KEY_FILE;
 var CERT_FILE = process.env.CERT_FILE;
@@ -477,16 +478,16 @@ var playGame = function(req, res, game_id, user) {
   });
 };
 
-app.post('/new', function(req, res) {
+app.post(PREFIX+'/new', function(req, res) {
   handleNew(req, res);
 });
-app.get('/new', function(req,res) {
+app.get(PREFIX+'/new', function(req,res) {
   handleNew(req, res);
 });
-app.post('/play', function(req, res) {
+app.post(PREFIX+'/play', function(req, res) {
   handlePlay(req, res);
 });
-app.get('/play', function(req, res) {
+app.get(PREFIX+'/play', function(req, res) {
   handlePlay(req, res);
 });
 
