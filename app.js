@@ -8,6 +8,7 @@ var EGS_PORT = process.env.EGS_PORT || 443;
 var EGS_USERNAME = process.env.EGS_USERNAME;
 var EGS_PASSWORD = process.env.EGS_PASSWORD;
 var PREFIX = process.env.PREFIX || "";
+var AIRBRAKE_API_KEY = process.env.AIRBRAKE_API_KEY;
 
 var KEY_FILE = process.env.KEY_FILE;
 var CERT_FILE = process.env.CERT_FILE;
@@ -43,7 +44,14 @@ var mongoose = require('mongoose')
   , EGSNotifier = require('./server/egs_notifier')
   , logger = require('./server/logger')
   , http_request = require('request')
+  , airbrake = require('airbrake')
   , util = require('util');
+
+if (AIRBRAKE_API_KEY) {
+  var client = airbrake.createClient(AIRBRAKE_API_KEY);
+  client.handleExceptions();
+//  app.error(client.expressHandler()); SEE: https://github.com/felixge/node-airbrake/issues/25
+}
 
 var requirejs = require('requirejs');
 requirejs.config({

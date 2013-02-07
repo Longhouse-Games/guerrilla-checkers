@@ -27,7 +27,8 @@
     "moment": "",
     "cookie": ">=0.0.4",
     "winston": "",
-    "request": ""
+    "request": "",
+    "airbrake": ""
   },
   "devDependencies": {
     "jasmine-node" : ">=1.0.26"
