@@ -264,7 +264,9 @@ sendfile = function(res, file) {
 };
 serve_dir = function(req, res) {
   applyHeaders(res);
-  res.sendfile(__dirname + req.originalUrl);
+  var path = __dirname + req.originalUrl.replace(new RegExp(PREFIX, ""), "")
+  console.log("Serving: " + path);
+  res.sendfile(path);
 }
 
 authenticateAppServer = function(req, res, callback) {
@@ -324,11 +326,11 @@ var egs_response = function(req, res, params) {
   } else if (format === "html" && req.param("dbg") === "1") {
     var html = "";
     html = html + "<b>With ECCO CAS server:</b><br>";
-    html = html + "<a href='/play?gid="+params.game_id+"&role=guerrillas&app=BRSR'>Join game '"+params.game_id+"' as Guerrillas</a><br>";
-    html = html + "<a href='/play?gid="+params.game_id+"&role=coin&app=BRSR'>Join game '"+params.game_id+"' as COIN</a><br>";
+    html = html + "<a href='"+PREFIX+"/play?gid="+params.game_id+"&role=guerrillas&app=BRSR'>Join game '"+params.game_id+"' as Guerrillas</a><br>";
+    html = html + "<a href='"+PREFIX+"/play?gid="+params.game_id+"&role=coin&app=BRSR'>Join game '"+params.game_id+"' as COIN</a><br>";
     html = html + "<hr><b>With test CAS server:</b><br>";
-    html = html + "<a href='/play?gid="+params.game_id+"&cas=test&role=guerrillas&app=BRSR'>Join game '"+params.game_id+"' as Guerrillas</a><br>";
-    html = html + "<a href='/play?gid="+params.game_id+"&cas=test&role=coin&app=BRSR'>Join game '"+params.game_id+"' as COIN</a><br>";
+    html = html + "<a href='"+PREFIX+"/play?gid="+params.game_id+"&cas=test&role=guerrillas&app=BRSR'>Join game '"+params.game_id+"' as Guerrillas</a><br>";
+    html = html + "<a href='"+PREFIX+"/play?gid="+params.game_id+"&cas=test&role=coin&app=BRSR'>Join game '"+params.game_id+"' as COIN</a><br>";
     res.send(html, { 'Content-Type': 'text/html' }, code);
   } else {
     res.send("Invalid format: " + req.fmt+". Must be one of 'json' or 'xml'", 400);
@@ -621,7 +623,7 @@ io.sockets.on('connection', function (socket) {
 mongoose.connect('mongodb://localhost/lvg-guerrilla-checkers');
 
 app.listen(PORT, function() {
-  console.log("["+new Date()+"] Guerrilla-checkers listening on http://localhost:" + PORT);
+  console.log("["+new Date()+"] Guerrilla-checkers listening on http://localhost:" + PORT + PREFIX);
 });
 
 }); // requirejs Checkers
