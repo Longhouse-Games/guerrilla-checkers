@@ -192,7 +192,7 @@ require(["lib/checkers", 'helpers'], function(checkers, helpers) {
       return;
     }
     hideGuerrillaMoves();
-    if (!isGuerrillaPlayer()) {
+    if (!isGuerrillaPlayer() || g_gameState.getWinner()) {
       return;
     }
     if (g_gameState.isGuerrillaTurn()) {
