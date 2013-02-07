@@ -351,7 +351,8 @@ var getPlayerProfile = function(cas_handle, game_id, callback) {
   console.log("getPlayerProfile() called with cas_handle: "+cas_handle+", and gameid: " + game_id);
   var path = "/api/secure/jsonws/egs-portlet.gamingprofile/specific?ver=1.0&title=guerrilla_checkers&gid="+encodeURIComponent(game_id)+"&email="+encodeURIComponent(cas_handle);
 
-  var url = "http://"+encodeURIComponent(EGS_USERNAME)+":"+EGS_PASSWORD+"@"+EGS_HOST+":"+EGS_PORT+path;
+  var auth = (EGS_USERNAME && EGS_PASSWORD) ? (encodeURIComponent(EGS_USERNAME)+":"+EGS_PASSWORD+"@") : "";
+  var url = "http://"+auth+EGS_HOST+":"+EGS_PORT+path;
   var opts = {
     url: url,
     method: 'POST'
