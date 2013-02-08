@@ -276,6 +276,17 @@ require(["lib/checkers", 'helpers'], function(checkers, helpers) {
     }, timeout);
   }
 
+  function updateStatusArea() {
+    var remainingGuerrillas = g_gameState.remainingGuerrillaPieces;
+    var capturedGuerrillas = g_gameState.STARTING_GUERRILLA_PIECES - remainingGuerrillas - g_gameState.getGuerrillaPieces().length;
+    var capturedCOINs = 6 - g_gameState.getSoldierPieces().length;
+    var turns = g_gameState.turnCount;
+    $('#remaining_guerrillas').first().text(remainingGuerrillas);
+    $('#captured_guerrillas').first().text(capturedGuerrillas);
+    $('#captured_coins').first().text(capturedCOINs);
+    $('#turn_count').first().text(turns);
+  }
+
   function updatePlayerTurnOverlay() {
     var $overlay = $('#turn_overlay').first();
     var yourTurn = "YOUR TURN";
@@ -365,6 +376,7 @@ require(["lib/checkers", 'helpers'], function(checkers, helpers) {
       g_gameState.fromDTO(updateResponse.gameState);
 
       updatePlayerTurnOverlay();
+      updateStatusArea();
       updateGuerrillaPieces();
       updateSoldierPieces();
       updateGuerrillaMoves();
