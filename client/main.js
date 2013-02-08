@@ -40,6 +40,13 @@ require(["lib/checkers", 'helpers'], function(checkers, helpers) {
     return g_role === 'spectator';
   }
 
+  function cssTheme() {
+    if (isSoldierPlayer()) {
+      return "coin_theme";
+    }
+    return "guerrilla_theme";
+  }
+
   var g_soldierPiecesOnBoard = {}; // "x,y" -> img
   var g_guerrillaPiecesOnBoard = {}; // "x,y" -> img
 
@@ -62,7 +69,7 @@ require(["lib/checkers", 'helpers'], function(checkers, helpers) {
   function addSoldierPiece(piece, container) {
     container = container || document.getElementById('pieces');
     var piecesOnBoard = g_soldierPiecesOnBoard;
-    var newPieceOnBoard = addPiece(container, piece, 'soldier_piece', SOLDIER_MARGIN, piecesOnBoard);
+    var newPieceOnBoard = addPiece(container, piece, 'soldier_piece '+cssTheme()+"_soldier", SOLDIER_MARGIN, piecesOnBoard);
     addSoldierPieceBehaviour(piece);
     return newPieceOnBoard;
   }
@@ -113,7 +120,7 @@ require(["lib/checkers", 'helpers'], function(checkers, helpers) {
   function addGuerrillaPiece(piece, container) {
     container = container || document.getElementById('pieces');
     var piecesOnBoard = g_guerrillaPiecesOnBoard;
-    var newPieceOnBoard = addPiece(container, piece, 'guerrilla_piece', GUERRILLA_MARGIN, piecesOnBoard);
+    var newPieceOnBoard = addPiece(container, piece, 'guerrilla_piece '+cssTheme()+"_guerrilla", GUERRILLA_MARGIN, piecesOnBoard);
     return newPieceOnBoard;
   }
 
@@ -165,7 +172,7 @@ require(["lib/checkers", 'helpers'], function(checkers, helpers) {
   function createGuerrillaMove($moves, move) {
     var piece = { position: move };
     var container = $moves.get(0);
-    var newPieceOnBoard = addPiece(container, piece, 'guerrilla_piece', GUERRILLA_MARGIN);
+    var newPieceOnBoard = addPiece(container, piece, 'guerrilla_piece '+cssTheme()+"_guerrilla", GUERRILLA_MARGIN);
     newPieceOnBoard.onclick = function() {
       socket.emit('placeGuerrilla', piece);
     }
@@ -203,7 +210,7 @@ require(["lib/checkers", 'helpers'], function(checkers, helpers) {
   function createSoldierMove($moves, piece, position) {
     var move = { piece: piece.position, position: position };
     var container = $moves.get(0);
-    var newPieceOnBoard = addPiece(container, move, 'soldier_piece', SOLDIER_MARGIN);
+    var newPieceOnBoard = addPiece(container, move, 'soldier_piece '+cssTheme()+"_soldier", SOLDIER_MARGIN);
     newPieceOnBoard.onclick = function() {
       socket.emit('moveCOIN', move);
       setSelectedSoldierPiece(null);
@@ -340,12 +347,14 @@ require(["lib/checkers", 'helpers'], function(checkers, helpers) {
       g_role = role;
       if (role === 'guerrilla') {
         printMessage("server", "You are the Guerrilla player!");
+        $('.board').addClass('guerrilla_board');
       } else if (role === 'coin') {
         printMessage("server", "You are the COIN player!");
+        $('.board').addClass('coin_board');
       } else {
         printMessage("server", "You are a spectator");
+        $('.board').addClass('guerrilla_board');
       }
-      $('.board').addClass('guerrilla_board');
     });
 
     socket.on('num_connected_users', function(numConnectedUsers) {
