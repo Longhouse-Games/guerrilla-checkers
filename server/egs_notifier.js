@@ -49,8 +49,7 @@ requirejs([ 'underscore'], function(_) {
         headers: { "Content-type": "text/plain; charset=utf-8" },
         body: JSON.stringify(this.buildPayload(updates))
       };
-      logger.debug("Opts for request:");
-      logger.debug(opts);
+      logger.debug("Opts for request:", opts);
       request(opts, function(error, response, body) {
         if (error) {
           logger.error("Error notifying EGS. Error: " + error);
