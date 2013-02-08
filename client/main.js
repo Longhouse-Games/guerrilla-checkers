@@ -294,6 +294,14 @@ require(["lib/checkers", 'helpers'], function(checkers, helpers) {
     $('#turn_count').first().text(turns);
   }
 
+  function notifyPlayer() {
+    if ((isSoldierPlayer() && g_gameState.isSoldierTurn() && !g_gameState.movedSoldier) ||
+        (isGuerrillaPlayer() && g_gameState.isGuerrillaTurn()) && !g_gameState.placedGuerrilla) {
+      var sound = document.getElementById('your_turn');
+      sound.Play();
+    }
+  }
+
   function updatePlayerTurnOverlay() {
     var $overlay = $('#turn_overlay').first();
     var yourTurn = "YOUR TURN";
@@ -384,6 +392,7 @@ require(["lib/checkers", 'helpers'], function(checkers, helpers) {
       g_gameState = new checkers.GameState;
       g_gameState.fromDTO(updateResponse.gameState);
 
+      notifyPlayer();
       updatePlayerTurnOverlay();
       updateStatusArea();
       updateGuerrillaPieces();

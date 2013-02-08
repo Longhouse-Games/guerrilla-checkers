@@ -467,6 +467,7 @@ app.get(PREFIX+'/status', function(req, res) {
   res.send("Okay!");
 });
 app.get(PREFIX+'/images/*', serve_dir);
+app.get(PREFIX+'/sounds/*', serve_dir);
 app.get(PREFIX+'/style/*', serve_dir);
 app.get(PREFIX+'/lib/*', serve_dir);
 app.get(PREFIX+'/client/*', serve_dir);
