@@ -260,7 +260,7 @@ handlePlay = function(req, res) {
   });
 };
 
-var egs_response = function(req, res, params) {
+var egs_response = function(req, res, params, next) {
   if (!params.stat) { throw "Params.stat is required"; }
 
   var format = "xml";
@@ -302,6 +302,7 @@ var egs_response = function(req, res, params) {
   } else {
     res.send("Invalid format: " + req.fmt+". Must be one of 'json' or 'xml'", 400);
   }
+  next();
 };
 
 var egs_error_response = function(req, res, message) {
@@ -311,11 +312,11 @@ var egs_error_response = function(req, res, message) {
   });
 };
 
-var egs_game_response = function(req, res, game_id) {
-  return egs_response(req, res, {
+var egs_game_response = function(req, res, game_id, next) {
+  egs_response(req, res, {
     stat: "OK",
     game_id: game_id
-  });
+  }, next);
 };
 
 var getPlayerProfile = function(cas_handle, game_id, callback) {
@@ -387,7 +388,20 @@ var createGame = function(req, res) {
     if (err) { throw err; }
 
     logger.debug("Created game: "+game._id+". Guerrillas: "+game.guerrilla_id+", COIN: "+game.coin_id);
-    return egs_game_response(req, res, game._id);
+    egs_game_response(req, res, game._id, function() {
+      var egs_notifier = new EGSNotifier.EGSNotifier({
+        host: EGS_HOST,
+        port: EGS_PORT,
+        username: EGS_USERNAME,
+        password: EGS_PASSWORD,
+        game_id: dbgame._id,
+        game_title: 'guerrilla-checkers',
+        game_version: '1.0',
+        coin_gaming_id: game.coin_id,
+        guerrilla_gaming_id: game.guerrilla_id
+      });
+      egs_notifier.guerrillasMove();
+    });
   });
 };
 
@@ -549,7 +563,6 @@ var loadGame = function(dbgame) {
   if (_.isUndefined(dbgame.gameState) || dbgame.gameState === null) {
     logger.info("Creating new game: "+dbgame._id);
     factory = function() {
-      egs_notifier.guerrillasMove();
       return new Checkers.GameState();
     };
   } else {
