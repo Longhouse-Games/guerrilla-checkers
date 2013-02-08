@@ -366,7 +366,7 @@ require(["lib/checkers", 'helpers'], function(checkers, helpers) {
     });
 
     socket.on('num_connected_users', function(numConnectedUsers) {
-      if (numConnectedUsers >= 2) {
+      if (numConnectedUsers >= 1) {
         $('.board').first().show();
         $('#waiting').hide();
       } else {
