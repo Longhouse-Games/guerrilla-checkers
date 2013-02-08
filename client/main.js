@@ -349,7 +349,7 @@ require(["lib/checkers", 'helpers'], function(checkers, helpers) {
         printMessage("server", "You are the Guerrilla player!");
         $('.board').addClass('guerrilla_board');
       } else if (role === 'coin') {
-        printMessage("server", "You are the COIN player!");
+        printMessage("server", "You are the State player!");
         $('.board').addClass('coin_board');
       } else {
         printMessage("server", "You are a spectator");

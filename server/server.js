@@ -106,7 +106,7 @@ Server.prototype.refreshBoard = function(result, arrPlayers) {
   if (winner) {
     me.broadcast('gameOver', {winner: winner});
     me.broadcast('message', {user: 'game', message: 'Game Over'});
-    me.broadcast('message', {user: 'game', message: 'Winner: ' + winner});
+    me.broadcast('message', {user: 'game', message: 'Winner: ' + (winner === 'coin' ? 'The State' : 'Guerrillas')});
     me.egs_notifier.gameover();
   }
 };
