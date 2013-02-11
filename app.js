@@ -477,6 +477,9 @@ app.get(PREFIX+'/play', function(req, res) {
 app.get(PREFIX+'/debug', function (req, res) {
   sendfile(__dirname + '/debug.html');
 });
+app.get(PREFIX+'/rules.html', function (req, res) {
+  res.sendfile(__dirname + '/rules.html');
+});
 app.get(PREFIX+'/status', function(req, res) {
   res.send("Okay!");
 });
