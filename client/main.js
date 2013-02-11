@@ -20,6 +20,8 @@ require(["lib/checkers", 'helpers'], function(checkers, helpers) {
   });
   var g_role = 'spectator';
   var g_gameState = null;
+  var g_playSounds = true;
+  var g_soundsLoaded = false;
 
   function getPositionKey(position) {
     if (!position) {
@@ -294,11 +296,19 @@ require(["lib/checkers", 'helpers'], function(checkers, helpers) {
     $('#turn_count').first().text(turns);
   }
 
+  function playSound(id) {
+    if (g_playSounds) {
+      var sound = document.getElementById(id);
+      if (sound.readyState === 4) { // HAVE_ENOUGH_DATA - aka it's loaded
+        sound.play();
+      }
+    }
+  }
+
   function notifyPlayer() {
     if ((isSoldierPlayer() && g_gameState.isSoldierTurn() && !g_gameState.movedSoldier) ||
         (isGuerrillaPlayer() && g_gameState.isGuerrillaTurn()) && !g_gameState.placedGuerrilla) {
-      var sound = document.getElementById('your_turn');
-      sound.Play();
+      playSound('your_turn');
     }
   }
 
@@ -420,6 +430,16 @@ require(["lib/checkers", 'helpers'], function(checkers, helpers) {
     $(messageInput).bind('keypress', function(evt) {
       if (evt.keyCode == 13) { sendMessage(); }
     });
+  });
+
+  $("#toggle_sound").bind('click', function() {
+    if (g_playSounds) {
+      g_playSounds = false;
+      $("#toggle_sound").text("Enable Sound");
+    } else {
+      g_playSounds = true;
+      $("#toggle_sound").text("Disable Sound");
+    }
   });
 
 });
