@@ -18,7 +18,7 @@ requirejs([ 'underscore'], function(_) {
   var EGSNotifier = function(options) {
     var req = function(val) {
       if (!options[val]) {
-        throw "EGSNotifier(): 'host' is a required option";
+        throw "EGSNotifier(): "+val+" is a required option";
       }
       return options[val];
     };
@@ -29,8 +29,8 @@ requirejs([ 'underscore'], function(_) {
     this.game_id = req('game_id');
     this.game_title = req('game_title');
     this.game_version = req('game_version');
-    this.coin_gaming_id = req('coin_gaming_id');
-    this.guerrilla_gaming_id = req('guerrilla_gaming_id');
+    this.role1 = req('role1');
+    this.role2 = req('role2');
     this.STATES = {
       PEND: "PEND",
       ATTN: "ATTN",
@@ -88,29 +88,29 @@ requirejs([ 'underscore'], function(_) {
     }
   };
 
-  EGSNotifier.prototype.guerrillasMove = function() {
-    logger.info("EGSNotifier: Notifying EGS that it's guerrilla('"+this.guerrilla_gaming_id+"') turn");
-    logger.info("EGSNotifier: Notifying EGS that it's not coin('"+this.coin_gaming_id+"') turn");
+  EGSNotifier.prototype.role1sMove = function() {
+    logger.info("EGSNotifier: Notifying EGS that it's "+this.role1+"'s turn");
+    logger.info("EGSNotifier: Notifying EGS that it's not "+this.role2+"'s turn");
     return this.deliver([
-      this.buildUpdate(this.guerrilla_gaming_id, this.STATES.ATTN),
-      this.buildUpdate(this.coin_gaming_id, this.STATES.PEND)
+      this.buildUpdate(this.role1, this.STATES.ATTN),
+      this.buildUpdate(this.role2, this.STATES.PEND)
     ]);
   };
 
-  EGSNotifier.prototype.coinsMove = function() {
-    logger.info("EGSNotifier: Notifying EGS that it's coin('"+this.coin_gaming_id+"') turn");
-    logger.info("EGSNotifier: Notifying EGS that it's not guerrilla('"+this.guerrilla_gaming_id+"') turn");
+  EGSNotifier.prototype.role2sMove = function() {
+    logger.info("EGSNotifier: Notifying EGS that it's "+this.role2+"'s turn");
+    logger.info("EGSNotifier: Notifying EGS that it's not "+this.role1+"'s turn");
     return this.deliver([
-      this.buildUpdate(this.coin_gaming_id, this.STATES.ATTN),
-      this.buildUpdate(this.guerrilla_gaming_id, this.STATES.PEND)
+      this.buildUpdate(this.role2, this.STATES.ATTN),
+      this.buildUpdate(this.role1, this.STATES.PEND)
     ]);
   };
 
   EGSNotifier.prototype.gameover = function() {
     logger.info("EGSNotifier: Notifying EGS that it's gameover.");
     return this.deliver([
-      this.buildUpdate(this.coin_gaming_id, this.STATES.OVER),
-      this.buildUpdate(this.guerrilla_gaming_id, this.STATES.OVER)
+      this.buildUpdate(this.role2, this.STATES.OVER),
+      this.buildUpdate(this.role1, this.STATES.OVER)
     ]);
   }
 

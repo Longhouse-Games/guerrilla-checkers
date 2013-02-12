@@ -33,7 +33,7 @@ require(["lib/checkers", 'helpers'], function(checkers, helpers) {
   }
 
   function isGuerrillaPlayer() {
-    return g_role === 'guerrilla';
+    return g_role === 'guerrillas';
   }
 
   function isSpectator() {
@@ -353,10 +353,10 @@ require(["lib/checkers", 'helpers'], function(checkers, helpers) {
 
     socket.on('role', function(role) {
       g_role = role;
-      if (role === 'guerrilla') {
+      if (isGuerrillaPlayer()) {
         printMessage("server", "You are the Guerrilla player!");
         $('.board').addClass('guerrilla_board');
-      } else if (role === 'coin') {
+      } else if (isSoldierPlayer()) {
         printMessage("server", "You are the State player!");
         $('.board').addClass('coin_board');
       } else {

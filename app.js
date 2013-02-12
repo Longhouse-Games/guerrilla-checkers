@@ -71,6 +71,8 @@ requirejs(['underscore', 'moment', './lib/checkers'], function(_, moment, Checke
 // global variables
 var connectedUsers = 0;
 
+var metadata = new Server.Metadata();
+
 // global types
 var Schema = mongoose.Schema;
 var ChatSchema = new Schema({
@@ -95,14 +97,15 @@ var Session = mongoose.model('Session', sessionSchema);
 
 var gameSchema = new Schema({
   is_in_progress: { type: Boolean, default: false },
-  coin_id: { type: String, default: null },
-  guerrilla_id: { type: String, default: null },
+  roles: function(roles){
+    var results = {};
+    for (var i = 0; i < roles.length; i++) {
+      results[roles[i].slug] = { type: String, default: null };
+    }
+    return results;
+  }(metadata.roles),
   gameState: String
 });
-
-var gameHasUser = function(dbgame, user) {
-  return dbgame.coin_id === user.gaming_id || dbgame.guerrilla_id === user.gaming_id;
-}
 
 var Game = mongoose.model('Game', gameSchema);
 
@@ -296,13 +299,15 @@ var egs_response = function(req, res, params, next) {
     }
     res.json(json, code);
   } else if (format === "html" && req.param("dbg") === "1") {
+    var role1 = metadata.roles[0];
+    var role2 = metadata.roles[1];
     var html = "";
     html = html + "<b>With ECCO CAS server:</b><br>";
-    html = html + "<a href='"+PREFIX+"/play?gid="+params.game_id+"&role=guerrillas&app=BRSR'>Join game '"+params.game_id+"' as Guerrillas</a><br>";
-    html = html + "<a href='"+PREFIX+"/play?gid="+params.game_id+"&role=coin&app=BRSR'>Join game '"+params.game_id+"' as State</a><br>";
+    html = html + "<a href='"+PREFIX+"/play?gid="+params.game_id+"&role="+role1.slug+"&app=BRSR'>Join game '"+params.game_id+"' as "+role1.name+"</a><br>";
+    html = html + "<a href='"+PREFIX+"/play?gid="+params.game_id+"&role="+role2.slug+"&app=BRSR'>Join game '"+params.game_id+"' as "+role2.name+"</a><br>";
     html = html + "<hr><b>With test CAS server:</b><br>";
-    html = html + "<a href='"+PREFIX+"/play?gid="+params.game_id+"&cas=test&role=guerrillas&app=BRSR'>Join game '"+params.game_id+"' as Guerrillas</a><br>";
-    html = html + "<a href='"+PREFIX+"/play?gid="+params.game_id+"&cas=test&role=coin&app=BRSR'>Join game '"+params.game_id+"' as State</a><br>";
+    html = html + "<a href='"+PREFIX+"/play?gid="+params.game_id+"&cas=test&role="+role1.slug+"&app=BRSR'>Join game '"+params.game_id+"' as "+role1.name+"</a><br>";
+    html = html + "<a href='"+PREFIX+"/play?gid="+params.game_id+"&cas=test&role="+role2.slug+"&app=BRSR'>Join game '"+params.game_id+"' as "+role2.name+"</a><br>";
     res.send(html, { 'Content-Type': 'text/html' }, code);
   } else {
     res.send("Invalid format: " + req.fmt+". Must be one of 'json' or 'xml'", 400);
@@ -328,7 +333,7 @@ var egs_game_response = function(req, res, game_id, next) {
 
 var getPlayerProfile = function(cas_handle, game_id, callback) {
   logger.debug("getPlayerProfile() called with cas_handle: "+cas_handle+", and gameid: " + game_id);
-  var path = "/api/secure/jsonws/egs-portlet.gamingprofile/get?ver=1.0&title=guerrilla_checkers&gid="+encodeURIComponent(game_id)+"&email="+encodeURIComponent(cas_handle);
+  var path = "/api/secure/jsonws/egs-portlet.gamingprofile/get?ver=1.0&title="+metadata.slug+"&gid="+encodeURIComponent(game_id)+"&email="+encodeURIComponent(cas_handle);
 
   var auth = (EGS_USERNAME && EGS_PASSWORD) ? (encodeURIComponent(EGS_USERNAME)+":"+EGS_PASSWORD+"@") : "";
   var url = "http://"+auth+EGS_HOST+":"+EGS_PORT+path;
@@ -377,23 +382,27 @@ var createGame = function(req, res) {
   var lang = req.lang;
   var debug = req.debug;
   var app = req.app;
-  var guerrillas = req.param('role1') || req.param('guerrillas');
-  var coin = req.param('role2') || req.param('coin');
-  if (!guerrillas || !coin) {
+  var role1 = metadata.roles[0];
+  var role2 = metadata.roles[1];
+  var player1 = req.param('role1') || req.param(role1.slug);
+  var player2 = req.param('role2') || req.param(role2.slug);
+  if (!player1 || !player2) {
     logger.error("Got invalid request for new game:");
     logger.error(req.query);
-    return egs_error_response(req, res, "Both roles must be provided (guerrillas and coin)");
+    return egs_error_response(req, res, "Both roles must be provided ("+role1.slug+" and "+role2.slug+")");
   }
 
+  var roles = {}
+  roles[role1.slug] = player1;
+  roles[role2.slug] = player2;
   var dbgame = new Game({
     is_in_progress: true,
-    guerrilla_id: guerrillas,
-    coin_id: coin
+    roles: roles
   });
   dbgame.save(function (err, game) {
     if (err) { throw err; }
 
-    logger.debug("Created game: "+game._id+". Guerrillas: "+game.guerrilla_id+", COIN: "+game.coin_id);
+    logger.debug("Created game: "+game._id+". Roles: "+game.roles);
     egs_game_response(req, res, game._id, function() {
       var egs_notifier = new EGSNotifier.EGSNotifier({
         host: EGS_HOST,
@@ -401,12 +410,12 @@ var createGame = function(req, res) {
         username: EGS_USERNAME,
         password: EGS_PASSWORD,
         game_id: dbgame._id,
-        game_title: 'guerrilla-checkers',
+        game_title: metadata.slug,
         game_version: '1.0',
-        coin_gaming_id: game.coin_id,
-        guerrilla_gaming_id: game.guerrilla_id
+        role1: game.roles[metadata.roles[0].slug],
+        role2: game.roles[metadata.roles[1].slug]
       });
-      egs_notifier.guerrillasMove();
+      egs_notifier.role1sMove();
     });
   });
 };
@@ -418,8 +427,8 @@ var playGame = function(req, res, game_id, user) {
     res.send("role is a required parameter", 400);
     return;
   }
-  if (role !== "guerrillas" && role !== "coin") {
-    res.send("role must be one of 'guerrillas' or 'coin'");
+  if (role !== metadata.roles[0].slug && role !== metadata.roles[1].slug) {
+    res.send("role must be one of '"+metadata.roles[0].slug+"' or '"+metadata.roles[1].slug+"'");
     return;
   }
 
@@ -435,12 +444,7 @@ var playGame = function(req, res, game_id, user) {
     logger.debug("User:");
     logger.debug(user);
 
-    var requested_nickname;
-    if (role === 'guerrillas') {
-      requested_nickname = game.guerrilla_id;
-    } else if (role === 'coin') {
-      requested_nickname = game.coin_id;
-    }
+    var requested_nickname = game.roles[role];
     if (user.gaming_id !== requested_nickname) {
       respond_with_error(res, "Requested game role does not match the logged in user ('"+user.gaming_id+"').");
       logger.debug("Requested role: " + role + ", saved handle: " + requested_nickname + ", current handle: " + user.gaming_id);
@@ -534,17 +538,6 @@ var attachPlayerToGame = function(game, socket, user) {
   logger.info('connected users: ' + totalUsers());
 }
 
-var findActiveGameByUser = function(user) {
-  var i = 0;
-  for(i = 0; i < active_games.length; i++) {
-    dbgame = active_games[i].getDBGame();
-    if (gameHasUser(dbgame, user)) {
-      return active_games[i];
-    }
-  }
-  return null;
-}
-
 var findActiveGameByDBGame = function(dbgame) {
   var i = 0;
   for(i = 0; i < active_games.length; i++) {
@@ -563,10 +556,10 @@ var loadGame = function(dbgame) {
     username: EGS_USERNAME,
     password: EGS_PASSWORD,
     game_id: dbgame._id,
-    game_title: 'guerrilla-checkers',
+    game_title: metadata.slug,
     game_version: '1.0',
-    coin_gaming_id: dbgame.coin_id,
-    guerrilla_gaming_id: dbgame.guerrilla_id
+    role1: dbgame.roles[metadata.roles[0].slug],
+    role2: dbgame.roles[metadata.roles[1].slug]
   });
   var factory = null;
   if (_.isUndefined(dbgame.gameState) || dbgame.gameState === null) {
@@ -628,10 +621,10 @@ io.sockets.on('connection', function (socket) {
   });
 });
 
-mongoose.connect('mongodb://localhost/lvg-guerrilla-checkers');
+mongoose.connect('mongodb://localhost/lvg-'+metadata.slug);
 
 app.listen(PORT, function() {
-  logger.info("["+new Date()+"] Guerrilla-checkers listening on http://localhost:" + PORT + PREFIX);
+  logger.info("["+new Date()+"] "+metadata.name+" listening on http://localhost:" + PORT + PREFIX);
 });
 
 }); // requirejs Checkers
