@@ -302,7 +302,9 @@ var egs_response = function(req, res, params, next) {
   } else {
     res.send("Invalid format: " + req.fmt+". Must be one of 'json' or 'xml'", 400);
   }
-  next();
+  if (typeof next === 'function') {
+    next();
+  }
 };
 
 var egs_error_response = function(req, res, message) {
