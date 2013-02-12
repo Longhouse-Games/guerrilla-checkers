@@ -207,6 +207,11 @@ function handleLogin(request, response, game_id, callback) {
     getPlayerProfile(cas_handle, game_id, function(error, profile) {
       if (error) {
         respond_with_error(response, error);
+        return;
+      }
+      if (!profile) {
+        respond_with_error(response, "Unable to retrieve player profile.");
+        return;
       }
       find_or_create_user(profile, request.cookies['express.sid'], function(user) {
         callback(user);
@@ -331,8 +336,7 @@ var getPlayerProfile = function(cas_handle, game_id, callback) {
     url: url,
     method: 'GET'
   };
-  logger.debug("Opts for request:");
-  logger.debug(opts);
+  logger.debug("Opts for request:", opts);
   http_request(opts, function(error, response, body) {
     if (error) {
       logger.error("Error getting gaming profile from EGS. Error: " + error);
