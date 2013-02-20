@@ -1,11 +1,17 @@
 requirejs.config({
   baseUrl: 'client',
   paths: {
-    lib: '../lib'
+    lib: '../lib',
+    underscore: "../vendor/underscore/underscore"
+  },
+  shim: {
+    underscore: {
+      exports: '_'
+    }
   }
 });
 
-require(["lib/checkers", 'helpers'], function(checkers, helpers) {
+require(["underscore", "lib/checkers", 'helpers'], function(_, Checkers, helpers) {
 
   if (Array.prototype.forEach === undefined) {
     Array.prototype.forEach = function(callback) {
@@ -15,6 +21,7 @@ require(["lib/checkers", 'helpers'], function(checkers, helpers) {
     }
   }
 
+  var metadata = new Checkers.Metadata();
   var socket = io.connect(null, {
     'remember transport': false
   });
@@ -31,11 +38,11 @@ require(["lib/checkers", 'helpers'], function(checkers, helpers) {
   }
 
   function isSoldierPlayer() {
-    return g_role === 'coin';
+    return g_role === metadata.roles[1].slug;
   }
 
   function isGuerrillaPlayer() {
-    return g_role === 'guerrillas';
+    return g_role === metadata.roles[0].slug;
   }
 
   function isSpectator() {
@@ -316,6 +323,11 @@ require(["lib/checkers", 'helpers'], function(checkers, helpers) {
     var $overlay = $('#turn_overlay').first();
     var yourTurn = "YOUR TURN";
     var opponentsTurn = "OPPONENT'S TURN";
+    if (g_gameState.getWinner()) {
+      var winner = _.find(metadata.roles, function(role){ return role.slug === g_gameState.getWinner();});
+      setOverlayText($overlay, winner.name.toUpperCase() + " WINS");
+      return;
+    }
     if (isSpectator()) {
       setOverlayText($overlay, g_gameState.getCurrentPhase() + "'S TURN");
       return;
@@ -399,7 +411,7 @@ require(["lib/checkers", 'helpers'], function(checkers, helpers) {
         return;
       }
 
-      g_gameState = new checkers.GameState;
+      g_gameState = new Checkers.GameState;
       g_gameState.fromDTO(updateResponse.gameState);
 
       notifyPlayer();

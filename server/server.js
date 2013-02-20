@@ -1,7 +1,5 @@
 var requirejs = require('requirejs'),
     logger    = require('./logger');
-var Game = require('./guerrilla_checkers');
-var metadata = new Game.Metadata();
 
 requirejs.config({
   nodeRequire: require,
@@ -21,9 +19,10 @@ requirejs([
   './lib/vote'],
   function(
     _,
-    Checkers,
+    Game,
     Vote) {
 
+var metadata = new Game.Metadata();
 var SPECTATOR = 'spectator';
 
 var Server = function(gameFactory, dbgame, egs_notifier) {
