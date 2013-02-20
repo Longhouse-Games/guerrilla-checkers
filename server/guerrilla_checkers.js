@@ -1,5 +1,8 @@
-var GUERRILLA_ROLE = 'guerrillas';
-var COIN_ROLE = 'coin';
+var requirejs = require('requirejs');
+requirejs([ './lib/checkers'], function(Checkers) {
+
+var GUERRILLA_ROLE = Checkers.Metadata.GUERRILLA_ROLE;
+var COIN_ROLE = Checkers.Metadata.COIN_ROLE;
 
 var Metadata = function() {
   this.name = "Guerrilla Checkers";
@@ -10,4 +13,6 @@ var Metadata = function() {
   ];
 };
 
-exports.Metadata = Metadata;
+module.exports.Metadata = Metadata;
+
+});
