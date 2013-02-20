@@ -112,7 +112,7 @@ require(["lib/checkers", 'helpers'], function(checkers, helpers) {
     }
     if (isSoldierPlayer()) {
       pieceOnBoard.onclick = function() {
-        if (!g_gameState.movedSoldier) {
+        if (!g_gameState.movedSoldier && !g_gameState.getWinner()) {
           setSelectedSoldierPiece(piece);
         }
       }
