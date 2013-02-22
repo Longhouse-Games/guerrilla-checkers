@@ -103,7 +103,7 @@ Server.prototype.refreshBoard = function(result, arrPlayers) {
     me.broadcast('message', {user: 'game', message: 'Game Over'});
     var role = _.find(metadata.roles, function(role){ return role.slug === winner });
     me.broadcast('message', {user: 'game', message: 'Winner: ' + role.name});
-    me.egs_notifier.gameover();
+    me.egs_notifier.gameover(me.game.getWinner(), me.game.getScores());
   }
 };
 
@@ -247,7 +247,7 @@ var Player = function(_socket, server, user, role) {
     var result = me.server.getGame().moveSoldierPiece(data.piece, data.position);
     me.server.refreshBoard(result);
     if (!me.server.getGame().getWinner() && me.server.getGame().isGuerrillaTurn()) {
-      me.server.egs_notifier.role1sMove();
+      me.server.egs_notifier.move(metadata.roles[0].slug);
     }
   });
 
@@ -257,7 +257,7 @@ var Player = function(_socket, server, user, role) {
     var result = me.server.getGame().placeGuerrillaPiece(data.position);
     me.server.refreshBoard(result);
     if (!me.server.getGame().getWinner() && me.server.getGame().isSoldierTurn()) {
-      me.server.egs_notifier.role2sMove();
+      me.server.egs_notifier.move(metadata.roles[1].slug);
     }
   });
 
