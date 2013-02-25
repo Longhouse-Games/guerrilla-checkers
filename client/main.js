@@ -28,6 +28,7 @@ require(["underscore", "lib/checkers", 'helpers'], function(_, Checkers, helpers
   var g_role = 'spectator';
   var g_gameState = null;
   var g_playSounds = true;
+  var g_showShadows = true;
   var g_soundsLoaded = false;
 
   function getPositionKey(position) {
@@ -97,7 +98,7 @@ require(["underscore", "lib/checkers", 'helpers'], function(_, Checkers, helpers
     if (g_gameState.isSoldierTurn() && piece) {
       var positionKey = getPositionKey(piece.position);
       var pieceOnBoard = g_soldierPiecesOnBoard[positionKey];
-      g_selectedSoldierPiece = pieceOnBoard;
+      g_selectedSoldierPiece = piece;
       if (pieceOnBoard) {
         pieceOnBoard.className += " selected";
       }
@@ -181,7 +182,8 @@ require(["underscore", "lib/checkers", 'helpers'], function(_, Checkers, helpers
   function createGuerrillaMove($moves, move) {
     var piece = { position: move };
     var container = $moves.get(0);
-    var newPieceOnBoard = addPiece(container, piece, 'guerrilla_piece '+cssTheme()+"_guerrilla", GUERRILLA_MARGIN);
+    var css_class = g_showShadows ? 'guerrilla_piece '+cssTheme()+"_guerrilla" : "guerrilla_piece";
+    var newPieceOnBoard = addPiece(container, piece, css_class, GUERRILLA_MARGIN);
     newPieceOnBoard.onclick = function() {
       socket.emit('placeGuerrilla', piece);
     }
@@ -219,7 +221,8 @@ require(["underscore", "lib/checkers", 'helpers'], function(_, Checkers, helpers
   function createSoldierMove($moves, piece, position) {
     var move = { piece: piece.position, position: position };
     var container = $moves.get(0);
-    var newPieceOnBoard = addPiece(container, move, 'soldier_piece '+cssTheme()+"_soldier", SOLDIER_MARGIN);
+    var css_class = g_showShadows ? 'soldier_piece '+cssTheme()+"_soldier" : "soldier_piece";
+    var newPieceOnBoard = addPiece(container, move, css_class, SOLDIER_MARGIN);
     newPieceOnBoard.onclick = function() {
       socket.emit('moveCOIN', move);
       setSelectedSoldierPiece(null);
@@ -454,5 +457,20 @@ require(["underscore", "lib/checkers", 'helpers'], function(_, Checkers, helpers
     }
   });
 
+  $("#toggle_shadows").bind('click', function() {
+    if (g_showShadows) {
+      g_showShadows = false;
+      $("#toggle_shadows").text("Enable shadow pieces");
+    } else {
+      g_showShadows = true;
+      $("#toggle_shadows").text("Disable shadow pieces");
+    }
+    if (isGuerrillaPlayer()) {
+      updateGuerrillaMoves();
+    } else if (isSoldierPlayer()) {
+      updateSoldierPieces();
+      setSelectedSoldierPiece(g_selectedSoldierPiece);
+    }
+  });
 });
 
