@@ -145,28 +145,44 @@ body {
 }
 
 #side {
-	width: 262px;
-	height: 611px;
-	padding-left: 20px;
+  height: 611px;
+  width: 262px;
   padding-right: 8px;
   padding-top: 14px;
   padding-bottom: 15px;
-	position: relative;
-	background-size: 290px 640px;
-	border-radius: 10px;
-	-moz-border-radius: 10px;
-	float: left;
+  position: relative;
+  border-radius: 10px;
+  -moz-border-radius: 10px;
+  float: left;
   z-index: 100;
+  background-size: 290px 640px;
+  padding-left: 20px;
 }
 
-#soldier_status {
+#side .guerrilla_side {
+  width: 262px;
+}
+
+#side .coin_side {
+  padding-left: 12px !important;
+  width: 270px !important;
+}
+
+.guerrilla_side #soldier_status {
   position: relative;
   width: 262px;
   height: 200px;
   z-index: 1000;
 }
 
-.captured_coin {
+.coin_side #soldier_status {
+  position: absolute;
+  top: 236px;
+  width: 262px;
+  height: 155px;
+}
+
+.guerrilla_side .captured_coin {
   position: absolute;
   width: 72px;
   height: 86px;
@@ -174,29 +190,62 @@ body {
   z-index: 1000;
 }
 
-.captured_coin_position0 {
+.coin_side .captured_coin {
+  position: absolute;
+  width: 72px;
+  height: 86px;
+  background: top left no-repeat url('../images/soldier/soldier_piece.png');
+  z-index: 1000;
+}
+
+.guerrilla_side .captured_coin_position0 {
   top: 0px;
   left: 0px;
 }
-.captured_coin_position1 {
+.guerrilla_side .captured_coin_position1 {
   top: 3px;
   left: 80px;
 }
-.captured_coin_position2 {
+.guerrilla_side .captured_coin_position2 {
   top: 6px;
   left: 160px;
 }
-.captured_coin_position3 {
+.guerrilla_side .captured_coin_position3 {
   top: 72px;
   left: 15px;
 }
-.captured_coin_position4 {
+.guerrilla_side .captured_coin_position4 {
   top: 75px;
   left: 95px;
 }
-.captured_coin_position5 {
+.guerrilla_side .captured_coin_position5 {
   top: 82px;
   left: 185px;
+}
+
+.coin_side .captured_coin_position0 {
+  top: 4px;
+  left: 0px;
+}
+.coin_side .captured_coin_position1 {
+  top: 2px;
+  left: 95px;
+}
+.coin_side .captured_coin_position2 {
+  top: 0px;
+  left: 190px;
+}
+.coin_side .captured_coin_position3 {
+  top: 78px;
+  left: 0px;
+}
+.coin_side .captured_coin_position4 {
+  top: 75px;
+  left: 97px;
+}
+.coin_side .captured_coin_position5 {
+  top: 73px;
+  left: 192px;
 }
 
 #playing_area {
@@ -267,18 +316,66 @@ body {
 	margin: 1px 1px 1px 3px;
 }
 
-#guerrilla_reserves {
+.guerrilla_side #guerrilla_reserves {
   position: relative;
   margin-top: 5px;
   width: 262px;
   height: 200px;
   z-index: 1000;
 }
-.guerrilla_reserve {
+
+.guerrilla_side .guerrilla_reserve {
   width: 28px !important;
   height: 28px !important;
   margin: 0px !important;
   background-size: 100% !important;
+}
+
+.coin_side #guerrilla_reserves {
+  position: absolute;
+  top: 59px;
+  left: 40px;
+  width: 210px;
+  height: 115px;
+  z-index: 1000;
+}
+
+.coin_side .guerrilla_reserve {
+  position: absolute;
+  float: left;
+  border: 1px solid black;
+  width: 10px;
+  height: 10px;
+  margin: 0px;
+  z-index: 1001;
+}
+
+.coin_side .in_play {
+}
+
+.coin_side .in_reserve {
+  background: green;
+}
+
+.coin_side .captured {
+  position: relative;
+  top: -4px;
+  left: -5px;
+  width: 25px;
+  height: 25px;
+  background-size: 100%;
+}
+
+.captured0 {
+  background: top left no-repeat url('../images/soldier/captured_guerrilla01.png');
+}
+
+.captured1 {
+  background: top left no-repeat url('../images/soldier/captured_guerrilla02.png');
+}
+
+.captured2 {
+  background: top left no-repeat url('../images/soldier/captured_guerrilla03.png');
 }
 
 .coin_theme_guerrilla {

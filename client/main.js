@@ -163,7 +163,9 @@ require(["underscore", "lib/checkers", 'helpers'], function(_, Checkers, helpers
   }
 
   function updateCapturedSoldiers() {
-    if (!g_gameState || isSoldierPlayer()) { return; }
+    if (!g_gameState) { return; }
+
+    var theme = cssTheme();
 
     var $side = $("#side");
     var $soldier_status = $("#soldier_status");
@@ -181,7 +183,7 @@ require(["underscore", "lib/checkers", 'helpers'], function(_, Checkers, helpers
   }
 
   function updateGuerrillaReserves() {
-    if (!g_gameState || isSoldierPlayer()) { return; }
+    if (!g_gameState) { return; }
 
     var $side = $("#side");
     var $guerrilla_reserves = $("#guerrilla_reserves");
@@ -190,20 +192,49 @@ require(["underscore", "lib/checkers", 'helpers'], function(_, Checkers, helpers
       $side.append($guerrilla_reserves);
     }
     $guerrilla_reserves.text('');
-    var num_reserves = Math.min(40, g_gameState.remainingGuerrillaPieces);
-    var pieces_per_row = 8;
-    var HEIGHT = 28;
-    var WIDTH = 28;
-    var MARGIN_RIGHT = 5;
-    var MARGIN_TOP = 2;
-    var ODD_ROW_OFFSET = 10;
-    for (var i = 0; i < num_reserves; i++) {
-      var reserve = document.createElement("div");
-      var row = (Math.floor(i / pieces_per_row));
-      reserve.className = "guerrilla_piece guerrilla_theme_guerrilla guerrilla_reserve";
-      reserve.style.top = row*(HEIGHT + MARGIN_TOP);
-      reserve.style.left = (i % pieces_per_row) * (WIDTH + MARGIN_RIGHT) + (row % 2)*ODD_ROW_OFFSET;
-      $guerrilla_reserves.get(0).appendChild(reserve);
+
+    if (isSoldierPlayer()) {
+      var pieces_per_row = 11;
+      var HEIGHT = 10;
+      var WIDTH = 10;
+      var MARGIN_RIGHT = 10;
+      var MARGIN_TOP = 7;
+      var starting_guerrillas = 66;
+      var num_in_play = g_gameState.getGuerrillaPieces().length;
+      var num_captured = starting_guerrillas - num_in_play - g_gameState.remainingGuerrillaPieces;
+      for (var i = 0; i < starting_guerrillas; i++) {
+        var guerrilla = document.createElement("div");
+        var row = (Math.floor(i / pieces_per_row));
+        guerrilla.className = "guerrilla_reserve";
+        if ((i+1) <= (num_captured)) {
+          var xmark = document.createElement("div");
+          xmark.className = "captured captured"+(i%3); // TODO make the marks more random
+          guerrilla.appendChild(xmark);
+        } else if ((i+1) <= (num_captured + num_in_play)) {
+          guerrilla.className += " in_play";
+        } else {
+          guerrilla.className += " in_reserve";
+        }
+        guerrilla.style.top = row*(HEIGHT + MARGIN_TOP);
+        guerrilla.style.left = (i % pieces_per_row) * (WIDTH + MARGIN_RIGHT);
+        $guerrilla_reserves.get(0).appendChild(guerrilla);
+      }
+    } else {
+      var num_reserves = Math.min(40, g_gameState.remainingGuerrillaPieces);
+      var pieces_per_row = 8;
+      var HEIGHT = 28;
+      var WIDTH = 28;
+      var MARGIN_RIGHT = 5;
+      var MARGIN_TOP = 2;
+      var ODD_ROW_OFFSET = 10;
+      for (var i = 0; i < num_reserves; i++) {
+        var reserve = document.createElement("div");
+        var row = (Math.floor(i / pieces_per_row));
+        reserve.className = "guerrilla_piece guerrilla_theme_guerrilla guerrilla_reserve";
+        reserve.style.top = row*(HEIGHT + MARGIN_TOP);
+        reserve.style.left = (i % pieces_per_row) * (WIDTH + MARGIN_RIGHT) + (row % 2)*ODD_ROW_OFFSET;
+        $guerrilla_reserves.get(0).appendChild(reserve);
+      }
     }
   }
 
