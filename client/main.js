@@ -180,6 +180,33 @@ require(["underscore", "lib/checkers", 'helpers'], function(_, Checkers, helpers
     }
   }
 
+  function updateGuerrillaReserves() {
+    if (!g_gameState || isSoldierPlayer()) { return; }
+
+    var $side = $("#side");
+    var $guerrilla_reserves = $("#guerrilla_reserves");
+    if (!$guerrilla_reserves.get(0)) {
+      $guerrilla_reserves = $("<div></div>").attr("id", "guerrilla_reserves");
+      $side.append($guerrilla_reserves);
+    }
+    $guerrilla_reserves.text('');
+    var num_reserves = Math.min(40, g_gameState.remainingGuerrillaPieces);
+    var pieces_per_row = 8;
+    var HEIGHT = 28;
+    var WIDTH = 28;
+    var MARGIN_RIGHT = 5;
+    var MARGIN_TOP = 2;
+    var ODD_ROW_OFFSET = 10;
+    for (var i = 0; i < num_reserves; i++) {
+      var reserve = document.createElement("div");
+      var row = (Math.floor(i / pieces_per_row));
+      reserve.className = "guerrilla_piece guerrilla_theme_guerrilla guerrilla_reserve";
+      reserve.style.top = row*(HEIGHT + MARGIN_TOP);
+      reserve.style.left = (i % pieces_per_row) * (WIDTH + MARGIN_RIGHT) + (row % 2)*ODD_ROW_OFFSET;
+      $guerrilla_reserves.get(0).appendChild(reserve);
+    }
+  }
+
   function updateSoldierPieces() {
     if (g_gameState) {
       var arrPieces = g_gameState.arrSoldierPieces;
@@ -446,6 +473,7 @@ require(["underscore", "lib/checkers", 'helpers'], function(_, Checkers, helpers
       updateSoldierPieces();
       updateGuerrillaMoves();
       updateCapturedSoldiers();
+      updateGuerrillaReserves();
     });
 
     // send message functionality

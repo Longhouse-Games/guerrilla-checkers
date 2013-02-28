@@ -250,6 +250,21 @@ body {
 	height: 40px;
 	margin: 1px 1px 1px 3px;
 }
+
+#guerrilla_reserves {
+  position: relative;
+  margin-top: 5px;
+  width: 262px;
+  height: 200px;
+  z-index: 1000;
+}
+.guerrilla_reserve {
+  width: 28px !important;
+  height: 28px !important;
+  margin: 0px !important;
+  background-size: 100% !important;
+}
+
 .coin_theme_guerrilla {
   background: top left no-repeat url('../images/soldier/guerrilla_piece.png');
 }
