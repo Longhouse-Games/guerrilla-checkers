@@ -103,8 +103,16 @@ body {
 	background: top left no-repeat url('../images/guerrilla/board.jpg');
 }
 
+.guerrilla_side {
+	background: top left no-repeat url('../images/guerrilla/side.jpg');
+}
+
 .coin_board {
 	background: top left no-repeat url('../images/soldier/board.jpg');
+}
+
+.coin_side {
+	background: top left no-repeat url('../images/soldier/side.jpg');
 }
 
 .board {
@@ -114,6 +122,21 @@ body {
 	position: relative;
 	margin-right: 10px;
 	background-size: 640px 640px;
+	border-radius: 10px;
+	-moz-border-radius: 10px;
+	float: left;
+  z-index: 100;
+}
+
+#side {
+	width: 262px;
+	height: 611px;
+	padding-left: 20px;
+  padding-right: 8px;
+  padding-top: 14px;
+  padding-bottom: 15px;
+	position: relative;
+	background-size: 290px 640px;
 	border-radius: 10px;
 	-moz-border-radius: 10px;
 	float: left;

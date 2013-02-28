@@ -346,6 +346,7 @@ require(["underscore", "lib/checkers", 'helpers'], function(_, Checkers, helpers
   }
 
   function printMessage(user, message) {
+    return;
     var messageDiv = document.createElement('div');
     messageDiv.innerHTML = '<span style="padding-right: 15px; color: red;">' + user +
       '</span>' + message;
@@ -381,12 +382,15 @@ require(["underscore", "lib/checkers", 'helpers'], function(_, Checkers, helpers
       if (isGuerrillaPlayer()) {
         printMessage("server", "You are the Guerrilla player!");
         $('.board').addClass('guerrilla_board');
+        $('#side').addClass('guerrilla_side');
       } else if (isSoldierPlayer()) {
         printMessage("server", "You are the State player!");
         $('.board').addClass('coin_board');
+        $('#side').addClass('coin_side');
       } else {
         printMessage("server", "You are a spectator");
         $('.board').addClass('guerrilla_board');
+        $('#side').addClass('guerrilla_side');
       }
     });
 

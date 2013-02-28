@@ -19,28 +19,21 @@
   <body>
     <audio src="sounds/your_turn.wav" preload="auto" id="your_turn">
     </audio>
-    <div id="checkers" class="board">
-      <div id="pieces"></div>
-      <div id="guerrilla_moves"></div>
-      <div id="soldier_moves"></div>
-      <div id="bottom_overlay">
-        <div id="turn_overlay" class="overlay">LOADING...</div>
-        <input id="message" class="overlay" />
-        <input type="hidden" id="username" value="player" />
-        <input id="send_button" class="overlay" type="button" value="Chat" \>
+    <div id="playing_area">
+      <div id="checkers" class="board">
+        <div id="pieces"></div>
+        <div id="guerrilla_moves"></div>
+        <div id="soldier_moves"></div>
+        <div id="bottom_overlay">
+          <div id="turn_overlay" class="overlay">LOADING...</div>
+          <input id="message" class="overlay" />
+          <input type="hidden" id="username" value="player" />
+          <input id="send_button" class="overlay" type="button" value="Chat" \>
+        </div>
+      </div>
+      <div id="side">
       </div>
     </div>
     <div id="waiting">Waiting For Opponent</div>
-    <div id="users"></div>
-    <div id="status_area">
-      Turns: <span id="turn_count">0</span><br/>
-      Captured State pieces: <span id="captured_coins">0</span><br/>
-      Captured Guerrillas: <span id="captured_guerrillas">0</span><br/>
-      Remaining Guerrilla Pieces: <span id="remaining_guerrillas">66</span><br/>
-      <a href="rules.html" target="_new" onClick="window.open(this.href, 'rules', 'width=660,height=800,resizable').focus();return(false);">Rules</a><br/>
-      <span id="toggle_sound">Disable Sound</span><br/>
-      <span id="toggle_shadows">Disable shadow pieces</span><br/>
-    </div>
-    <div id="chatlog" class="chat" ></div>
   </body>
 </html>
