@@ -391,12 +391,11 @@ require(["underscore", "lib/checkers", 'helpers'], function(_, Checkers, helpers
   }
 
   function printMessage(user, message) {
-    return;
     var messageDiv = document.createElement('div');
-    messageDiv.innerHTML = '<span style="padding-right: 15px; color: red;">' + user +
-      '</span>' + message;
-    document.getElementById('chatlog').appendChild(messageDiv);
-    $('#chatlog').scrollTop($('#chatlog')[0].scrollHeight);
+    messageDiv.innerHTML = '<span class="chat_name chat_'+user+'">' + user +
+      '</span>' + "<span class='chat_message'>"+message+"</span>";
+    document.getElementById('chat_messages').appendChild(messageDiv);
+    $('#chat_messages').scrollTop($('#chat_messages')[0].scrollHeight);
   };
 
   socket.on('connect', function() {
@@ -477,9 +476,9 @@ require(["underscore", "lib/checkers", 'helpers'], function(_, Checkers, helpers
     });
 
     // send message functionality
-    var messageInput = document.getElementById('message');
+    var messageInput = document.getElementById('chat_input');
     var usernameInput = document.getElementById('username');
-    var sendButton = document.getElementById('send_button');
+    var sendButton = document.getElementById('send_chat');
     var sendMessage = function() {
       var message = messageInput.value;
       if (!message) {

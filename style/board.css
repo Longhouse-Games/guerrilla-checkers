@@ -27,17 +27,54 @@ body {
 	color: #EEE;
 }
 
-.chat {
+#chat {
+  position: absolute;
+  top: 460px;
+  left: 30px;
+  width: 252px;
+  height: 165px;
   color: black;
 }
-#chatlog {
-	height: 500px;
-	background: #EEE;
-	padding: 5px;
-	margin-bottom: 10px;
-	overflow-y: scroll;
-	overflow-x: none;
+#chat_messages {
+  overflow-y: scroll;
+  overflow-x: none;
+  height: 134px;
+  padding: 3px 2px;
+  border-bottom: 1px solid black;
+  font-size: 14px;
+  font-weight: initial;
 }
+#chat_input {
+  background: rgba(0, 0, 0, 0);
+  height: 25px;
+  border-style: none;
+  outline: none;
+  text-align: left;
+  font-size: 16px;
+  font-weight: initial;
+}
+.chat_name {
+  padding-right: 15px;
+  color: #964B00;
+}
+.chat_server {
+  color: red !important;
+}
+#send_chat {
+  font-size: 12px;
+  width: 60px;
+  height: 18px;
+  top: 142px !important;
+  left: 186px;
+  border: none;
+
+  color: #222;
+  background-color: rgb(255, 204, 0);
+  background-color: rgba(255, 204, 0, 0.9);
+  filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#DDFFCC00, endColorstr=#DDFFCC00);
+  -ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#DDFFCC00, endColorstr=#DDFFCC00)";
+}
+
 
 .overlay {
   position: absolute;
@@ -70,27 +107,6 @@ body {
 #turn_overlay {
   width: 220px;
   left: 52px;
-}
-
-#message {
-  width: 200px;
-  left: 290px;
-  padding: 4px 6px;
-  text-align: left;
-  font-size: 16px;
-  font-weight: initial;
-}
-
-#send_button {
-  width: 80px;
-  left: 500px;
-  border: none;
-
-  color: #222;
-	background-color: rgb(255, 204, 0);
-	background-color: rgba(255, 204, 0, 0.9);
-	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#DDFFCC00, endColorstr=#DDFFCC00);
-	-ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#DDFFCC00, endColorstr=#DDFFCC00)";
 }
 
 #bottom_overlay {
