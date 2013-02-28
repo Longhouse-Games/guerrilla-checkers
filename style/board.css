@@ -143,6 +143,50 @@ body {
   z-index: 100;
 }
 
+#soldier_status {
+  position: relative;
+  width: 262px;
+  height: 200px;
+  z-index: 1000;
+}
+
+.captured_coin {
+  position: absolute;
+  width: 72px;
+  height: 86px;
+  background: top left no-repeat url('../images/guerrilla/captured_coin.png');
+  z-index: 1000;
+}
+
+.captured_coin_position0 {
+  top: 0px;
+  left: 0px;
+}
+.captured_coin_position1 {
+  top: 3px;
+  left: 80px;
+}
+.captured_coin_position2 {
+  top: 6px;
+  left: 160px;
+}
+.captured_coin_position3 {
+  top: 72px;
+  left: 15px;
+}
+.captured_coin_position4 {
+  top: 75px;
+  left: 95px;
+}
+.captured_coin_position5 {
+  top: 82px;
+  left: 185px;
+}
+
+#playing_area {
+  min-width: 1095px;
+}
+
 .soldier {
 	position: absolute;
 	left: 0px;

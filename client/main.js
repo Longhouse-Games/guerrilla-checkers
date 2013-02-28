@@ -162,6 +162,24 @@ require(["underscore", "lib/checkers", 'helpers'], function(_, Checkers, helpers
     }
   }
 
+  function updateCapturedSoldiers() {
+    if (!g_gameState || isSoldierPlayer()) { return; }
+
+    var $side = $("#side");
+    var $soldier_status = $("#soldier_status");
+    if (!$soldier_status.get(0)) {
+      $soldier_status = $("<div></div>").attr("id", "soldier_status");
+      $side.append($soldier_status);
+    }
+    $soldier_status.text('');
+    var num_captured = Math.min(6, 6-g_gameState.arrSoldierPieces.length);
+    for (var i = 0; i < num_captured; i++) {
+      var captured_coin = document.createElement("div");
+      captured_coin.className = "captured_coin captured_coin_position"+i;
+      $soldier_status.get(0).appendChild(captured_coin);
+    }
+  }
+
   function updateSoldierPieces() {
     if (g_gameState) {
       var arrPieces = g_gameState.arrSoldierPieces;
@@ -427,6 +445,7 @@ require(["underscore", "lib/checkers", 'helpers'], function(_, Checkers, helpers
       updateGuerrillaPieces();
       updateSoldierPieces();
       updateGuerrillaMoves();
+      updateCapturedSoldiers();
     });
 
     // send message functionality
