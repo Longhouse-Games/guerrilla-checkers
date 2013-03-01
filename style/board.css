@@ -28,14 +28,26 @@ body {
 }
 
 #chat {
+  color: black;
+}
+
+.guerrilla_side #chat {
   position: absolute;
   top: 460px;
   left: 30px;
   width: 252px;
   height: 165px;
-  color: black;
 }
-#chat_messages {
+
+.coin_side #chat {
+  position: absolute;
+  top: 479px;
+  left: 20px;
+  width: 252px;
+  height: 150px;
+}
+
+.guerrilla_side #chat_messages {
   overflow-y: scroll;
   overflow-x: none;
   height: 134px;
@@ -44,7 +56,31 @@ body {
   font-size: 14px;
   font-weight: initial;
 }
-#chat_input {
+
+.coin_side #chat_messages {
+  position: relative;
+  left: 15px;
+  width: 218px;
+  overflow-y: scroll;
+  overflow-x: none;
+  height: 114px;
+  padding: 3px 2px;
+  border-bottom: 2px solid black;
+  font-size: 14px;
+  font-weight: initial;
+}
+.guerrilla_side #chat_input {
+  background: rgba(0, 0, 0, 0);
+  height: 25px;
+  border-style: none;
+  outline: none;
+  text-align: left;
+  font-size: 16px;
+  font-weight: initial;
+}
+.coin_side #chat_input {
+  position: relative;
+  left: 15px;
   background: rgba(0, 0, 0, 0);
   height: 25px;
   border-style: none;
@@ -60,12 +96,26 @@ body {
 .chat_server {
   color: red !important;
 }
-#send_chat {
+.guerrilla_side #send_chat {
   font-size: 12px;
   width: 60px;
   height: 18px;
   top: 142px !important;
   left: 186px;
+  border: none;
+
+  color: #222;
+  background-color: rgb(255, 204, 0);
+  background-color: rgba(255, 204, 0, 0.9);
+  filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#DDFFCC00, endColorstr=#DDFFCC00);
+  -ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#DDFFCC00, endColorstr=#DDFFCC00)";
+}
+.coin_side #send_chat {
+  font-size: 12px;
+  width: 60px;
+  height: 18px;
+  top: 125px !important;
+  left: 199px;
   border: none;
 
   color: #222;
