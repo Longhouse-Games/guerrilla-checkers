@@ -33,10 +33,10 @@ body {
 
 .guerrilla_side #chat {
   position: absolute;
-  top: 460px;
+  top: 462px;
   left: 30px;
   width: 252px;
-  height: 165px;
+  height: 163px;
 }
 
 .coin_side #chat {
