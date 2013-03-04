@@ -21,7 +21,7 @@
     <div id="settings_dialog" title="Settings">
       <ul>
         <li id="toggle_shadows">Disable shadow pieces</li>
-        <li id="toggle_sound">Disable Sound</li>
+        <li id="toggle_sound" class="toggle_sound">Disable Sound</li>
         <li><a href="rules.html" target="_new" onClick="window.open(this.href, 'rules', 'width=660,height=800,resizable').focus();return(false);">Rules</a></li>
         <li>Credits (TODO)</li>
         <li>Forfeit Game (TODO)</li>
@@ -46,7 +46,8 @@
           <input type="text" id="chat_input">
           <input id="send_chat" class="overlay" type="button" value="Chat" \>
         </div>
-        <div id="settings">
+        <div id="settings" class="setting_button"></div>
+        <div id="volume_control" class="toggle_sound setting_button volume_control_on"></div>
       </div>
     </div>
     <div id="waiting">Waiting For Opponent</div>
