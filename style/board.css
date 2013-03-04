@@ -405,7 +405,7 @@ body {
 
 #soldier_moves, #guerrilla_moves {
   visibility: hidden;
-  opacity: 0.4;
+  opacity: 0.5;
 }
 
 .soldier_piece {
@@ -423,9 +423,14 @@ body {
 
 .guerrilla_piece {
   position: absolute;
-	width: 39px;
-	height: 40px;
-	margin: 1px 1px 1px 3px;
+  width: 39px;
+  height: 40px;
+  margin: 1px 1px 1px 3px;
+}
+.guerrilla_shadow {
+  width: 19px !important;
+  height: 20px !important;
+  margin: 11px 11px 11px 12px !important;
 }
 
 .guerrilla_side #guerrilla_reserves {
@@ -496,6 +501,7 @@ body {
 
 .guerrilla_theme_guerrilla {
   background: top left no-repeat url('../images/guerrilla/guerrilla_piece.png');
+  background-size: 100%;
 }
 
 .intersection {

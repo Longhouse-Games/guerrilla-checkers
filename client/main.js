@@ -258,7 +258,7 @@ require(["underscore", "lib/checkers", 'helpers'], function(_, Checkers, helpers
   function createGuerrillaMove($moves, move) {
     var piece = { position: move };
     var container = $moves.get(0);
-    var css_class = g_showShadows ? 'guerrilla_piece '+cssTheme()+"_guerrilla" : "guerrilla_piece";
+    var css_class = g_showShadows ? 'guerrilla_piece '+cssTheme()+"_guerrilla guerrilla_shadow" : "guerrilla_piece";
     var newPieceOnBoard = addPiece(container, piece, css_class, GUERRILLA_MARGIN);
     newPieceOnBoard.onclick = function() {
       socket.emit('placeGuerrilla', piece);
