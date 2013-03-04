@@ -404,7 +404,13 @@ require(["underscore", "lib/checkers", 'helpers'], function(_, Checkers, helpers
     var opponentsTurn = "OPPONENT'S TURN";
     if (g_gameState.getWinner()) {
       var winner = _.find(metadata.roles, function(role){ return role.slug === g_gameState.getWinner();});
-      setOverlayText($overlay, winner.name.toUpperCase() + " WINS");
+      var msg;
+      if (winner ===  metadata.roles[0]) {
+        msg = "GUERRILLAS WIN";
+      } else {
+        msg = "THE STATE WINS";
+      }
+      setOverlayText($overlay, msg);
       return;
     }
     if (isSpectator()) {
