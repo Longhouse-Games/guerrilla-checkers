@@ -504,6 +504,10 @@ require(["underscore", "lib/checkers", 'helpers'], function(_, Checkers, helpers
       updateGuerrillaMoves();
       updateCapturedSoldiers();
       updateGuerrillaReserves();
+
+      if (g_gameState.getWinner()) {
+        $("#forfeit").addClass("disabled");
+      }
     });
 
     // send message functionality
@@ -573,5 +577,30 @@ require(["underscore", "lib/checkers", 'helpers'], function(_, Checkers, helpers
       $("#settings_dialog").dialog("open");
     }
   });
+
+  function forfeit_game() {
+    socket.emit('forfeit');
+  }
+
+  $("#forfeit_dialog").dialog({
+    autoOpen: false,
+    dialogClass: "settings_dialog",
+    modal: true,
+    width: 400,
+    buttons: [
+      { text: "Forfeit", click:
+        function() {
+          forfeit_game();
+          $( this ).dialog("close");
+        } },
+      { text: "Close", click: function() { $( this ).dialog("close"); } }
+    ]
+  });
+  $("#forfeit").bind('click', function() {
+    if (!g_gameState.getWinner()) {
+      $("#forfeit_dialog").dialog("open");
+    }
+  });
+
 });
 

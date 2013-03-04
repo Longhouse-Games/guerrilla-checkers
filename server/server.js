@@ -103,7 +103,9 @@ Server.prototype.refreshBoard = function(result, arrPlayers) {
     me.broadcast('message', {user: 'game', message: 'Game Over'});
     var role = _.find(metadata.roles, function(role){ return role.slug === winner });
     me.broadcast('message', {user: 'game', message: 'Winner: ' + role.name});
-    me.egs_notifier.gameover(me.game.getWinner(), me.game.getScores());
+    if (!me.game.winner) { //the game was forfeit, don't notify again TODO this is ugly
+      me.egs_notifier.gameover(me.game.getWinner(), me.game.getScores());
+    }
   }
 };
 
@@ -259,6 +261,13 @@ var Player = function(_socket, server, user, role) {
     if (!me.server.getGame().getWinner() && me.server.getGame().isSoldierTurn()) {
       me.server.egs_notifier.move(metadata.roles[1].slug);
     }
+  });
+
+  me.socket.on('forfeit', function(data) {
+    me.server.getGame().forfeit(role);
+    me.server.refreshBoard(null);
+    me.server.egs_notifier.forfeit(role);
+    me.server.broadcast('message', {user: 'game', message: user.gaming_id + " has forfeit the game."});
   });
 
   // notify other users

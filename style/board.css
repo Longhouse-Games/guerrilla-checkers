@@ -180,6 +180,10 @@ body {
   cursor: hand;
   cursor: pointer;
 }
+.settings_dialog .disabled {
+  cursor: auto !important;
+  color: #777777;
+}
 .settings_dialog a {
   text-decoration: none;
 }
