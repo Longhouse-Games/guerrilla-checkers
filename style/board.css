@@ -72,6 +72,7 @@ body {
 .guerrilla_side #chat_input {
   background: rgba(0, 0, 0, 0);
   height: 25px;
+  width: 238px;
   border-style: none;
   outline: none;
   text-align: left;
@@ -83,6 +84,7 @@ body {
   left: 15px;
   background: rgba(0, 0, 0, 0);
   height: 25px;
+  width: 225px;
   border-style: none;
   outline: none;
   text-align: left;
@@ -95,34 +97,6 @@ body {
 }
 .chat_server {
   color: red !important;
-}
-.guerrilla_side #send_chat {
-  font-size: 12px;
-  width: 60px;
-  height: 18px;
-  top: 132px !important;
-  left: 186px;
-  border: none;
-
-  color: #222;
-  background-color: rgb(255, 204, 0);
-  background-color: rgba(255, 204, 0, 0.9);
-  filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#DDFFCC00, endColorstr=#DDFFCC00);
-  -ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#DDFFCC00, endColorstr=#DDFFCC00)";
-}
-.coin_side #send_chat {
-  font-size: 12px;
-  width: 60px;
-  height: 18px;
-  top: 125px !important;
-  left: 199px;
-  border: none;
-
-  color: #222;
-  background-color: rgb(255, 204, 0);
-  background-color: rgba(255, 204, 0, 0.9);
-  filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#DDFFCC00, endColorstr=#DDFFCC00);
-  -ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#DDFFCC00, endColorstr=#DDFFCC00)";
 }
 
 .setting_button {

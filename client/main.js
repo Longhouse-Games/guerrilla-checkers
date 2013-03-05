@@ -519,7 +519,6 @@ require(["underscore", "lib/checkers", 'helpers'], function(_, Checkers, helpers
     // send message functionality
     var messageInput = document.getElementById('chat_input');
     var usernameInput = document.getElementById('username');
-    var sendButton = document.getElementById('send_chat');
     var sendMessage = function() {
       var message = messageInput.value;
       if (!message) {
@@ -532,7 +531,6 @@ require(["underscore", "lib/checkers", 'helpers'], function(_, Checkers, helpers
     };
 
     // send messages
-    $(sendButton).bind('click', sendMessage);
     $(messageInput).bind('keypress', function(evt) {
       if (evt.keyCode == 13) { sendMessage(); }
     });
