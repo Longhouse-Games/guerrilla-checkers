@@ -423,9 +423,9 @@ body {
 
 .guerrilla_piece {
   position: absolute;
-  width: 39px;
-  height: 40px;
-  margin: 1px 1px 1px 3px;
+  width: 30px;
+  height: 30px;
+  margin: 6px 6px 6px 7px;
 }
 .guerrilla_shadow {
   width: 19px !important;
