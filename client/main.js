@@ -220,19 +220,19 @@ require(["underscore", "lib/checkers", 'helpers'], function(_, Checkers, helpers
         $guerrilla_reserves.get(0).appendChild(guerrilla);
       }
     } else {
-      var num_reserves = Math.min(40, g_gameState.remainingGuerrillaPieces);
-      var pieces_per_row = 8;
-      var HEIGHT = 28;
-      var WIDTH = 28;
-      var MARGIN_RIGHT = 5;
-      var MARGIN_TOP = 2;
-      var ODD_ROW_OFFSET = 10;
+      var num_reserves = Math.min(66, g_gameState.remainingGuerrillaPieces);
+      var pieces_per_row = 10;
+      var HEIGHT = 25;
+      var WIDTH = 25;
+      var MARGIN_RIGHT = 3;
+      var MARGIN_TOP = 4;
+      var LAST_ROW_OFFSET = 56;
       for (var i = 0; i < num_reserves; i++) {
         var reserve = document.createElement("div");
         var row = (Math.floor(i / pieces_per_row));
         reserve.className = "guerrilla_piece guerrilla_theme_guerrilla guerrilla_reserve";
         reserve.style.top = row*(HEIGHT + MARGIN_TOP);
-        reserve.style.left = (i % pieces_per_row) * (WIDTH + MARGIN_RIGHT) + (row % 2)*ODD_ROW_OFFSET;
+        reserve.style.left = (i % pieces_per_row) * (WIDTH + MARGIN_RIGHT) + Math.floor((row+1) / 7)*LAST_ROW_OFFSET;
         $guerrilla_reserves.get(0).appendChild(reserve);
       }
     }

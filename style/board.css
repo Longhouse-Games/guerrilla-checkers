@@ -33,10 +33,10 @@ body {
 
 .guerrilla_side #chat {
   position: absolute;
-  top: 462px;
+  top: 472px;
   left: 30px;
   width: 252px;
-  height: 163px;
+  height: 153px;
 }
 
 .coin_side #chat {
@@ -50,7 +50,7 @@ body {
 .guerrilla_side #chat_messages {
   overflow-y: scroll;
   overflow-x: none;
-  height: 134px;
+  height: 124px;
   padding: 3px 2px;
   border-bottom: 1px solid black;
   font-size: 14px;
@@ -100,7 +100,7 @@ body {
   font-size: 12px;
   width: 60px;
   height: 18px;
-  top: 142px !important;
+  top: 132px !important;
   left: 186px;
   border: none;
 
@@ -283,7 +283,7 @@ body {
 .guerrilla_side #soldier_status {
   position: relative;
   width: 262px;
-  height: 200px;
+  height: 173px;
   z-index: 1000;
 }
 
@@ -436,14 +436,15 @@ body {
 .guerrilla_side #guerrilla_reserves {
   position: relative;
   margin-top: 5px;
+  left: -10px;
   width: 262px;
   height: 200px;
   z-index: 1000;
 }
 
 .guerrilla_side .guerrilla_reserve {
-  width: 28px !important;
-  height: 28px !important;
+  width: 25px !important;
+  height: 25px !important;
   margin: 0px !important;
   background-size: 100% !important;
 }
