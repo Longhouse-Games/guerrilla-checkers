@@ -525,6 +525,7 @@ require(["underscore", "lib/checkers", 'helpers'], function(_, Checkers, helpers
         return;
       }
       var user = usernameInput.value || 'player';
+      // TODO username should be determined on the server.
       socket.emit('message', { user: user, message: message });
       messageInput.value = '';
       messageInput.focus();
