@@ -361,10 +361,11 @@ require(["underscore", "lib/checkers", 'helpers'], function(_, Checkers, helpers
     var oldBackground = $overlay[0].style.background;
     var timeout = 450;
     $overlay.text(text);
-    setTransitionProperty($overlay, 'background ' + timeout + 'ms');
-    $overlay.css('background', '#C90');
+    $status_area = $overlay.parent();
+    setTransitionProperty($status_area, 'background ' + timeout + 'ms');
+    $status_area.css('background', '#C90');
     setTimeout(function() {
-      $overlay.css('background', oldBackground);
+      $status_area.css('background', oldBackground);
       setTimeout(function() {
         clearTransitionProperty
       }, timeout);
@@ -373,13 +374,7 @@ require(["underscore", "lib/checkers", 'helpers'], function(_, Checkers, helpers
 
   function updateStatusArea() {
     var remainingGuerrillas = g_gameState.remainingGuerrillaPieces;
-    var capturedGuerrillas = g_gameState.STARTING_GUERRILLA_PIECES - remainingGuerrillas - g_gameState.getGuerrillaPieces().length;
-    var capturedCOINs = 6 - g_gameState.getSoldierPieces().length;
-    var turns = g_gameState.turnCount;
-    $('#remaining_guerrillas').first().text(remainingGuerrillas);
-    $('#captured_guerrillas').first().text(capturedGuerrillas);
-    $('#captured_coins').first().text(capturedCOINs);
-    $('#turn_count').first().text(turns);
+    $('#guerrillas_remaining').first().text(remainingGuerrillas);
   }
 
   function playSound(id) {
@@ -399,7 +394,7 @@ require(["underscore", "lib/checkers", 'helpers'], function(_, Checkers, helpers
   }
 
   function updatePlayerTurnOverlay() {
-    var $overlay = $('#turn_overlay').first();
+    var $overlay = $('#status .content').first();
     var yourTurn = "YOUR TURN";
     var opponentsTurn = "OPPONENT'S TURN";
     if (g_gameState.getWinner()) {
@@ -410,6 +405,7 @@ require(["underscore", "lib/checkers", 'helpers'], function(_, Checkers, helpers
       } else {
         msg = "THE STATE WINS";
       }
+      $("#turn_alert").css('visibility', 'hidden');
       setOverlayText($overlay, msg);
       return;
     }
@@ -418,11 +414,23 @@ require(["underscore", "lib/checkers", 'helpers'], function(_, Checkers, helpers
       return;
     }
     if (isSoldierPlayer()) {
-      setOverlayText($overlay, g_gameState.isSoldierTurn() ? yourTurn : opponentsTurn);
+      if (g_gameState.isSoldierTurn()) {
+        $("#turn_alert").css('visibility', 'visible');
+        setOverlayText($overlay, yourTurn);
+      } else {
+        $("#turn_alert").css('visibility', 'hidden');
+        setOverlayText($overlay, opponentsTurn);
+      }
       return;
     }
     if (isGuerrillaPlayer()) {
-      setOverlayText($overlay, g_gameState.isGuerrillaTurn() ? yourTurn : opponentsTurn);
+      if (g_gameState.isGuerrillaTurn()) {
+        $("#turn_alert").css('visibility', 'visible');
+        setOverlayText($overlay, yourTurn);
+      } else {
+        $("#turn_alert").css('visibility', 'hidden');
+        setOverlayText($overlay, opponentsTurn);
+      }
       return;
     }
   }

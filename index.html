@@ -18,6 +18,7 @@
     <script data-main="client/main" src="scripts/require.js"></script>
   </head>
   <body>
+    <input type="hidden" id="username" value="player" />
     <div id="settings_dialog" title="Settings">
       <ul>
         <li id="toggle_shadows">Disable shadow pieces</li>
@@ -37,10 +38,6 @@
         <div id="pieces"></div>
         <div id="guerrilla_moves"></div>
         <div id="soldier_moves"></div>
-        <div id="bottom_overlay">
-          <div id="turn_overlay" class="overlay">LOADING...</div>
-          <input type="hidden" id="username" value="player" />
-        </div>
       </div>
       <div id="side">
         <div id="chat">
@@ -51,6 +48,19 @@
         <div id="settings_overlay">
           <div id="settings" class="setting_button"></div>
           <div id="volume_control" class="toggle_sound setting_button volume_control_on"></div>
+        </div>
+      </div>
+    </div>
+    <div id="dashboard">
+      <div id="turn_alert"></div>
+      <div id="status" class="dashboard_section">
+        <div class="content">
+          Connecting to server...
+        </div>
+      </div>
+      <div id="guerrillas_remaining_overlay" class="dashboard_section">
+        <div class="content">
+          Guerrillas Remaining: <span id="guerrillas_remaining">66</span>
         </div>
       </div>
     </div>

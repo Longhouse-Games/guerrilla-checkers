@@ -165,45 +165,6 @@ body {
   text-decoration: none;
 }
 
-.overlay {
-  position: absolute;
-  top: 0px;
-  left: 0px;
-  text-align: center;
-  font-size: 18px;
-  font-weight: 800;
-  padding: 4px 0px;
-  z-index: 10000;
-
-  -webkit-box-shadow: 2px 2px 2px #222;
-     -mox-box-shadow: 2px 2px 2px #222;
-          box-shadow: 2px 2px 2px #222;
-	border-radius: 5px;
-	-moz-border-radius: 5px;
-
-  color: #DDD;
-	background-color: rgb(51, 51, 51);
-	background-color: rgba(51, 51, 51, 0.9);
-	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#DD333333, endColorstr=#DD333333);
-	-ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#DD333333, endColorstr=#DD333333)";
-}
-
-@media screen and (-webkit-min-device-pixel-ratio:0) { 
-  #turn_overlay { top: 2px !important; }
-  #bottom_overlay { top: 588px !important; }
-}
-
-#turn_overlay {
-  width: 220px;
-  left: 52px;
-}
-
-#bottom_overlay {
-  position: absolute;
-  top: 590px;
-  left: 0px;
-}
-
 .guerrilla_board {
 	background: top left no-repeat url('../images/guerrilla/board.jpg');
 }
@@ -513,3 +474,55 @@ body {
 	border: 1px solid #0FF;
 }
 
+#dashboard {
+  position: absolute;
+  top: 590px;
+  left: 90px;
+  z-index: 10002;
+}
+
+.dashboard_section {
+  background-color: rgb(61, 73, 70);
+	background-color: rgba(61, 73, 70, 0.9);
+  color: white;
+  border-color: #AAA;
+  border-width: 2px;
+  border-style: solid;
+  border-radius: 20px;
+  height: 30px;
+  text-align: center;
+  float: left;
+  z-index: 10002;
+  margin-right: 2px;
+  margin-left: 2px;
+}
+
+.dashboard_section .content {
+  padding-top: 6px;
+  verticle-align: middle;
+  width: 226px;
+  z-index: 10002;
+}
+
+#turn_alert {
+  position: absolute;
+  width: 70px;
+  height: 70px;
+  top: -20px;
+  left: -35px;
+  border: #777 2px solid;
+  border-radius: 70px;
+  background-color: rgb(97, 205, 254);
+	background-color: rgba(97, 205, 254, 0.9);
+  z-index: 10001 !important;
+}
+
+#status {
+  position: relative;
+  top: 0px;
+  left: 0px;
+  z-index: 10002;
+}
+
+#guerrillas_remaining_overlay {
+}
