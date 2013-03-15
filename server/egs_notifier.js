@@ -84,7 +84,11 @@ requirejs([ 'underscore'], function(_) {
     this.buildWrapper = function(options) {
       var payload = {}
       if (options.updates) {
-        payload.updates = options.updates;
+        if (options.updates.length === 1) {
+          payload.updates = options.updates[0];
+        } else {
+          payload.updates = options.updates;
+        }
       }
       if (options.outcomes) {
         payload.outcomes = options.outcomes;
