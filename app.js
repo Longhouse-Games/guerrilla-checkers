@@ -287,7 +287,7 @@ var egs_response = function(req, res, params, next) {
 
   var code = params.stat === "ERROR" ? 400 : 200;
   if (format === "xml") {
-    var body = "<rslt><stat>"+params.stat+"</stat></rlst>";
+    var body = "<stat>"+params.stat+"</stat>";
     if (params.msg) {
       body = body + "<msg>"+params.msg+"</msg>";
     }
@@ -296,14 +296,14 @@ var egs_response = function(req, res, params, next) {
     }
     res.send(body, { 'Content-Type': 'application/xml' }, code);
   } else if (format === "json") {
-    var json = { rslt: { stat: params.stat } };
+    var json = { stat: params.stat };
     if (params.msg) {
-      json.rslt.msg = params.msg;
+      json.msg = params.msg;
     }
     if (params.game_id) {
-      json.rslt.glst = {
+      json.glst = {
         cnt: 1,
-        games: [params.game_id]
+        games: params.game_id
       };
     }
     res.json(json, code);
