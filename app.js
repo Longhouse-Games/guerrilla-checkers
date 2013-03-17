@@ -1,3 +1,4 @@
+var DISABLE_CAS = process.env.DISABLE_CAS || false;
 var CAS_HOST = process.env.CAS_HOST || "cas.littlevikinggames.com";
 var CAS_URL = process.env.CAS_URL || "https://" + CAS_HOST + "/login";
 var CAS_HOST_FALLBACK = process.env.CAS_HOST_FALLBACK;
@@ -162,11 +163,13 @@ var saveMessageToMongo = function(data) {
   new ChatModel({time: new Date(), user: data.user, message: data.message}).save();
 };
 
-function handleLogin(request, response, game_id, callback) {
-
-  logger.info("Handling Login!");
-
-  applyHeaders(response);
+function authenticate_with_cas(request, response, callback) {
+  if (DISABLE_CAS) {
+    var handle = request.query.handle;
+    logger.debug("DISABLE_CAS is true. Skipping authentication for "+handle);
+    callback(handle);
+    return;
+  }
 
   var serviceTicket = request.query.ticket;
   var hasServiceTicket = typeof serviceTicket !== 'undefined';
@@ -213,6 +216,17 @@ function handleLogin(request, response, game_id, callback) {
       response.redirect(loginUrl);
       return;
     }
+    callback(cas_handle);
+  });
+}
+
+function handleLogin(request, response, game_id, callback) {
+
+  logger.info("Handling Login!");
+
+  applyHeaders(response);
+
+  authenticate_with_cas(request, response, function(cas_handle) {
     logger.info(cas_handle + " logged in! SessionID: " + request.cookies['express.sid']);
     getPlayerProfile(cas_handle, game_id, function(error, profile) {
       if (error) {
@@ -312,11 +326,11 @@ var egs_response = function(req, res, params, next) {
     var role2 = metadata.roles[1];
     var html = "";
     html = html + "<b>With ECCO CAS server:</b><br>";
-    html = html + "<a href='"+PREFIX+"/play?gid="+params.game_id+"&role="+role1.slug+"&app=BRSR'>Join game '"+params.game_id+"' as "+role1.name+"</a><br>";
-    html = html + "<a href='"+PREFIX+"/play?gid="+params.game_id+"&role="+role2.slug+"&app=BRSR'>Join game '"+params.game_id+"' as "+role2.name+"</a><br>";
+    html = html + "<a href='"+PREFIX+"/play?gid="+params.game_id+"&role="+role1.slug+"&handle="+req.param(role1.slug)+"&app=BRSR'>Join game '"+params.game_id+"' as "+role1.name+"</a> ("+req.param(role1.slug)+")<br>";
+    html = html + "<a href='"+PREFIX+"/play?gid="+params.game_id+"&role="+role2.slug+"&handle="+req.param(role2.slug)+"&app=BRSR'>Join game '"+params.game_id+"' as "+role2.name+"</a> ("+req.param(role2.slug)+")<br>";
     html = html + "<hr><b>With test CAS server:</b><br>";
-    html = html + "<a href='"+PREFIX+"/play?gid="+params.game_id+"&cas=test&role="+role1.slug+"&app=BRSR'>Join game '"+params.game_id+"' as "+role1.name+"</a><br>";
-    html = html + "<a href='"+PREFIX+"/play?gid="+params.game_id+"&cas=test&role="+role2.slug+"&app=BRSR'>Join game '"+params.game_id+"' as "+role2.name+"</a><br>";
+    html = html + "<a href='"+PREFIX+"/play?gid="+params.game_id+"&cas=test&role="+role1.slug+"&handle="+req.param(role1.slug)+"&app=BRSR'>Join game '"+params.game_id+"' as "+role1.name+"</a> ("+req.param(role1.slug)+")<br>";
+    html = html + "<a href='"+PREFIX+"/play?gid="+params.game_id+"&cas=test&role="+role2.slug+"&handle="+req.param(role2.slug)+"&app=BRSR'>Join game '"+params.game_id+"' as "+role2.name+"</a> ("+req.param(role2.slug)+")<br>";
     res.send(html, { 'Content-Type': 'text/html' }, code);
   } else {
     res.send("Invalid format: " + req.fmt+". Must be one of 'json' or 'xml'", 400);
