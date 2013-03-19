@@ -22,7 +22,7 @@ requirejs([
     Game,
     Vote) {
 
-var metadata = new Game.Metadata();
+var metadata = Game.metadata;
 var SPECTATOR = 'spectator';
 
 var Server = function(gameFactory, dbgame, egs_notifier) {
@@ -310,6 +310,6 @@ Player.prototype.setRole = function(role) {
 
 module.exports.Player = Player;
 module.exports.Server = Server;
-module.exports.Metadata = Game.Metadata;
+module.exports.metadata = Game.metadata;
 }); // requirejs define
 

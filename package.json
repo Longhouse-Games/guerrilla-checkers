@@ -17,7 +17,7 @@
     "node": "~0.6.17"
   },
   "dependencies": {
-    "cas": "git://github.com/Longhouse-Games/node-cas.git#master",
+    "raven": "git://github.com/Longhouse-Games/raven.git#master",
     "coffee-script" : ">=1.0.1",
     "express": "2.5.10",
     "mongoose": "2.7.0",
