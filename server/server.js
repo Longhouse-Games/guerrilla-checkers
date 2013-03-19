@@ -311,5 +311,6 @@ Player.prototype.setRole = function(role) {
 module.exports.Player = Player;
 module.exports.Server = Server;
 module.exports.metadata = Game.metadata;
+module.exports.create = Game.create;
 }); // requirejs define
 
