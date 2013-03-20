@@ -1,24 +1,11 @@
-var requirejs = require('requirejs'),
-    logger    = require('./logger');
-
-requirejs.config({
-  nodeRequire: require,
-  paths: {
-    underscore: "./vendor/underscore"
-  },
-  shim: {
-    underscore: {
-      exports: '_'
-    }
-  }
-});
-
-requirejs([
+define([
   'underscore',
-  './lib/checkers',
-  './lib/vote'],
+  './logger',
+  'lib/checkers',
+  'lib/vote'],
   function(
     _,
+    logger,
     Game,
     Vote) {
 
@@ -307,10 +294,11 @@ Player.prototype.setRole = function(role) {
   this.role = role;
 };
 
-
-module.exports.Player = Player;
-module.exports.Server = Server;
-module.exports.metadata = Game.metadata;
-module.exports.create = Game.create;
+return {
+  Player: Player,
+  Server: Server,
+  metadata: Game.metadata,
+  create: Game.create
+};
 }); // requirejs define
 
