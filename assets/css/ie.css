@@ -1,5 +1,12 @@
-.board {
-	width: 640px !important;
-	height: 640px !important;
-	padding: 40px;
+#soldier_moves, #guerrilla_moves {
+  opacity: 0.5;
+  filter:alpha(opacity=50);
+}
+.guerrilla_shadow {
+  opacity: 0.5;
+  filter:alpha(opacity=50);
+}
+#soldier_moves .soldier_piece {
+  opacity: 0.5;
+  filter:alpha(opacity=50);
 }
