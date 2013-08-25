@@ -16,17 +16,6 @@ body {
   color: white;
 }
 
-#waiting {
-	float: left;
-	width: 600px;
-	height: 600px;
-	padding: 20px;
-	font-size: 24px;
-	font-weight: bold;
-	text-align: center;
-	color: #EEE;
-}
-
 #chat {
   color: black;
 }
