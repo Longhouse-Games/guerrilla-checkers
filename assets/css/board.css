@@ -80,12 +80,15 @@ body {
   font-size: 16px;
   font-weight: initial;
 }
-.chat_name {
+.chat_message span {
   padding-right: 15px;
-  color: #964B00;
+  color: red;
 }
-.chat_server {
-  color: red !important;
+.chat_message.guerrillas span {
+  color: rgb(74, 69, 49);
+}
+.chat_message.coin span {
+  color: rgb(63, 77, 89);
 }
 
 #settings_overlay {
