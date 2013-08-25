@@ -12,19 +12,17 @@ requirejs.config({
 
 Raven = require('raven');
 
-requirejs(['./server/server'], function(GuerrillaCheckers) {
+requirejs(['lib/raven/bridge'], function(Ravenbridge) {
 
-  gc = Raven.init(GuerrillaCheckers);
+  gc = Raven.init(Ravenbridge);
+
   gc.configure({
-
     send_index: function(request, response) {
       response.sendfile('/index.html', { root: __dirname });
     },
-
     send_asset: function(request, response, path) {
       response.sendfile(path, { root: __dirname });
     }
-
   });
 
   gc.run();
